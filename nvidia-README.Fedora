@@ -1,0 +1,113 @@
+README for Nvidia Linux Drivers, as packaged by livna.org.
+
+1. After Installation
+---------------------
+
+You only have to restart X to start using the Nvidia drivers after
+installation. Either choose "Log Out" from the GNOME/KDE menu, and then
+press Ctrl-Alt-Backspace at the login prompt, or press Ctrl-Alt-Backspace
+directly. You should see a white screen with a big Nvidia logo in the middle
+for about one second.
+
+To check that hardware acceleration is working, issue the following command
+in a terminal:
+
+        glxinfo | grep "OpenGL vendor"
+
+That should print out
+
+        OpenGL vendor string: NVIDIA Corporation
+
+Also, the command
+
+        glxinfo | grep direct
+
+should print out
+
+        direct rendering: Yes
+
+If it does, you're all set.
+
+2. Basic Configuration
+----------------------
+
+The installation scripts perform the basic configuration for you.
+When (if) you uninstall the drivers, the configuration is reset to
+use the X.org/XFree86 Nvidia drivers again. If you want to temporarily
+disable the Nvidia drivers without uninstalling, you can issue the
+following two commands as root (remember su -):
+
+        nvidia-config-display disable
+
+To re-enable the Nvidia drivers, run:
+
+        nvidia-config-display enable
+
+
+3. Additional configuration
+---------------------------
+
+It's possible to configure image quality and performance by setting various
+environment variables. Take a look at /etc/profile.d/nvidia.sh
+(or .csh if you use csh) and read the README file in the same directory
+as this file.
+
+There are a number of settings in the X configuration file as well.
+The most interesting are acceleration of the XRENDER extension and AGP
+configuration. In the Driver section of /etc/X11/xorg.conf, you may add
+the following line:
+
+        Option "RenderAccel" "true"
+
+to enable XRENDER acceleration. A value of "false" disables it.
+Note: this has shown to make some systems unstable, making the display freeze.
+If you experience this, set to "false" or comment out the line.
+
+To control AGP behaviour, add the following line to the Driver section:
+
+        Option "NvAGP" "X"
+
+where X is 0, 1, 2 or 3. The different values are as follows (from Nvidia
+README):
+
+        0 : disable agp
+        1 : use NVIDIA's internal AGP support, if possible
+        2 : use AGPGART, if possible
+        3 : use any agp support (try AGPGART, then NVIDIA's AGP)
+
+Default is 3. AGPGART is the Linux kernel AGP driver. See Nvidia README,
+appendix D for more information. AGP speed is controlled by giving a parameter
+to the Nvidia kernel module, but should be autodetected in most cases.
+See output of "modinfo nvidia".
+
+For more configuration options (TwinView, TV-out etc) see the Nvidia README.
+
+4. An Initscript to enable/disable nvidia driver
+------------------------------------------------
+
+To make gdm work at system start this package contains an initscript that
+will be run during start up. This script will detect if the nvidia module
+for the running kernel is present. If the module is present, then the
+initscript will run.
+
+        "nvidia-config-display enable"
+
+so that the X server will use the nvidia driver, otherwise it will run
+
+        "nvidia-config-display disable"
+
+and X will use the nv driver. You can disable this check by running, as
+root (with root $PATH) :
+
+        chkconfig nvidia off
+
+
+This script will also be invoked when switching to runlevels 6
+(reboot) and 0 (halt). When rebooting (or shutting down) the system,
+the script will _disable_ nvidia driver (and switch back to "nv"
+driver), so that, whatever the kernel you boot, Red Hat Graphical Boot
+will work.
+
+We suggest you read the chkconfig(8) man page for complete
+informations about how to handle rc scripts.
+
