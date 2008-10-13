@@ -59,8 +59,8 @@ Obsoletes:     nvidia-kmod < %{version}
 
 %description
 This package provides the most recent NVIDIA display driver which allows for
-hardware accelerated rendering with NVIDIA chipsets NV30 (FX series) and newer.
-NV30 and below (such as GeForce2) are NOT supported by this release.
+hardware accelerated rendering with NVIDIA chipsets NV40 (GeForce6 series) and newer.
+NV40 and below (such as GeForce5) are NOT supported by this release.
 
 For the full product support list, please consult the release notes
 for driver version %{version}.
@@ -313,6 +313,7 @@ fi
 * Mon Oct 13 2008 kwizart < kwizart at gmail.com > - 177.80-1
 - Update to 177.80
 - Move symlinks in -devel
+- Fix description
 
 * Sun Oct 05 2008 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info - 177.78-2
 - rebuild for rpm fusion
