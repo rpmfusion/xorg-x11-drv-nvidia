@@ -8,7 +8,7 @@
 
 Name:          xorg-x11-drv-nvidia
 Version:       177.80
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:         User Interface/X Hardware Support
@@ -69,7 +69,7 @@ for driver version %{version}.
 %package devel
 Summary:       Development files for %{name}
 Group:         Development/Libraries
-Requires:      %{name} = %{version}-%{release}
+Requires:      %{name}-libs = %{version}-%{release}
 
 %description devel
 This package provides the development files of the %{name} package,
@@ -310,6 +310,10 @@ fi
 
 
 %changelog
+* Sat Oct 18 2008 Stewart Adam <s.adam at diffingo.com> - 177.80-2
+- Change dependency of main package to libs subpackage in devel subpackage to
+  fix multiarch repo push
+
 * Mon Oct 13 2008 kwizart < kwizart at gmail.com > - 177.80-1
 - Update to 177.80
 - Move symlinks in -devel
