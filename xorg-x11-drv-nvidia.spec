@@ -8,7 +8,7 @@
 
 Name:          xorg-x11-drv-nvidia
 Version:       173.14.12
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:         User Interface/X Hardware Support
@@ -78,7 +78,6 @@ such as OpenGL headers.
 %package libs
 Summary:       Libraries for %{name}
 Group:         User Interface/X Hardware Support
-Requires:      %{name} = %{version}-%{release}
 %ifarch %{ix86}
 Provides: %{name}-libs-32bit = %{version}-%{release}
 Obsoletes: %{name}-libs-32bit <= %{version}-%{release}
@@ -309,6 +308,9 @@ fi
 
 
 %changelog
+* Sat Oct 25 2008 Stewart Adam <s.adam at diffingo.com> - 173.14.12-4
+- Remove the libs subpackage's dependency on main package
+
 * Sat Oct 18 2008 Stewart Adam <s.adam at diffingo.com> - 173.14.12-3
 - Change dependency of main package to libs subpackage in devel subpackage to
   fix multiarch repo push
