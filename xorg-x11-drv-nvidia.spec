@@ -6,56 +6,59 @@
 %{nil}
 %endif
 
-Name:          xorg-x11-drv-nvidia
-Version:       173.14.12
-Release:       4%{?dist}
-Summary:       NVIDIA's proprietary display driver for NVIDIA graphic cards
+Name:            xorg-x11-drv-nvidia
+Version:         173.14.12
+Release:         6%{?dist}
+Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
-Group:         User Interface/X Hardware Support
-License:       Redistributable, no modification permitted
-URL:           http://www.nvidia.com/
-Source0:       http://us.download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}-pkg0.run
-Source1:       http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}-pkg0.run
-Source2:       nvidia.sh
-Source3:       nvidia.csh
-Source4:       nvidia-settings.desktop
-Source5:       nvidia-init
-Source6:       60-nvidia.nodes
-Source10:      nvidia-config-display
-Source11:      nvidia-README.Fedora
-Source12:      nvidia.opts
+Group:           User Interface/X Hardware Support
+License:         Redistributable, no modification permitted
+URL:             http://www.nvidia.com/
+Source0:         http://us.download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}-pkg0.run
+Source1:         http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}-pkg0.run
+Source2:         nvidia.sh
+Source3:         nvidia.csh
+Source4:         nvidia-settings.desktop
+Source5:         nvidia-init
+Source6:         60-nvidia.nodes
+Source10:        nvidia-config-display
+Source11:        nvidia-README.Fedora
+Source12:        nvidia.opts
 # So we don't pull other nvidia variants
-Source91:  filter-requires.sh
-%define    _use_internal_dependency_generator 0
-%define    __find_requires %{SOURCE91}
+Source91:        filter-requires.sh
+%define          _use_internal_dependency_generator 0
+%define          __find_requires %{SOURCE91}
 
-BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-ExclusiveArch: i386 x86_64
+BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+ExclusiveArch:   i386 x86_64
 
 Requires:        nvidia-kmod >= %{version}
 Requires(post):  nvidia-kmod >= %{version}
 
 # Needed in all nvidia or fglrx driver packages
-BuildRequires:      desktop-file-utils
-Requires:           which
-Requires:           livna-config-display
-Requires:           %{name}-libs = %{version}-%{release}
+BuildRequires:   desktop-file-utils
+Requires:        which
+Requires:        livna-config-display
+Requires:        %{name}-libs = %{version}-%{release}
 # to prevent i386 package being pulled first and x86_64 package being excluded
 # on x86_64 systems
 %ifarch x86_64
-Requires:           %{nvidialibdir}/libGL.so.%{version}
+Requires:        %{nvidialibdir}/libGL.so.%{version}
 %endif
-Requires(post):     livna-config-display
-Requires(preun):    livna-config-display
-Requires(post):     chkconfig
-Requires(post):     ldconfig
-Requires(preun):    chkconfig
+Requires(post):  livna-config-display
+Requires(preun): livna-config-display
+Requires(post):  chkconfig
+Requires(post):  ldconfig
+Requires(preun): chkconfig
 
-Provides:      nvidia-kmod-common = %{version}
-Conflicts:     xorg-x11-drv-nvidia-legacy
-Conflicts:     xorg-x11-drv-nvidia-96xx
-Conflicts:     xorg-x11-drv-fglrx
-Obsoletes:     nvidia-kmod < %{version}
+Provides:        nvidia-kmod-common = %{version}
+Conflicts:       xorg-x11-drv-nvidia-legacy
+Conflicts:       xorg-x11-drv-nvidia-96xx
+Conflicts:       xorg-x11-drv-fglrx
+Obsoletes:       nvidia-kmod < %{version}
+
+Obsoletes:       nvidia-x11-drv-97xx < %{version}-%{release}
+Provides:        nvidia-x11-drv-97xx = %{version}-%{release}
 
 %description
 This package provides the most recent NVIDIA display driver which allows for
@@ -67,20 +70,21 @@ for driver version %{version}.
 
 
 %package devel
-Summary:       Development files for %{name}
-Group:         Development/Libraries
-Requires:      %{name}-libs = %{version}-%{release}
+Summary:         Development files for %{name}
+Group:           Development/Libraries
+Requires:        %{name}-libs = %{version}-%{release}
 
 %description devel
 This package provides the development files of the %{name} package,
 such as OpenGL headers.
 
 %package libs
-Summary:       Libraries for %{name}
-Group:         User Interface/X Hardware Support
+Summary:         Libraries for %{name}
+Group:           User Interface/X Hardware Support
+Requires:        %{name} = %{version}-%{release}
 %ifarch %{ix86}
-Provides: %{name}-libs-32bit = %{version}-%{release}
-Obsoletes: %{name}-libs-32bit <= %{version}-%{release}
+Provides:        %{name}-libs-32bit = %{version}-%{release}
+Obsoletes:       %{name}-libs-32bit <= %{version}-%{release}
 %endif
 
 %description libs
@@ -308,6 +312,12 @@ fi
 
 
 %changelog
+* Tue Nov 4 2008 Stewart Adam <s.adam at diffingo.com> - 173.14.12-6
+- Fix upgrade path for FreshRPMs users
+
+* Mon Oct 27 2008 Stewart Adam <s.adam at diffingo.com> - 173.14.12-5
+- Revert the libs dep change
+
 * Sat Oct 25 2008 Stewart Adam <s.adam at diffingo.com> - 173.14.12-4
 - Remove the libs subpackage's dependency on main package
 
