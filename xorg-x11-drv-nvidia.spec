@@ -238,20 +238,7 @@ if [ "$1" -eq "0" ]; then
     %{_initrddir}/nvidia stop &> /dev/null ||:
     /sbin/chkconfig --del nvidia ||:
 fi ||:
-# Remove all entries of nvidia/NVdriver from modprobe.conf
-# Start using modprobe.d as of FC5
-# This can be removed eventually
-# Make a backup of the backup
-if [ -f %{_sysconfdir}/modprobe.conf.backup-nvidia-glx ]; then
-  mv %{_sysconfdir}/modprobe.conf.backup-nvidia-glx %{_sysconfdir}/modprobe.conf.backup-nvidia  ||:
-fi
-if [ -f %{_sysconfdir}/modprobe.conf.backup-nvidia ]; then
-  mv %{_sysconfdir}/modprobe.conf.backup-nvidia %{_sysconfdir}/modprobe.conf.backup-nvidia-old  ||:
-fi
-if [ -f %{_sysconfdir}/modprobe.conf ]; then
-  mv %{_sysconfdir}/modprobe.conf %{_sysconfdir}/modprobe.conf.backup-nvidia ||:
-  grep -v -E -e "^alias +[^ ]+ +(nvidia|NVdriver)" -e "options nvidia " %{_sysconfdir}/modprobe.conf.backup-nvidia > %{_sysconfdir}/modprobe.conf  ||:
-fi
+
 
 %postun libs -p /sbin/ldconfig
 
