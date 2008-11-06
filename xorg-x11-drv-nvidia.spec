@@ -7,23 +7,19 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         173.14.12
-Release:         6%{?dist}
+Version:         173.14.15
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
 License:         Redistributable, no modification permitted
 URL:             http://www.nvidia.com/
-Source0:         http://us.download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}-pkg0.run
-Source1:         http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}-pkg0.run
-Source2:         nvidia.sh
-Source3:         nvidia.csh
+Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}-pkg0.run
+Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}-pkg0.run
 Source4:         nvidia-settings.desktop
 Source5:         nvidia-init
-Source6:         60-nvidia.nodes
 Source10:        nvidia-config-display
 Source11:        nvidia-README.Fedora
-Source12:        nvidia.opts
 # So we don't pull other nvidia variants
 Source91:        filter-requires.sh
 %define          _use_internal_dependency_generator 0
@@ -45,6 +41,7 @@ Requires:        %{name}-libs = %{version}-%{release}
 %ifarch x86_64
 Requires:        %{nvidialibdir}/libGL.so.%{version}
 %endif
+
 Requires(post):  livna-config-display
 Requires(preun): livna-config-display
 Requires(post):  chkconfig
@@ -53,7 +50,10 @@ Requires(preun): chkconfig
 
 Provides:        nvidia-kmod-common = %{version}
 Conflicts:       xorg-x11-drv-nvidia-legacy
+Conflicts:       xorg-x11-drv-nvidia-71xx
 Conflicts:       xorg-x11-drv-nvidia-96xx
+Conflicts:       xorg-x11-drv-nvidia-beta
+Conflicts:       xorg-x11-drv-nvidia-newest
 Conflicts:       xorg-x11-drv-fglrx
 Obsoletes:       nvidia-kmod < %{version}
 
@@ -194,10 +194,6 @@ ln -s libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensi
 ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so.1
 ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so
 
-# profile.d files
-install -D -p -m 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/nvidia.sh
-install -D -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/nvidia.csh
-
 # X configuration script
 install -D -p -m 0755 %{SOURCE10} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
 
@@ -209,20 +205,9 @@ desktop-file-install --vendor livna \
 # Install initscript
 install -D -p -m 0755 %{SOURCE5} $RPM_BUILD_ROOT%{_initrddir}/nvidia
 
-# udev node file
-install -D -p -m 0664 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/udev/makedev.d/60-nvidia.nodes
-
-# modprobe.d file
-install -D -p -m 0644 %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/nvidia
-
 # ld.so.conf.d file
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
-%ifarch %{ix86}
-echo "%{nvidialibdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-x86.conf
-%endif
-%ifarch x86_64
-echo "%{nvidialibdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-x86_64.conf
-%endif
+echo "%{nvidialibdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_libs}.conf
 
 # Change perms on static libs. Can't fathom how to do it nicely above.
 find $RPM_BUILD_ROOT/%{nvidialibdir} -type f -name "*.a" -exec chmod 0644 '{}' \;
@@ -273,9 +258,6 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc nvidiapkg/usr/share/doc/*
-%config(noreplace) %{_sysconfdir}/profile.d/nvidia*
-%config %{_sysconfdir}/modprobe.d/nvidia
-%{_sysconfdir}/udev/makedev.d/60-nvidia.nodes
 %{_initrddir}/nvidia
 %{_bindir}/*
 %{_sbindir}/*
@@ -287,11 +269,7 @@ fi
 %{_datadir}/applications/*nvidia-settings.desktop
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man[1-9]/nvidia*.*
-%verify (not user) %attr(0600,root,root) %dev(c,195,0) /dev/nvidia0
-%verify (not user) %attr(0600,root,root) %dev(c,195,1) /dev/nvidia1
-%verify (not user) %attr(0600,root,root) %dev(c,195,2) /dev/nvidia2
-%verify (not user) %attr(0600,root,root) %dev(c,195,3) /dev/nvidia3
-%verify (not user) %attr(0600,root,root) %dev(c,195,255) /dev/nvidiactl
+
 
 %files libs
 %defattr(-,root,root,-)
@@ -312,6 +290,10 @@ fi
 
 
 %changelog
+* Thu Nov  6 2008 kwizart < kwizart at gmail.com > - 173.14.15-1
+- Update to 173.14.15 (beta) for 2.6.27 kernels
+- Drop some legacy devices checks 
+
 * Tue Nov 4 2008 Stewart Adam <s.adam at diffingo.com> - 173.14.12-6
 - Fix upgrade path for FreshRPMs users
 
