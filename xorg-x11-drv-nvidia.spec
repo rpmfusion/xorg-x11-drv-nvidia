@@ -8,22 +8,18 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         177.80
-Release:         5%{?dist}
+Release:         6%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
 License:         Redistributable, no modification permitted
 URL:             http://www.nvidia.com/
-Source0:         http://us.download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}-pkg0.run
-Source1:         http://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}-pkg0.run
-Source2:         nvidia.sh
-Source3:         nvidia.csh
+Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}-pkg0.run
+Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}-pkg0.run
 Source4:         nvidia-settings.desktop
 Source5:         nvidia-init
-Source6:         60-nvidia.nodes
 Source10:        nvidia-config-display
 Source11:        nvidia-README.Fedora
-Source12:        nvidia.opts
 # So we don't pull other nvidia variants
 Source91:        filter-requires.sh
 %define          _use_internal_dependency_generator 0
@@ -39,12 +35,8 @@ Requires(post):  nvidia-kmod >= %{version}
 BuildRequires:   desktop-file-utils
 Requires:        which
 Requires:        livna-config-display >= 0.0.21
-Requires:        %{name}-libs = %{version}-%{release}
-# to prevent i386 package being pulled first and x86_64 package being excluded
-# on x86_64 systems
-%ifarch x86_64
-Requires:        %{nvidialibdir}/libGL.so.%{version}
-%endif
+Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
+
 Requires(post):  livna-config-display
 Requires(preun): livna-config-display
 Requires(post):  chkconfig
@@ -54,16 +46,22 @@ Requires(preun): chkconfig
 Provides:        nvidia-kmod-common = %{version}
 Conflicts:       xorg-x11-drv-nvidia-legacy
 Conflicts:       xorg-x11-drv-nvidia-96xx
+Conflicts:       xorg-x11-drv-nvidia-173xx
+Conflicts:       xorg-x11-drv-nvidia-beta
 Conflicts:       xorg-x11-drv-fglrx
 Obsoletes:       nvidia-kmod < %{version}
 
 Obsoletes:       nvidia-x11-drv < %{version}-%{release}
 Provides:        nvidia-x11-drv = %{version}-%{release}
 
+Obsoletes:       xorg-x11-drv-nvidia-newest < 177.80-100
+Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
+
+
 %description
 This package provides the most recent NVIDIA display driver which allows for
-hardware accelerated rendering with NVIDIA chipsets NV40 (GeForce6 series) and newer.
-NV40 and below (such as GeForce5) are NOT supported by this release.
+hardware accelerated rendering with NVIDIA chipsets GeForce6 series and newer.
+GeForce5 and below are NOT supported by this release.
 
 For the full product support list, please consult the release notes
 for driver version %{version}.
@@ -82,6 +80,7 @@ such as OpenGL headers.
 Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{version}-%{release}
+Provides:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
 %ifarch %{ix86}
 Provides:        %{name}-libs-32bit = %{version}-%{release}
 Obsoletes:       %{name}-libs-32bit <= %{version}-%{release}
@@ -196,10 +195,6 @@ ln -s libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensi
 ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so.1
 ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so
 
-# profile.d files
-install -D -p -m 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/nvidia.sh
-install -D -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/nvidia.csh
-
 # X configuration script
 install -D -p -m 0755 %{SOURCE10} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
 
@@ -211,20 +206,9 @@ desktop-file-install --vendor livna \
 # Install initscript
 install -D -p -m 0755 %{SOURCE5} $RPM_BUILD_ROOT%{_initrddir}/nvidia
 
-# udev node file
-install -D -p -m 0664 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/udev/makedev.d/60-nvidia.nodes
-
-# modprobe.d file
-install -D -p -m 0644 %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/nvidia
-
 # ld.so.conf.d file
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
-%ifarch %{ix86}
-echo "%{nvidialibdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-x86.conf
-%endif
-%ifarch x86_64
-echo "%{nvidialibdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-x86_64.conf
-%endif
+echo "%{nvidialibdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 
 # Change perms on static libs. Can't fathom how to do it nicely above.
 find $RPM_BUILD_ROOT/%{nvidialibdir} -type f -name "*.a" -exec chmod 0644 '{}' \;
@@ -255,29 +239,12 @@ if [ "$1" -eq "0" ]; then
     %{_initrddir}/nvidia stop &> /dev/null ||:
     /sbin/chkconfig --del nvidia ||:
 fi ||:
-# Remove all entries of nvidia/NVdriver from modprobe.conf
-# Start using modprobe.d as of FC5
-# This can be removed eventually
-# Make a backup of the backup
-if [ -f %{_sysconfdir}/modprobe.conf.backup-nvidia-glx ]; then
-  mv %{_sysconfdir}/modprobe.conf.backup-nvidia-glx %{_sysconfdir}/modprobe.conf.backup-nvidia  ||:
-fi
-if [ -f %{_sysconfdir}/modprobe.conf.backup-nvidia ]; then
-  mv %{_sysconfdir}/modprobe.conf.backup-nvidia %{_sysconfdir}/modprobe.conf.backup-nvidia-old  ||:
-fi
-if [ -f %{_sysconfdir}/modprobe.conf ]; then
-  mv %{_sysconfdir}/modprobe.conf %{_sysconfdir}/modprobe.conf.backup-nvidia ||:
-  grep -v -E -e "^alias +[^ ]+ +(nvidia|NVdriver)" -e "options nvidia " %{_sysconfdir}/modprobe.conf.backup-nvidia > %{_sysconfdir}/modprobe.conf  ||:
-fi
 
 %postun libs -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root,-)
 %doc nvidiapkg/usr/share/doc/*
-%config(noreplace) %{_sysconfdir}/profile.d/nvidia*
-%config %{_sysconfdir}/modprobe.d/nvidia
-%{_sysconfdir}/udev/makedev.d/60-nvidia.nodes
 %{_initrddir}/nvidia
 %{_bindir}/*
 %{_sbindir}/*
@@ -289,17 +256,12 @@ fi
 %{_datadir}/applications/*nvidia-settings.desktop
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man[1-9]/nvidia*.*
-%verify (not user) %attr(0600,root,root) %dev(c,195,0) /dev/nvidia0
-%verify (not user) %attr(0600,root,root) %dev(c,195,1) /dev/nvidia1
-%verify (not user) %attr(0600,root,root) %dev(c,195,2) /dev/nvidia2
-%verify (not user) %attr(0600,root,root) %dev(c,195,3) /dev/nvidia3
-%verify (not user) %attr(0600,root,root) %dev(c,195,255) /dev/nvidiactl
 
 %files libs
 %defattr(-,root,root,-)
 %dir %{nvidialibdir}
 %dir %{nvidialibdir}/tls
-%config %{_sysconfdir}/ld.so.conf.d/nvidia*
+%config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %{nvidialibdir}/*.so.*
 %{nvidialibdir}/tls/*.so.*
 
@@ -315,6 +277,11 @@ fi
 
 
 %changelog
+* Wed Nov 12 2008 kwizart < kwizart at gmail.com > - 177.80-6
+- Obsoletes/Provides xorg-x11-drv-nvidia-newest
+- Cleaning
+- Improve description
+
 * Tue Nov 4 2008 Stewart Adam <s.adam at diffingo.com> - 177.80-5
 - Fix upgrade path for FreshRPMs users
 
