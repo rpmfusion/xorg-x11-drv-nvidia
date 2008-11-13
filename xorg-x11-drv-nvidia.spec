@@ -7,8 +7,8 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         177.80
-Release:         6%{?dist}
+Version:         177.82
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -277,6 +277,9 @@ fi ||:
 
 
 %changelog
+* Thu Nov 13 2008 kwizart < kwizart at gmail.com > - 177.82-1
+- Update to 177.82
+
 * Wed Nov 12 2008 kwizart < kwizart at gmail.com > - 177.80-6
 - Obsoletes/Provides xorg-x11-drv-nvidia-newest
 - Cleaning
