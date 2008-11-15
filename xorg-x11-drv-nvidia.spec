@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         173.14.15
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -207,11 +207,10 @@ install -D -p -m 0755 %{SOURCE5} $RPM_BUILD_ROOT%{_initrddir}/nvidia
 
 # ld.so.conf.d file
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
-echo "%{nvidialibdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_libs}.conf
+echo "%{nvidialibdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 
 # Change perms on static libs. Can't fathom how to do it nicely above.
 find $RPM_BUILD_ROOT/%{nvidialibdir} -type f -name "*.a" -exec chmod 0644 '{}' \;
-
 
 
 %clean
@@ -277,6 +276,9 @@ fi ||:
 
 
 %changelog
+* Sat Nov 15 2008 Stewart Adam <s.adam at diffingo.com> - 173.14.15-2
+- Fix _libs typo
+
 * Thu Nov  6 2008 kwizart < kwizart at gmail.com > - 173.14.15-1
 - Update to 173.14.15 (beta) for 2.6.27 kernels
 - Drop some legacy devices checks 
