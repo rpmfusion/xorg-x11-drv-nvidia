@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         177.82
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -54,7 +54,7 @@ Obsoletes:       nvidia-kmod < %{version}
 Obsoletes:       nvidia-x11-drv < %{version}-%{release}
 Provides:        nvidia-x11-drv = %{version}-%{release}
 
-Obsoletes:       xorg-x11-drv-nvidia-newest < 177.80-100
+Obsoletes:       xorg-x11-drv-nvidia-newest < %{version}-100
 Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
 
 
@@ -277,6 +277,9 @@ fi ||:
 
 
 %changelog
+* Tue Dec 2 2008 Stewart Adam <s.adam at diffingo.com> - 177.82-2
+- Fix upgrade path for nvidia-newest (bz#191)
+
 * Thu Nov 13 2008 kwizart < kwizart at gmail.com > - 177.82-1
 - Update to 177.82
 
