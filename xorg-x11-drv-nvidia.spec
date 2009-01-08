@@ -7,8 +7,8 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         177.82
-Release:         2%{?dist}
+Version:         180.22
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -195,6 +195,12 @@ ln -s libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensi
 ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so.1
 ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so
 
+# This is 180.xx adds - vdpau libs and headers
+ln -s libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libvdpau_nvidia.so
+ln -s libvdpau.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libvdpau.so.1
+ln -s libvdpau.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libvdpau.so
+ln -s libvdpau_trace.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libvdpau_trace.so
+
 # X configuration script
 install -D -p -m 0755 %{SOURCE10} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
 
@@ -263,6 +269,9 @@ fi ||:
 %dir %{nvidialibdir}/tls
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %{nvidialibdir}/*.so.*
+%{nvidialibdir}/libGLcore.so
+%{nvidialibdir}/libvdpau_nvidia.so
+%{nvidialibdir}/libvdpau_trace.so
 %{nvidialibdir}/tls/*.so.*
 
 %files devel
@@ -270,13 +279,29 @@ fi ||:
 %dir %{_includedir}/nvidia
 %dir %{_includedir}/nvidia/GL
 %dir %{_includedir}/nvidia/cuda
+%dir %{_includedir}/nvidia/vdpau
 %{_includedir}/nvidia/GL/*.h
 %{_includedir}/nvidia/cuda/*.h
-%{nvidialibdir}/libXvMCNVIDIA.a
-%{nvidialibdir}/*.so
+%{_includedir}/nvidia/vdpau/*.h
+%exclude %{nvidialibdir}/libXvMCNVIDIA.a
+%{nvidialibdir}/libcuda.so
+%{nvidialibdir}/libGL.so
+%{nvidialibdir}/libvdpau.so
+%{nvidialibdir}/libXvMCNVIDIA.so
 
 
 %changelog
+* Thu Jan  8 2009 kwizart < kwizart at gmail.com > - 180.22-1
+- Update to 180.22 (stable)
+
+* Sat Dec 28 2008 kwizart < kwizart at gmail.com > - 180.18-1
+- Update to 180.18 (beta)
+
+* Wed Dec 17 2008 kwizart < kwizart at gmail.com > - 180.16-1
+- Update to 180.16 (beta)
+- Exclude libXvMCNVIDIA.a
+- More accurate -devel subpackage.
+
 * Tue Dec 2 2008 Stewart Adam <s.adam at diffingo.com> - 177.82-2
 - Fix upgrade path for nvidia-newest (bz#191)
 
