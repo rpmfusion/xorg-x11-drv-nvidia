@@ -7,7 +7,7 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         180.22
+Version:         180.25
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
