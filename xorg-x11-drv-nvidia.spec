@@ -7,7 +7,7 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         180.27
+Version:         180.29
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -291,6 +291,9 @@ fi ||:
 
 
 %changelog
+* Tue Feb 10 2009 kwizart < kwizart at gmail.com > - 180.29-1
+- Update to 180.29 (stable)
+
 * Thu Jan 29 2009 kwizart < kwizart at gmail.com > - 180.27-1
 - Update to 180.27 (beta)
 
