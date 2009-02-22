@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         180.29
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -70,7 +70,7 @@ for driver version %{version}.
 %package devel
 Summary:         Development files for %{name}
 Group:           Development/Libraries
-Requires:        %{name}-libs = %{version}-%{release}
+Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
 
 %description devel
 This package provides the development files of the %{name} package,
@@ -291,6 +291,9 @@ fi ||:
 
 
 %changelog
+* Sun Feb 22 2009 Stewart Adam <s.adam at diffingo.com> - 180.29-2
+- Make devel subpackage depend on lib subpackage of the same arch
+
 * Tue Feb 10 2009 kwizart < kwizart at gmail.com > - 180.29-1
 - Update to 180.29 (stable)
 
