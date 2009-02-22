@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         173.14.15
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -72,7 +72,7 @@ for driver version %{version}.
 %package devel
 Summary:         Development files for %{name}
 Group:           Development/Libraries
-Requires:        %{name}-libs = %{version}-%{release}
+Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
 
 %description devel
 This package provides the development files of the %{name} package,
@@ -82,6 +82,7 @@ such as OpenGL headers.
 Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{version}-%{release}
+Provides:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
 %ifarch %{ix86}
 Provides:        %{name}-libs-32bit = %{version}-%{release}
 Obsoletes:       %{name}-libs-32bit <= %{version}-%{release}
@@ -276,6 +277,9 @@ fi ||:
 
 
 %changelog
+* Sun Feb 22 2009 Stewart Adam <s.adam at diffingo.com> - 173.14.15-3
+- Make devel subpackage depend on lib subpackage of the same arch
+
 * Sat Nov 15 2008 Stewart Adam <s.adam at diffingo.com> - 173.14.15-2
 - Fix _libs typo
 
