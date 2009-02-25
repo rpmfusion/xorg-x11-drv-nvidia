@@ -7,8 +7,8 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         180.29
-Release:         2%{?dist}
+Version:         180.35
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -51,11 +51,15 @@ Conflicts:       xorg-x11-drv-nvidia-beta
 Conflicts:       xorg-x11-drv-fglrx
 Obsoletes:       nvidia-kmod < %{version}
 
+#Introduced in F10 for freshrpms compatibility
 Obsoletes:       nvidia-x11-drv < %{version}-%{release}
 Provides:        nvidia-x11-drv = %{version}-%{release}
-
+#Introduced in F10 when 173xx has forked to legacy serie
 Obsoletes:       xorg-x11-drv-nvidia-newest < %{version}-100
 Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
+#Introduced in F11 when opengl 3.0 beta has merged back
+Obsoletes:       xorg-x11-drv-nvidia-beta < 180.35-100
+Provides:        xorg-x11-drv-nvidia-beta = 180.35-101
 
 
 %description
@@ -291,6 +295,10 @@ fi ||:
 
 
 %changelog
+* Wed Feb 25 2009 kwizart < kwizart at gmail.com > - 180.35-1
+- Update to 180.35 (stable)
+- Obsoletes opengl 3.0 beta nserie.
+
 * Sun Feb 22 2009 Stewart Adam <s.adam at diffingo.com> - 180.29-2
 - Make devel subpackage depend on lib subpackage of the same arch
 
