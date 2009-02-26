@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         180.35
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -47,7 +47,6 @@ Provides:        nvidia-kmod-common = %{version}
 Conflicts:       xorg-x11-drv-nvidia-legacy
 Conflicts:       xorg-x11-drv-nvidia-96xx
 Conflicts:       xorg-x11-drv-nvidia-173xx
-Conflicts:       xorg-x11-drv-nvidia-beta
 Conflicts:       xorg-x11-drv-fglrx
 Obsoletes:       nvidia-kmod < %{version}
 
@@ -75,6 +74,9 @@ for driver version %{version}.
 Summary:         Development files for %{name}
 Group:           Development/Libraries
 Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
+#Introduced in F11 when opengl 3.0 beta has merged back
+Obsoletes:       xorg-x11-drv-nvidia-beta-devel < 180.35-100
+Provides:        xorg-x11-drv-nvidia-beta-devel = 180.35-101
 
 %description devel
 This package provides the development files of the %{name} package,
@@ -91,6 +93,9 @@ Obsoletes:       %{name}-libs-32bit <= %{version}-%{release}
 Obsoletes:       nvidia-x11-drv-32bit < %{version}-%{release}
 Provides:        nvidia-x11-drv-32bit = %{version}-%{release}
 %endif
+#Introduced in F11 when opengl 3.0 beta has merged back
+Obsoletes:       xorg-x11-drv-nvidia-beta-libs < 180.35-100
+Provides:        xorg-x11-drv-nvidia-beta-libs = 180.35-101
 
 %description libs
 This package provides the shared libraries for %{name}.
@@ -295,6 +300,10 @@ fi ||:
 
 
 %changelog
+* Thu Feb 26 2009 kwizart < kwizart at gmail.com > - 180.35-2
+- Fix Conflicts/Provides with beta
+- Obsoltes/Provides for devel
+
 * Wed Feb 25 2009 kwizart < kwizart at gmail.com > - 180.35-1
 - Update to 180.35 (stable)
 - Obsoletes opengl 3.0 beta nserie.
