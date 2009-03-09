@@ -7,8 +7,8 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         180.35
-Release:         2%{?dist}
+Version:         180.37
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -74,6 +74,9 @@ for driver version %{version}.
 Summary:         Development files for %{name}
 Group:           Development/Libraries
 Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
+#Introduced in F10 when 173xx has forked to legacy serie
+Obsoletes:       xorg-x11-drv-nvidia-newest-devel < %{version}-100
+Provides:        xorg-x11-drv-nvidia-newest-devel = %{version}-101
 #Introduced in F11 when opengl 3.0 beta has merged back
 Obsoletes:       xorg-x11-drv-nvidia-beta-devel < 180.35-100
 Provides:        xorg-x11-drv-nvidia-beta-devel = 180.35-101
@@ -93,6 +96,9 @@ Obsoletes:       %{name}-libs-32bit <= %{version}-%{release}
 Obsoletes:       nvidia-x11-drv-32bit < %{version}-%{release}
 Provides:        nvidia-x11-drv-32bit = %{version}-%{release}
 %endif
+#Introduced in F10 when 173xx has forked to legacy serie
+Obsoletes:       xorg-x11-drv-nvidia-newest-libs < %{version}-100
+Provides:        xorg-x11-drv-nvidia-newest-libs = %{version}-101
 #Introduced in F11 when opengl 3.0 beta has merged back
 Obsoletes:       xorg-x11-drv-nvidia-beta-libs < 180.35-100
 Provides:        xorg-x11-drv-nvidia-beta-libs = 180.35-101
@@ -300,12 +306,15 @@ fi ||:
 
 
 %changelog
+* Mon Mar  9 2009 kwizart < kwizart at gmail.com > - 180.37-1
+- Update to 180.37 (prerelease)
+
 * Thu Feb 26 2009 kwizart < kwizart at gmail.com > - 180.35-2
 - Fix Conflicts/Provides with beta
 - Obsoltes/Provides for devel
 
 * Wed Feb 25 2009 kwizart < kwizart at gmail.com > - 180.35-1
-- Update to 180.35 (stable)
+- Update to 180.35 (prerelease)
 - Obsoletes opengl 3.0 beta nserie.
 
 * Sun Feb 22 2009 Stewart Adam <s.adam at diffingo.com> - 180.29-2
