@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         180.37
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -26,7 +26,11 @@ Source91:        filter-requires.sh
 %define          __find_requires %{SOURCE91}
 
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-ExclusiveArch:   i386 x86_64
+%if 0%{?fedora} >= 11
+ExclusiveArch: i586 x86_64
+%else
+ExclusiveArch: i386 x86_64
+%endif
 
 Requires:        nvidia-kmod >= %{version}
 Requires(post):  nvidia-kmod >= %{version}
@@ -306,6 +310,9 @@ fi ||:
 
 
 %changelog
+* Fri Apr  3 2009 kwizart < kwizart at gmail.com > - 180.37-3
+- Fix x86 Arch for fedora >= 11
+
 * Sun Mar 29 2009 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 180.37-2
 - rebuild for new F11 features
 
