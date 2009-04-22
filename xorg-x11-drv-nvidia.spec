@@ -7,8 +7,8 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         180.37
-Release:         3%{?dist}
+Version:         180.51
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -48,10 +48,13 @@ Requires(post):  ldconfig
 Requires(preun): chkconfig
 
 Provides:        nvidia-kmod-common = %{version}
+Conflicts:       xorg-x11-drv-nvidia-beta
 Conflicts:       xorg-x11-drv-nvidia-legacy
+Conflicts:       xorg-x11-drv-nvidia-71xx
 Conflicts:       xorg-x11-drv-nvidia-96xx
 Conflicts:       xorg-x11-drv-nvidia-173xx
 Conflicts:       xorg-x11-drv-fglrx
+Conflicts:       xorg-x11-drv-catalyst
 Obsoletes:       nvidia-kmod < %{version}
 
 #Introduced in F10 for freshrpms compatibility
@@ -60,9 +63,6 @@ Provides:        nvidia-x11-drv = %{version}-%{release}
 #Introduced in F10 when 173xx has forked to legacy serie
 Obsoletes:       xorg-x11-drv-nvidia-newest < %{version}-100
 Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
-#Introduced in F11 when opengl 3.0 beta has merged back
-Obsoletes:       xorg-x11-drv-nvidia-beta < 180.35-100
-Provides:        xorg-x11-drv-nvidia-beta = 180.35-101
 
 
 %description
@@ -81,9 +81,6 @@ Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
 #Introduced in F10 when 173xx has forked to legacy serie
 Obsoletes:       xorg-x11-drv-nvidia-newest-devel < %{version}-100
 Provides:        xorg-x11-drv-nvidia-newest-devel = %{version}-101
-#Introduced in F11 when opengl 3.0 beta has merged back
-Obsoletes:       xorg-x11-drv-nvidia-beta-devel < 180.35-100
-Provides:        xorg-x11-drv-nvidia-beta-devel = 180.35-101
 
 %description devel
 This package provides the development files of the %{name} package,
@@ -103,9 +100,6 @@ Provides:        nvidia-x11-drv-32bit = %{version}-%{release}
 #Introduced in F10 when 173xx has forked to legacy serie
 Obsoletes:       xorg-x11-drv-nvidia-newest-libs < %{version}-100
 Provides:        xorg-x11-drv-nvidia-newest-libs = %{version}-101
-#Introduced in F11 when opengl 3.0 beta has merged back
-Obsoletes:       xorg-x11-drv-nvidia-beta-libs < 180.35-100
-Provides:        xorg-x11-drv-nvidia-beta-libs = 180.35-101
 
 %description libs
 This package provides the shared libraries for %{name}.
@@ -310,6 +304,11 @@ fi ||:
 
 
 %changelog
+* Wed Apr 22 2009 kwizart < kwizart at gmail.com > - 180.51-1
+- Update to 180.51 (stable)
+- Add 71xx/beta/catalyst Conflicts
+- Don't Obsoletes the beta serie anymore (only the newest)
+
 * Fri Apr  3 2009 kwizart < kwizart at gmail.com > - 180.37-3
 - Fix x86 Arch for fedora >= 11
 
