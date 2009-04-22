@@ -7,8 +7,8 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         180.29
-Release:         2%{?dist}
+Version:         180.51
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -26,7 +26,11 @@ Source91:        filter-requires.sh
 %define          __find_requires %{SOURCE91}
 
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-ExclusiveArch:   i386 x86_64
+%if 0%{?fedora} >= 11
+ExclusiveArch: i586 x86_64
+%else
+ExclusiveArch: i386 x86_64
+%endif
 
 Requires:        nvidia-kmod >= %{version}
 Requires(post):  nvidia-kmod >= %{version}
@@ -44,16 +48,19 @@ Requires(post):  ldconfig
 Requires(preun): chkconfig
 
 Provides:        nvidia-kmod-common = %{version}
+Conflicts:       xorg-x11-drv-nvidia-beta
 Conflicts:       xorg-x11-drv-nvidia-legacy
+Conflicts:       xorg-x11-drv-nvidia-71xx
 Conflicts:       xorg-x11-drv-nvidia-96xx
 Conflicts:       xorg-x11-drv-nvidia-173xx
-Conflicts:       xorg-x11-drv-nvidia-beta
 Conflicts:       xorg-x11-drv-fglrx
+Conflicts:       xorg-x11-drv-catalyst
 Obsoletes:       nvidia-kmod < %{version}
 
+#Introduced in F10 for freshrpms compatibility
 Obsoletes:       nvidia-x11-drv < %{version}-%{release}
 Provides:        nvidia-x11-drv = %{version}-%{release}
-
+#Introduced in F10 when 173xx has forked to legacy serie
 Obsoletes:       xorg-x11-drv-nvidia-newest < %{version}-100
 Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
 
@@ -71,6 +78,9 @@ for driver version %{version}.
 Summary:         Development files for %{name}
 Group:           Development/Libraries
 Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
+#Introduced in F10 when 173xx has forked to legacy serie
+Obsoletes:       xorg-x11-drv-nvidia-newest-devel < %{version}-100
+Provides:        xorg-x11-drv-nvidia-newest-devel = %{version}-101
 
 %description devel
 This package provides the development files of the %{name} package,
@@ -87,6 +97,9 @@ Obsoletes:       %{name}-libs-32bit <= %{version}-%{release}
 Obsoletes:       nvidia-x11-drv-32bit < %{version}-%{release}
 Provides:        nvidia-x11-drv-32bit = %{version}-%{release}
 %endif
+#Introduced in F10 when 173xx has forked to legacy serie
+Obsoletes:       xorg-x11-drv-nvidia-newest-libs < %{version}-100
+Provides:        xorg-x11-drv-nvidia-newest-libs = %{version}-101
 
 %description libs
 This package provides the shared libraries for %{name}.
@@ -291,6 +304,28 @@ fi ||:
 
 
 %changelog
+* Wed Apr 22 2009 kwizart < kwizart at gmail.com > - 180.51-1
+- Update to 180.51 (stable)
+- Add 71xx/beta/catalyst Conflicts
+- Don't Obsoletes the beta serie anymore (only the newest)
+
+* Fri Apr  3 2009 kwizart < kwizart at gmail.com > - 180.37-3
+- Fix x86 Arch for fedora >= 11
+
+* Sun Mar 29 2009 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 180.37-2
+- rebuild for new F11 features
+
+* Mon Mar  9 2009 kwizart < kwizart at gmail.com > - 180.37-1
+- Update to 180.37 (prerelease)
+
+* Thu Feb 26 2009 kwizart < kwizart at gmail.com > - 180.35-2
+- Fix Conflicts/Provides with beta
+- Obsoltes/Provides for devel
+
+* Wed Feb 25 2009 kwizart < kwizart at gmail.com > - 180.35-1
+- Update to 180.35 (prerelease)
+- Obsoletes opengl 3.0 beta nserie.
+
 * Sun Feb 22 2009 Stewart Adam <s.adam at diffingo.com> - 180.29-2
 - Make devel subpackage depend on lib subpackage of the same arch
 
