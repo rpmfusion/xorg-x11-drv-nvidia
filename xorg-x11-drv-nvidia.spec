@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         185.18.14
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -18,6 +18,7 @@ Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-L
 Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}-pkg0.run
 Source4:         nvidia-settings.desktop
 Source5:         nvidia-init
+Source6:         blacklist-nouveau.conf
 Source10:        nvidia-config-display
 Source11:        nvidia-README.Fedora
 # So we don't pull other nvidia variants
@@ -229,6 +230,10 @@ install -D -p -m 0755 %{SOURCE5} $RPM_BUILD_ROOT%{_initrddir}/nvidia
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
 echo "%{nvidialibdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 
+#Blacklist nouveau by F-11
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
+install -pm 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
+
 # Change perms on static libs. Can't fathom how to do it nicely above.
 find $RPM_BUILD_ROOT/%{nvidialibdir} -type f -name "*.a" -exec chmod 0644 '{}' \;
 
@@ -264,6 +269,7 @@ fi ||:
 %files
 %defattr(-,root,root,-)
 %doc nvidiapkg/usr/share/doc/*
+%config(noreplace) %{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
 %{_initrddir}/nvidia
 %{_bindir}/*
 %{_sbindir}/*
@@ -304,6 +310,9 @@ fi ||:
 
 
 %changelog
+* Sun Jun  7 2009 kwizart < kwizart at gmail.com > - 185.18.14-2
+- blacklist nouveau by default.
+
 * Fri Jun  5 2009 kwizart < kwizart at gmail.com > - 185.18.14-1
 - Update to 185.18.14 (final)
 
