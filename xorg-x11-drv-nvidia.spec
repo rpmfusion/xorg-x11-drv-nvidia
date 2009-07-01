@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         185.18.14
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -288,6 +288,7 @@ fi ||:
 %dir %{nvidialibdir}/tls
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %{nvidialibdir}/*.so.*
+%{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libGLcore.so
 %{nvidialibdir}/libvdpau_nvidia.so
 %{nvidialibdir}/libvdpau_trace.so
@@ -303,13 +304,17 @@ fi ||:
 %{_includedir}/nvidia/cuda/*.h
 %{_includedir}/nvidia/vdpau/*.h
 %exclude %{nvidialibdir}/libXvMCNVIDIA.a
-%{nvidialibdir}/libcuda.so
+%exclude %{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libGL.so
 %{nvidialibdir}/libvdpau.so
 %{nvidialibdir}/libXvMCNVIDIA.so
 
 
 %changelog
+* Wed Jul  1 2009 kwizart < kwizart at gmail.com > - 185.18.14-3
+- Fix libcuda.so runtime usage - BZ 670#c4
+  Workaround for cudart.so wrong behaviour
+
 * Sun Jun  7 2009 kwizart < kwizart at gmail.com > - 185.18.14-2
 - blacklist nouveau by default.
 
