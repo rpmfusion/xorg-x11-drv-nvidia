@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         173.14.15
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -263,6 +263,7 @@ fi ||:
 %dir %{nvidialibdir}
 %dir %{nvidialibdir}/tls
 %config %{_sysconfdir}/ld.so.conf.d/nvidia*
+%{nvidialibdir}/libcuda.so
 %{nvidialibdir}/*.so*
 %{nvidialibdir}/tls/*.so.*
 
@@ -274,9 +275,14 @@ fi ||:
 %{_includedir}/nvidia/GL/*.h
 %{_includedir}/nvidia/cuda/*.h
 %{nvidialibdir}/libXvMCNVIDIA.a
+%exclude %{nvidialibdir}/libcuda.so
 
 
 %changelog
+* Wed Jul  1 2009 kwizart < kwizart at gmail.com > - 173.14.15-4
+- Fix libcuda.so runtime usage - BZ 670#c4
+  Workaround for cudart.so wrong behaviour
+
 * Sun Feb 22 2009 Stewart Adam <s.adam at diffingo.com> - 173.14.15-3
 - Make devel subpackage depend on lib subpackage of the same arch
 
