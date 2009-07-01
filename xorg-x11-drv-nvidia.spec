@@ -7,8 +7,8 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         180.51
-Release:         1%{?dist}
+Version:         185.18.14
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -18,6 +18,7 @@ Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-L
 Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}-pkg0.run
 Source4:         nvidia-settings.desktop
 Source5:         nvidia-init
+Source6:         blacklist-nouveau.conf
 Source10:        nvidia-config-display
 Source11:        nvidia-README.Fedora
 # So we don't pull other nvidia variants
@@ -229,6 +230,10 @@ install -D -p -m 0755 %{SOURCE5} $RPM_BUILD_ROOT%{_initrddir}/nvidia
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
 echo "%{nvidialibdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 
+#Blacklist nouveau by F-11
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
+install -pm 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
+
 # Change perms on static libs. Can't fathom how to do it nicely above.
 find $RPM_BUILD_ROOT/%{nvidialibdir} -type f -name "*.a" -exec chmod 0644 '{}' \;
 
@@ -264,6 +269,7 @@ fi ||:
 %files
 %defattr(-,root,root,-)
 %doc nvidiapkg/usr/share/doc/*
+%config(noreplace) %{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
 %{_initrddir}/nvidia
 %{_bindir}/*
 %{_sbindir}/*
@@ -282,6 +288,7 @@ fi ||:
 %dir %{nvidialibdir}/tls
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %{nvidialibdir}/*.so.*
+%{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libGLcore.so
 %{nvidialibdir}/libvdpau_nvidia.so
 %{nvidialibdir}/libvdpau_trace.so
@@ -297,13 +304,23 @@ fi ||:
 %{_includedir}/nvidia/cuda/*.h
 %{_includedir}/nvidia/vdpau/*.h
 %exclude %{nvidialibdir}/libXvMCNVIDIA.a
-%{nvidialibdir}/libcuda.so
+%exclude %{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libGL.so
 %{nvidialibdir}/libvdpau.so
 %{nvidialibdir}/libXvMCNVIDIA.so
 
 
 %changelog
+* Wed Jul  1 2009 kwizart < kwizart at gmail.com > - 185.18.14-3
+- Fix libcuda.so runtime usage - BZ 670#c4
+  Workaround for cudart.so wrong behaviour
+
+* Sun Jun  7 2009 kwizart < kwizart at gmail.com > - 185.18.14-2
+- blacklist nouveau by default.
+
+* Fri Jun  5 2009 kwizart < kwizart at gmail.com > - 185.18.14-1
+- Update to 185.18.14 (final)
+
 * Wed Apr 22 2009 kwizart < kwizart at gmail.com > - 180.51-1
 - Update to 180.51 (stable)
 - Add 71xx/beta/catalyst Conflicts
