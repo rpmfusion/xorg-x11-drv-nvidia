@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         180.51
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -282,6 +282,7 @@ fi ||:
 %dir %{nvidialibdir}/tls
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %{nvidialibdir}/*.so.*
+%{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libGLcore.so
 %{nvidialibdir}/libvdpau_nvidia.so
 %{nvidialibdir}/libvdpau_trace.so
@@ -297,13 +298,17 @@ fi ||:
 %{_includedir}/nvidia/cuda/*.h
 %{_includedir}/nvidia/vdpau/*.h
 %exclude %{nvidialibdir}/libXvMCNVIDIA.a
-%{nvidialibdir}/libcuda.so
+%exclude %{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libGL.so
 %{nvidialibdir}/libvdpau.so
 %{nvidialibdir}/libXvMCNVIDIA.so
 
 
 %changelog
+* Wed Jul  1 2009 kwizart < kwizart at gmail.com > - 180.51-2
+- Fix libcuda.so runtime usage - BZ 670#c4
+  Workaround for cudart.so wrong behaviour
+
 * Wed Apr 22 2009 kwizart < kwizart at gmail.com > - 180.51-1
 - Update to 180.51 (stable)
 - Add 71xx/beta/catalyst Conflicts
