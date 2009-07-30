@@ -7,8 +7,8 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         185.18.14
-Release:         3%{?dist}
+Version:         185.18.29
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -311,6 +311,9 @@ fi ||:
 
 
 %changelog
+* Thu Jul 30 2009 kwizart < kwizart at gmail.com > - 185.18.29-1
+- Update to 185.18.29 (final)
+
 * Wed Jul  1 2009 kwizart < kwizart at gmail.com > - 185.18.14-3
 - Fix libcuda.so runtime usage - BZ 670#c4
   Workaround for cudart.so wrong behaviour
