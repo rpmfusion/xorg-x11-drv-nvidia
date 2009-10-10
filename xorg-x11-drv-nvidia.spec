@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         185.18.36
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -291,7 +291,7 @@ fi ||:
 %{nvidialibdir}/*.so.*
 %{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libGLcore.so
-%{nvidialibdir}/libvdpau_nvidia.so*
+%{nvidialibdir}/libvdpau_nvidia.so
 %exclude %{nvidialibdir}/libvdpau_trace.so*
 %exclude %{nvidialibdir}/libvdpau.*
 %{nvidialibdir}/tls/*.so.*
@@ -309,10 +309,10 @@ fi ||:
 %exclude %{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libGL.so
 %{nvidialibdir}/libXvMCNVIDIA.so
-
+3
 
 %changelog
-* Sat Oct 10 2009 kwizart < kwizart at gmail.com > - 185.18.36-2
+* Sat Oct 10 2009 kwizart < kwizart at gmail.com > - 185.18.36-3
 - Exclude libvdpau as it is now a separate package.
 - Avoid Requires/Provides of the libGL.so.1 . rfbz#859
 
