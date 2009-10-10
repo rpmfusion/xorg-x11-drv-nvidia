@@ -309,7 +309,7 @@ fi ||:
 %exclude %{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libGL.so
 %{nvidialibdir}/libXvMCNVIDIA.so
-3
+
 
 %changelog
 * Sat Oct 10 2009 kwizart < kwizart at gmail.com > - 185.18.36-3
