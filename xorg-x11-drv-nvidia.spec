@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         185.18.36
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -23,8 +23,11 @@ Source10:        nvidia-config-display
 Source11:        nvidia-README.Fedora
 # So we don't pull other nvidia variants
 Source91:        filter-requires.sh
+# So we don't mess with mesa provides.
+Source92:        filter-provides.sh
 %define          _use_internal_dependency_generator 0
 %define          __find_requires %{SOURCE91}
+%define          __find_provides %{SOURCE92}
 
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %if 0%{?fedora} >= 11
@@ -47,6 +50,7 @@ Requires(preun): livna-config-display
 Requires(post):  chkconfig
 Requires(post):  ldconfig
 Requires(preun): chkconfig
+
 
 Provides:        nvidia-kmod-common = %{version}
 Conflicts:       xorg-x11-drv-nvidia-beta
@@ -211,9 +215,6 @@ ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so
 
 # This is 180.xx adds - vdpau libs and headers
 ln -s libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libvdpau_nvidia.so
-ln -s libvdpau.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libvdpau.so.1
-ln -s libvdpau.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libvdpau.so
-ln -s libvdpau_trace.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libvdpau_trace.so
 
 # X configuration script
 install -D -p -m 0755 %{SOURCE10} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
@@ -291,7 +292,8 @@ fi ||:
 %{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libGLcore.so
 %{nvidialibdir}/libvdpau_nvidia.so
-%{nvidialibdir}/libvdpau_trace.so
+%exclude %{nvidialibdir}/libvdpau_trace.so*
+%exclude %{nvidialibdir}/libvdpau.*
 %{nvidialibdir}/tls/*.so.*
 
 %files devel
@@ -299,18 +301,22 @@ fi ||:
 %dir %{_includedir}/nvidia
 %dir %{_includedir}/nvidia/GL
 %dir %{_includedir}/nvidia/cuda
-%dir %{_includedir}/nvidia/vdpau
+%exclude %dir %{_includedir}/nvidia/vdpau
 %{_includedir}/nvidia/GL/*.h
 %{_includedir}/nvidia/cuda/*.h
-%{_includedir}/nvidia/vdpau/*.h
+%exclude  %{_includedir}/nvidia/vdpau/*.h
 %exclude %{nvidialibdir}/libXvMCNVIDIA.a
 %exclude %{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libGL.so
-%{nvidialibdir}/libvdpau.so
+%exclude  %{nvidialibdir}/libvdpau.so
 %{nvidialibdir}/libXvMCNVIDIA.so
 
 
 %changelog
+* Sat Oct 10 2009 kwizart < kwizart at gmail.com > - 185.18.36-2
+- Exclude libvdpau as it is now a separate package.
+- Avoid Requires/Provides of the libGL.so.1 . rfbz#859
+
 * Sat Aug 29 2009 kwizart < kwizart at gmail.com > - 185.18.36-1
 - Update to 185.18.36 (final)
 
