@@ -291,7 +291,7 @@ fi ||:
 %{nvidialibdir}/*.so.*
 %{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libGLcore.so
-%{nvidialibdir}/libvdpau_nvidia.so
+%{nvidialibdir}/libvdpau_nvidia.so*
 %exclude %{nvidialibdir}/libvdpau_trace.so*
 %exclude %{nvidialibdir}/libvdpau.*
 %{nvidialibdir}/tls/*.so.*
@@ -308,7 +308,6 @@ fi ||:
 %exclude %{nvidialibdir}/libXvMCNVIDIA.a
 %exclude %{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libGL.so
-%exclude  %{nvidialibdir}/libvdpau.so
 %{nvidialibdir}/libXvMCNVIDIA.so
 
 
