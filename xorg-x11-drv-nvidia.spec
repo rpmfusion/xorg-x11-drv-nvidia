@@ -7,8 +7,8 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         185.18.36
-Release:         3%{?dist}
+Version:         190.42
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -30,7 +30,9 @@ Source92:        filter-provides.sh
 %define          __find_provides %{SOURCE92}
 
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-%if 0%{?fedora} >= 11
+%if 0%{?fedora} > 11 || 0%{?rhel} > 5
+ExclusiveArch: i686 x86_64
+%else 0%{?fedora} == 11
 ExclusiveArch: i586 x86_64
 %else
 ExclusiveArch: i386 x86_64
@@ -312,6 +314,9 @@ fi ||:
 
 
 %changelog
+* Sat Oct 31 2009 Nicolas Chauvet <kwizart@fedorproject.org> - 190.42-1
+- Update to 190.42
+
 * Sat Oct 10 2009 kwizart < kwizart at gmail.com > - 185.18.36-3
 - Exclude libvdpau as it is now a separate package.
 - Avoid Requires/Provides of the libGL.so.1 . rfbz#859
