@@ -315,7 +315,7 @@ fi ||:
 
 %changelog
 * Tue Nov  3 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.42-2
-- Update blacklist-nouveau.conf - rfbz#907
+- Update blacklist-nouveau.conf - rfbz#914
 
 * Sat Oct 31 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.42-1
 - Update to 190.42
