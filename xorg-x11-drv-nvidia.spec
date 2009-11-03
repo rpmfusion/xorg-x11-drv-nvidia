@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         190.42
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -314,6 +314,9 @@ fi ||:
 
 
 %changelog
+* Tue Nov  3 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.42-2
+- Update blacklist-nouveau.conf - rfbz#907
+
 * Sat Oct 31 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.42-1
 - Update to 190.42
 
