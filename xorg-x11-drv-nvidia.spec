@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         190.42
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -43,6 +43,7 @@ Requires(post):  nvidia-kmod >= %{version}
 
 # Needed in all nvidia or fglrx driver packages
 BuildRequires:   desktop-file-utils
+BuildRequires:   prelink
 Requires:        which
 Requires:        livna-config-display >= 0.0.21
 Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
@@ -240,6 +241,15 @@ install -pm 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
 # Change perms on static libs. Can't fathom how to do it nicely above.
 find $RPM_BUILD_ROOT/%{nvidialibdir} -type f -name "*.a" -exec chmod 0644 '{}' \;
 
+# Remove execstack needs on F-12 and laters
+%if 0%{?fedora} >= 12 || 0%{?rhel} > 5
+find $RPM_BUILD_ROOT%{nvidialibdir} -name '*.so.*' -type f -exec execstack -c {} ';'
+execstack -c $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libglx.so.%{version}
+execstack -c $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/nvidia_drv.so
+execstack -c $RPM_BUILD_ROOT%{_bindir}/nvidia-{settings,smi}
+execstack -c $RPM_BUILD_ROOT%{_sbindir}/nvidia-xconfig
+%endif
+
 
 
 %clean
@@ -314,6 +324,9 @@ fi ||:
 
 
 %changelog
+* Sat Nov 14 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.42-3
+- Remove execstack on nvidia binaries and libraries.
+
 * Tue Nov  3 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.42-2
 - Update blacklist-nouveau.conf - rfbz#914
 
