@@ -246,8 +246,10 @@ find $RPM_BUILD_ROOT/%{nvidialibdir} -type f -name "*.a" -exec chmod 0644 '{}' \
 find $RPM_BUILD_ROOT%{nvidialibdir} -name '*.so.*' -type f -exec execstack -c {} ';'
 execstack -c $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libglx.so.%{version}
 execstack -c $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/nvidia_drv.so
+%ifarch x86_64
 execstack -c $RPM_BUILD_ROOT%{_bindir}/nvidia-{settings,smi}
 execstack -c $RPM_BUILD_ROOT%{_sbindir}/nvidia-xconfig
+%endif
 %endif
 
 
