@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Version:         190.42
-Release:         1%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -37,12 +37,15 @@ ExclusiveArch: i586 x86_64
 %else
 ExclusiveArch: i386 x86_64
 %endif
+Requires:  nvidia-xconfig
+Requires:  nvidia-settings
 
 Requires:        nvidia-kmod >= %{version}
 Requires(post):  nvidia-kmod >= %{version}
 
 # Needed in all nvidia or fglrx driver packages
 BuildRequires:   desktop-file-utils
+BuildRequires:   prelink
 Requires:        which
 Requires:        livna-config-display >= 0.0.21
 Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
@@ -240,6 +243,17 @@ install -pm 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
 # Change perms on static libs. Can't fathom how to do it nicely above.
 find $RPM_BUILD_ROOT/%{nvidialibdir} -type f -name "*.a" -exec chmod 0644 '{}' \;
 
+# Remove execstack needs on F-12 and laters
+%if 0%{?fedora} >= 12 || 0%{?rhel} > 5
+find $RPM_BUILD_ROOT%{nvidialibdir} -name '*.so.*' -type f -exec execstack -c {} ';'
+execstack -c $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libglx.so.%{version}
+execstack -c $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/nvidia_drv.so
+%ifarch x86_64
+execstack -c $RPM_BUILD_ROOT%{_bindir}/nvidia-{settings,smi}
+execstack -c $RPM_BUILD_ROOT%{_sbindir}/nvidia-xconfig
+%endif
+%endif
+
 
 
 %clean
@@ -274,8 +288,11 @@ fi ||:
 %doc nvidiapkg/usr/share/doc/*
 %config(noreplace) %{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
 %{_initrddir}/nvidia
-%{_bindir}/*
-%{_sbindir}/*
+%exclude %{_bindir}/nvidia-settings
+%exclude %{_sbindir}/nvidia-xconfig
+%{_bindir}/nvidia-bug-report.sh
+%{_bindir}/nvidia-smi
+%{_sbindir}/nvidia-config-display
 # Xorg libs that do not need to be multilib
 %dir %{_libdir}/xorg/modules/extensions/nvidia
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
@@ -283,7 +300,9 @@ fi ||:
 #/no_multilib
 %{_datadir}/applications/*nvidia-settings.desktop
 %{_datadir}/pixmaps/*.png
-%{_mandir}/man[1-9]/nvidia*.*
+%exclude %{_mandir}/man1/nvidia-settings.*
+%exclude %{_mandir}/man1/nvidia-xconfig.*
+%{_mandir}/man1/nvidia-smi.*
 
 %files libs
 %defattr(-,root,root,-)
@@ -314,6 +333,15 @@ fi ||:
 
 
 %changelog
+* Tue Nov 24 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.42-4
+- Use nvidia-xconfig and nvidia-settings built from sources.
+
+* Sat Nov 14 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.42-3
+- Remove execstack on nvidia binaries and libraries.
+
+* Tue Nov  3 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.42-2
+- Update blacklist-nouveau.conf - rfbz#914
+
 * Sat Oct 31 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.42-1
 - Update to 190.42
 
