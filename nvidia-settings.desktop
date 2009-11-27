@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=nVidia Display Settings
-Comment=Configure the nVidia driver
-Exec=nvidia-settings
-Terminal=false
-Icon=nvidia-settings
-Type=Application
-Categories=System;
