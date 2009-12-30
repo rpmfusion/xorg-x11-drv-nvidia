@@ -7,8 +7,8 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         190.42
-Release:         5%{?dist}
+Version:         190.53
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -46,7 +46,11 @@ Requires(post):  nvidia-kmod >= %{version}
 BuildRequires:   prelink
 Requires:        which
 Requires:        livna-config-display >= 0.0.21
+%if 0%{?fedora} > 10 || 0%{?rhel} > 5
+Requires:        %{name}-libs%{_isa} = %{version}-%{release}
+%else
 Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
+%endif
 
 Requires(post):  livna-config-display
 Requires(preun): livna-config-display
@@ -98,6 +102,7 @@ such as OpenGL headers.
 Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{version}-%{release}
+Requires:        libvdpau%{_isa} >= 0.3
 Provides:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
 %ifarch %{ix86}
 Provides:        %{name}-libs-32bit = %{version}-%{release}
@@ -147,7 +152,10 @@ rm -rf $RPM_BUILD_ROOT
 set +x
 for file in $(cd nvidiapkg &> /dev/null; find . -type f | grep -v -e 'makeself.sh$' -e 'mkprecompiled$' -e 'tls_test$' -e 'tls_test_dso.so$' -e 'nvidia-settings.desktop$' -e '^./Makefile'  -e '^./nvidia-installer' -e '^./pkg-history.txt' -e '^./.manifest' -e '/usr/share/doc/' -e 'libGL.la$' -e 'drivers/nvidia_drv.o$' -e 'nvidia-installer.1.gz$' -e '^./usr/src/')
 do
-  if [[ ! "/${file##./usr/lib/}" = "/${file}" ]]
+  if [[ ! "/${file##./usr/lib/vdpau}" = "/${file}" ]]
+  then
+    install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{_libdir}/vdpau/${file##./usr/lib/vdpau}
+  elif [[ ! "/${file##./usr/lib/}" = "/${file}" ]]
   then
     install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{nvidialibdir}/${file##./usr/lib/}
   elif [[ ! "/${file##./usr/X11R6/lib/modules/extensions}" = "/${file}" ]]
@@ -217,7 +225,7 @@ ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so.1
 ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so
 
 # This is 180.xx adds - vdpau libs and headers
-ln -s libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libvdpau_nvidia.so
+ln -s libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so.1
 
 # X configuration script
 install -D -p -m 0755 %{SOURCE10} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
@@ -304,10 +312,11 @@ fi ||:
 %{nvidialibdir}/*.so.*
 %{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libGLcore.so
-%{nvidialibdir}/libvdpau_nvidia.so
-%exclude %{nvidialibdir}/libvdpau_trace.so*
-%exclude %{nvidialibdir}/libvdpau.*
 %{nvidialibdir}/tls/*.so.*
+%exclude %{nvidialibdir}/libvdpau.*
+%{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
+%{_libdir}/vdpau/libvdpau_nvidia.so.1
+%exclude %{_libdir}/vdpau/libvdpau_trace.so*
 
 %files devel
 %defattr(-,root,root,-)
@@ -325,6 +334,10 @@ fi ||:
 
 
 %changelog
+* Wed Dec 30 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.53-1
+- Update to 190.53
+- Switch to new libvdpau location in %%{_libdir}/vdpau
+
 * Fri Nov 27 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.42-5
 - Remove duplicate desktop file.
 
