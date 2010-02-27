@@ -344,7 +344,7 @@ fi ||:
 %exclude %{nvidialibdir}/libXvMCNVIDIA.a
 %exclude %{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libOpenCL.so
-%{nvidialibdir}libnvidia-compiler.so
+%{nvidialibdir}/libnvidia-compiler.so
 %{nvidialibdir}/libGL.so
 %{nvidialibdir}/libXvMCNVIDIA.so
 
