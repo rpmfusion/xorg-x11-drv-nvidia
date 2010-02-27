@@ -7,7 +7,7 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         190.53
+Version:         195.36.08
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -155,6 +155,9 @@ do
   if [[ ! "/${file##./usr/lib/vdpau}" = "/${file}" ]]
   then
     install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{_libdir}/vdpau/${file##./usr/lib/vdpau}
+  elif [[ ! "/${file##./etc/OpenCL/vendors}" = "/${file}" ]]
+  then
+    install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{_sysconfdir}/OpenCL/vendors/${file##./etc/OpenCL/vendors/}
   elif [[ ! "/${file##./usr/lib/}" = "/${file}" ]]
   then
     install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{nvidialibdir}/${file##./usr/lib/}
@@ -227,6 +230,12 @@ ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so
 # This is 180.xx adds - vdpau libs and headers
 ln -s libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so.1
 
+# This is 195.xx adds - OpenCL support
+ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1
+ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so
+ln -s libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-compiler.so.1
+ln -s libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-compiler.so
+
 # X configuration script
 install -D -p -m 0755 %{SOURCE10} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
 
@@ -287,6 +296,9 @@ fi ||:
 %files
 %defattr(-,root,root,-)
 %doc nvidiapkg/usr/share/doc/*
+%dir %{_sysconfdir}/OpenCL
+%dir %{_sysconfdir}/OpenCL/vendors
+%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %config(noreplace) %{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
 %{_initrddir}/nvidia
 %exclude %{_bindir}/nvidia-settings
@@ -321,9 +333,11 @@ fi ||:
 %files devel
 %defattr(-,root,root,-)
 %dir %{_includedir}/nvidia
+%dir %{_includedir}/nvidia/CL
 %dir %{_includedir}/nvidia/GL
 %dir %{_includedir}/nvidia/cuda
 %exclude %dir %{_includedir}/nvidia/vdpau
+%{_includedir}/nvidia/CL/*.h
 %{_includedir}/nvidia/GL/*.h
 %{_includedir}/nvidia/cuda/*.h
 %exclude  %{_includedir}/nvidia/vdpau/*.h
@@ -334,6 +348,9 @@ fi ||:
 
 
 %changelog
+* Sat Feb 27 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 195.36.08-1
+- Update to 195.36.08
+
 * Wed Dec 30 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.53-1
 - Update to 190.53
 - Switch to new libvdpau location in %%{_libdir}/vdpau
