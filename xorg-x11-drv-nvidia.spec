@@ -7,8 +7,9 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         195.36.08
-Release:         1%{?dist}
+Epoch:           1
+Version:         190.53
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -47,7 +48,7 @@ BuildRequires:   prelink
 Requires:        which
 Requires:        livna-config-display >= 0.0.21
 %if 0%{?fedora} > 10 || 0%{?rhel} > 5
-Requires:        %{name}-libs%{_isa} = %{version}-%{release}
+Requires:        %{name}-libs%{_isa} = 1:%{version}-%{release}
 %else
 Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
 %endif
@@ -59,7 +60,7 @@ Requires(post):  ldconfig
 Requires(preun): chkconfig
 
 
-Provides:        nvidia-kmod-common = %{version}
+Provides:        nvidia-kmod-common = 1:%{version}
 Conflicts:       xorg-x11-drv-nvidia-beta
 Conflicts:       xorg-x11-drv-nvidia-legacy
 Conflicts:       xorg-x11-drv-nvidia-71xx
@@ -67,7 +68,7 @@ Conflicts:       xorg-x11-drv-nvidia-96xx
 Conflicts:       xorg-x11-drv-nvidia-173xx
 Conflicts:       xorg-x11-drv-fglrx
 Conflicts:       xorg-x11-drv-catalyst
-Obsoletes:       nvidia-kmod < %{version}
+Obsoletes:       nvidia-kmod < 1:%{version}
 
 #Introduced in F10 for freshrpms compatibility
 Obsoletes:       nvidia-x11-drv < %{version}-%{release}
@@ -101,12 +102,12 @@ such as OpenGL headers.
 %package libs
 Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
-Requires:        %{name} = %{version}-%{release}
+Requires:        %{name} = 1:%{version}-%{release}
 Requires:        libvdpau%{_isa} >= 0.3
-Provides:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
+Provides:        %{name}-libs-%{_target_cpu} = 1:%{version}-%{release}
 %ifarch %{ix86}
-Provides:        %{name}-libs-32bit = %{version}-%{release}
-Obsoletes:       %{name}-libs-32bit <= %{version}-%{release}
+Provides:        %{name}-libs-32bit = 1:%{version}-%{release}
+Obsoletes:       %{name}-libs-32bit <= 1:%{version}-%{release}
 Obsoletes:       nvidia-x11-drv-32bit < %{version}-%{release}
 Provides:        nvidia-x11-drv-32bit = %{version}-%{release}
 %endif
@@ -155,9 +156,6 @@ do
   if [[ ! "/${file##./usr/lib/vdpau}" = "/${file}" ]]
   then
     install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{_libdir}/vdpau/${file##./usr/lib/vdpau}
-  elif [[ ! "/${file##./etc/OpenCL/vendors}" = "/${file}" ]]
-  then
-    install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{_sysconfdir}/OpenCL/vendors/${file##./etc/OpenCL/vendors/}
   elif [[ ! "/${file##./usr/lib/}" = "/${file}" ]]
   then
     install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{nvidialibdir}/${file##./usr/lib/}
@@ -230,12 +228,6 @@ ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so
 # This is 180.xx adds - vdpau libs and headers
 ln -s libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so.1
 
-# This is 195.xx adds - OpenCL support
-ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1
-ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so
-ln -s libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-compiler.so.1
-ln -s libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-compiler.so
-
 # X configuration script
 install -D -p -m 0755 %{SOURCE10} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
 
@@ -296,9 +288,6 @@ fi ||:
 %files
 %defattr(-,root,root,-)
 %doc nvidiapkg/usr/share/doc/*
-%dir %{_sysconfdir}/OpenCL
-%dir %{_sysconfdir}/OpenCL/vendors
-%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %config(noreplace) %{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
 %{_initrddir}/nvidia
 %exclude %{_bindir}/nvidia-settings
@@ -333,25 +322,22 @@ fi ||:
 %files devel
 %defattr(-,root,root,-)
 %dir %{_includedir}/nvidia
-%dir %{_includedir}/nvidia/CL
 %dir %{_includedir}/nvidia/GL
 %dir %{_includedir}/nvidia/cuda
 %exclude %dir %{_includedir}/nvidia/vdpau
-%{_includedir}/nvidia/CL/*.h
 %{_includedir}/nvidia/GL/*.h
 %{_includedir}/nvidia/cuda/*.h
 %exclude  %{_includedir}/nvidia/vdpau/*.h
 %exclude %{nvidialibdir}/libXvMCNVIDIA.a
 %exclude %{nvidialibdir}/libcuda.so
-%{nvidialibdir}/libOpenCL.so
-%{nvidialibdir}/libnvidia-compiler.so
 %{nvidialibdir}/libGL.so
 %{nvidialibdir}/libXvMCNVIDIA.so
 
 
 %changelog
-* Sat Feb 27 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 195.36.08-1
-- Update to 195.36.08
+* Fri Mar 12 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:190.53-2
+- Bump Epoch - Fan problem in recent release
+  http://www.nvnews.net/vbulletin/announcement.php?f=14
 
 * Wed Dec 30 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.53-1
 - Update to 190.53
