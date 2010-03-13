@@ -9,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         190.53
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -47,11 +47,7 @@ Requires(post):  nvidia-kmod >= %{version}
 BuildRequires:   prelink
 Requires:        which
 Requires:        livna-config-display >= 0.0.21
-%if 0%{?fedora} > 10 || 0%{?rhel} > 5
 Requires:        %{name}-libs%{_isa} = 1:%{version}-%{release}
-%else
-Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
-%endif
 
 Requires(post):  livna-config-display
 Requires(preun): livna-config-display
@@ -335,6 +331,9 @@ fi ||:
 
 
 %changelog
+* Sat Mar 13 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:190.53-3
+- Remove wrong macro - rfbz#1113
+
 * Fri Mar 12 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:190.53-2
 - Bump Epoch - Fan problem in recent release
   http://www.nvnews.net/vbulletin/announcement.php?f=14
