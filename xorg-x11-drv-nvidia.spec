@@ -9,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         190.53
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -47,7 +47,11 @@ Requires(post):  nvidia-kmod >= %{version}
 BuildRequires:   prelink
 Requires:        which
 Requires:        livna-config-display >= 0.0.21
+%if 0%{?fedora} > 10 || 0%{?rhel} > 5
 Requires:        %{name}-libs%{_isa} = 1:%{version}-%{release}
+%else
+Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
+%endif
 
 Requires(post):  livna-config-display
 Requires(preun): livna-config-display
@@ -86,7 +90,7 @@ for driver version %{version}.
 %package devel
 Summary:         Development files for %{name}
 Group:           Development/Libraries
-Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
+Requires:        %{name}-libs-%{_target_cpu} = 1:%{version}-%{release}
 #Introduced in F10 when 173xx has forked to legacy serie
 Obsoletes:       xorg-x11-drv-nvidia-newest-devel < %{version}-100
 Provides:        xorg-x11-drv-nvidia-newest-devel = %{version}-101
@@ -331,8 +335,8 @@ fi ||:
 
 
 %changelog
-* Sat Mar 13 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:190.53-3
-- Remove wrong macro - rfbz#1113
+* Sun Mar 14 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:190.53-4
+- Fix multilibs requirements
 
 * Fri Mar 12 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:190.53-2
 - Bump Epoch - Fan problem in recent release
