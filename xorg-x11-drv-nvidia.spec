@@ -7,7 +7,8 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         195.36.08
+Epoch:           1
+Version:         195.36.15
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -47,7 +48,7 @@ BuildRequires:   prelink
 Requires:        which
 Requires:        livna-config-display >= 0.0.21
 %if 0%{?fedora} > 10 || 0%{?rhel} > 5
-Requires:        %{name}-libs%{_isa} = %{version}-%{release}
+Requires:        %{name}-libs%{_isa} = %{?epoch}:%{version}-%{release}
 %else
 Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
 %endif
@@ -59,7 +60,7 @@ Requires(post):  ldconfig
 Requires(preun): chkconfig
 
 
-Provides:        nvidia-kmod-common = %{version}
+Provides:        nvidia-kmod-common = %{?epoch}:%{version}
 Conflicts:       xorg-x11-drv-nvidia-beta
 Conflicts:       xorg-x11-drv-nvidia-legacy
 Conflicts:       xorg-x11-drv-nvidia-71xx
@@ -67,7 +68,7 @@ Conflicts:       xorg-x11-drv-nvidia-96xx
 Conflicts:       xorg-x11-drv-nvidia-173xx
 Conflicts:       xorg-x11-drv-fglrx
 Conflicts:       xorg-x11-drv-catalyst
-Obsoletes:       nvidia-kmod < %{version}
+Obsoletes:       nvidia-kmod < %{?epoch}:%{version}
 
 #Introduced in F10 for freshrpms compatibility
 Obsoletes:       nvidia-x11-drv < %{version}-%{release}
@@ -89,7 +90,7 @@ for driver version %{version}.
 %package devel
 Summary:         Development files for %{name}
 Group:           Development/Libraries
-Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
+Requires:        %{name}-libs-%{_target_cpu} = %{?epoch}:%{version}-%{release}
 #Introduced in F10 when 173xx has forked to legacy serie
 Obsoletes:       xorg-x11-drv-nvidia-newest-devel < %{version}-100
 Provides:        xorg-x11-drv-nvidia-newest-devel = %{version}-101
@@ -101,12 +102,12 @@ such as OpenGL headers.
 %package libs
 Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
-Requires:        %{name} = %{version}-%{release}
+Requires:        %{name} = %{?epoch}:%{version}-%{release}
 Requires:        libvdpau%{_isa} >= 0.3
-Provides:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
+Provides:        %{name}-libs-%{_target_cpu} = %{?epoch}:%{version}-%{release}
 %ifarch %{ix86}
-Provides:        %{name}-libs-32bit = %{version}-%{release}
-Obsoletes:       %{name}-libs-32bit <= %{version}-%{release}
+Provides:        %{name}-libs-32bit = %{?epoch}:%{version}-%{release}
+Obsoletes:       %{name}-libs-32bit <= %{?epoch}:%{version}-%{release}
 Obsoletes:       nvidia-x11-drv-32bit < %{version}-%{release}
 Provides:        nvidia-x11-drv-32bit = %{version}-%{release}
 %endif
@@ -350,6 +351,17 @@ fi ||:
 
 
 %changelog
+* Sat Mar 27 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:195.36.15-1
+- Update to 195.36.15
+- Use macro for Epoch
+
+* Sun Mar 14 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:190.53-4
+- Fix multilibs requirements
+
+* Fri Mar 12 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:190.53-2
+- Bump Epoch - Fan problem in recent release
+  http://www.nvnews.net/vbulletin/announcement.php?f=14
+
 * Sat Feb 27 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 195.36.08-1
 - Update to 195.36.08
 
