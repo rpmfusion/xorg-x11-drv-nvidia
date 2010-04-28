@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         195.36.15
+Version:         195.36.24
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -351,6 +351,9 @@ fi ||:
 
 
 %changelog
+* Sat Apr 24 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:195.36.24-1
+- Update to 195.36.24
+
 * Sat Mar 27 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:195.36.15-1
 - Update to 195.36.15
 - Use macro for Epoch
