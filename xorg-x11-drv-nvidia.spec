@@ -9,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         195.36.31
-Release:         1%{?dist}
+Release:         1%{?dist}.1
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -349,6 +349,9 @@ fi ||:
 
 
 %changelog
+* Mon Jun 21 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:195.36.31-1.1
+- Fix backport side effect, F-11 uses mkinitrd.
+
 * Wed Jun 16 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:195.36.31-1
 - Update to 195.36.31
 - Fallback to nouveau instead of nv
