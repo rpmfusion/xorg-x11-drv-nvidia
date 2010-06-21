@@ -279,16 +279,6 @@ if [ "$1" -eq "1" ]; then
   /sbin/chkconfig --add nvidia ||:
   /etc/init.d/nvidia start &>/dev/null ||:
 fi
-if [ -x /sbin/grubby ] ; then
-  GRUBBYLASTKERNEL=`/sbin/grubby --default-kernel`
-  /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nomodeset rdblacklist=nouveau' &>/dev/null
-fi
-if [ -x /usr/sbin/setsebool ] ; then
-  SELINUXEXECSTACK=`grep 0 /selinux/booleans/allow_execstack | wc -l`
-  if [ ${SELINUXEXECSTACK} -eq "1" ] ; then
-    /usr/sbin/setsebool -P allow_execstack on &>/dev/null
-  fi
-fi ||:
 
 %post libs -p /sbin/ldconfig
 
@@ -361,8 +351,6 @@ fi ||:
 %changelog
 * Wed Jun 16 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:195.36.31-1
 - Update to 195.36.31
-- Add post section to change boot option with grubby
-- Add post section Enabled Selinux allow_execstack boolean.
 - Fallback to nouveau instead of nv
 - AddARGBGLXVisuals is enabled by default since 195xx serie.
 
