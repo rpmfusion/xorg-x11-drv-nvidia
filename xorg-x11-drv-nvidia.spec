@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         195.36.24
+Version:         195.36.31
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -254,8 +254,8 @@ install -pm 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
 # Change perms on static libs. Can't fathom how to do it nicely above.
 find $RPM_BUILD_ROOT/%{nvidialibdir} -type f -name "*.a" -exec chmod 0644 '{}' \;
 
-# Remove execstack needs on F-12 and laters
-%if 0%{?fedora} >= 12 || 0%{?rhel} > 5
+# Remove execstack needs on F-12 and laters - disabled
+%if 0
 find $RPM_BUILD_ROOT%{nvidialibdir} -name '*.so.*' -type f -exec execstack -c {} ';'
 execstack -c $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libglx.so.%{version}
 execstack -c $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/nvidia_drv.so
@@ -272,8 +272,6 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %post
-# Removes old legacy layout, fixed SELinux copy errors
-if [ ! $(ls /etc/udev/devices/nvidia* 2>/dev/null | wc -l) -eq 0 ];then rm -f /etc/udev/devices/nvidia*;fi ||:
 if [ "$1" -eq "1" ]; then
   # Enable nvidia driver when installing
   %{_sbindir}/nvidia-config-display enable &>/dev/null ||:
@@ -281,6 +279,16 @@ if [ "$1" -eq "1" ]; then
   /sbin/chkconfig --add nvidia ||:
   /etc/init.d/nvidia start &>/dev/null ||:
 fi
+if [ -x /sbin/grubby ] ; then
+  GRUBBYLASTKERNEL=`/sbin/grubby --default-kernel`
+  /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nomodeset rdblacklist=nouveau' &>/dev/null
+fi
+if [ -x /usr/sbin/setsebool ] ; then
+  SELINUXEXECSTACK=`grep 0 /selinux/booleans/allow_execstack | wc -l`
+  if [ ${SELINUXEXECSTACK} -eq "1" ] ; then
+    /usr/sbin/setsebool -P allow_execstack on &>/dev/null
+  fi
+fi ||:
 
 %post libs -p /sbin/ldconfig
 
@@ -351,6 +359,13 @@ fi ||:
 
 
 %changelog
+* Wed Jun 16 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:195.36.31-1
+- Update to 195.36.31
+- Add post section to change boot option with grubby
+- Add post section Enabled Selinux allow_execstack boolean.
+- Fallback to nouveau instead of nv
+- AddARGBGLXVisuals is enabled by default since 195xx serie.
+
 * Sat Apr 24 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:195.36.24-1
 - Update to 195.36.24
 
