@@ -7,7 +7,8 @@
 %endif
 
 Name:            xorg-x11-drv-nvidia
-Version:         190.53
+Epoch:           1
+Version:         195.36.31
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -47,7 +48,7 @@ BuildRequires:   prelink
 Requires:        which
 Requires:        livna-config-display >= 0.0.21
 %if 0%{?fedora} > 10 || 0%{?rhel} > 5
-Requires:        %{name}-libs%{_isa} = %{version}-%{release}
+Requires:        %{name}-libs%{_isa} = %{?epoch}:%{version}-%{release}
 %else
 Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
 %endif
@@ -59,7 +60,7 @@ Requires(post):  ldconfig
 Requires(preun): chkconfig
 
 
-Provides:        nvidia-kmod-common = %{version}
+Provides:        nvidia-kmod-common = %{?epoch}:%{version}
 Conflicts:       xorg-x11-drv-nvidia-beta
 Conflicts:       xorg-x11-drv-nvidia-legacy
 Conflicts:       xorg-x11-drv-nvidia-71xx
@@ -67,7 +68,7 @@ Conflicts:       xorg-x11-drv-nvidia-96xx
 Conflicts:       xorg-x11-drv-nvidia-173xx
 Conflicts:       xorg-x11-drv-fglrx
 Conflicts:       xorg-x11-drv-catalyst
-Obsoletes:       nvidia-kmod < %{version}
+Obsoletes:       nvidia-kmod < %{?epoch}:%{version}
 
 #Introduced in F10 for freshrpms compatibility
 Obsoletes:       nvidia-x11-drv < %{version}-%{release}
@@ -89,7 +90,7 @@ for driver version %{version}.
 %package devel
 Summary:         Development files for %{name}
 Group:           Development/Libraries
-Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
+Requires:        %{name}-libs-%{_target_cpu} = %{?epoch}:%{version}-%{release}
 #Introduced in F10 when 173xx has forked to legacy serie
 Obsoletes:       xorg-x11-drv-nvidia-newest-devel < %{version}-100
 Provides:        xorg-x11-drv-nvidia-newest-devel = %{version}-101
@@ -101,12 +102,12 @@ such as OpenGL headers.
 %package libs
 Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
-Requires:        %{name} = %{version}-%{release}
+Requires:        %{name} = %{?epoch}:%{version}-%{release}
 Requires:        libvdpau%{_isa} >= 0.3
-Provides:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
+Provides:        %{name}-libs-%{_target_cpu} = %{?epoch}:%{version}-%{release}
 %ifarch %{ix86}
-Provides:        %{name}-libs-32bit = %{version}-%{release}
-Obsoletes:       %{name}-libs-32bit <= %{version}-%{release}
+Provides:        %{name}-libs-32bit = %{?epoch}:%{version}-%{release}
+Obsoletes:       %{name}-libs-32bit <= %{?epoch}:%{version}-%{release}
 Obsoletes:       nvidia-x11-drv-32bit < %{version}-%{release}
 Provides:        nvidia-x11-drv-32bit = %{version}-%{release}
 %endif
@@ -155,6 +156,9 @@ do
   if [[ ! "/${file##./usr/lib/vdpau}" = "/${file}" ]]
   then
     install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{_libdir}/vdpau/${file##./usr/lib/vdpau}
+  elif [[ ! "/${file##./etc/OpenCL/vendors}" = "/${file}" ]]
+  then
+    install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{_sysconfdir}/OpenCL/vendors/${file##./etc/OpenCL/vendors/}
   elif [[ ! "/${file##./usr/lib/}" = "/${file}" ]]
   then
     install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{nvidialibdir}/${file##./usr/lib/}
@@ -227,6 +231,12 @@ ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so
 # This is 180.xx adds - vdpau libs and headers
 ln -s libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so.1
 
+# This is 195.xx adds - OpenCL support
+ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1
+ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so
+ln -s libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-compiler.so.1
+ln -s libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-compiler.so
+
 # X configuration script
 install -D -p -m 0755 %{SOURCE10} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
 
@@ -244,8 +254,8 @@ install -pm 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
 # Change perms on static libs. Can't fathom how to do it nicely above.
 find $RPM_BUILD_ROOT/%{nvidialibdir} -type f -name "*.a" -exec chmod 0644 '{}' \;
 
-# Remove execstack needs on F-12 and laters
-%if 0%{?fedora} >= 12 || 0%{?rhel} > 5
+# Remove execstack needs on F-12 and laters - disabled
+%if 0
 find $RPM_BUILD_ROOT%{nvidialibdir} -name '*.so.*' -type f -exec execstack -c {} ';'
 execstack -c $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libglx.so.%{version}
 execstack -c $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/nvidia_drv.so
@@ -262,8 +272,6 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %post
-# Removes old legacy layout, fixed SELinux copy errors
-if [ ! $(ls /etc/udev/devices/nvidia* 2>/dev/null | wc -l) -eq 0 ];then rm -f /etc/udev/devices/nvidia*;fi ||:
 if [ "$1" -eq "1" ]; then
   # Enable nvidia driver when installing
   %{_sbindir}/nvidia-config-display enable &>/dev/null ||:
@@ -271,6 +279,16 @@ if [ "$1" -eq "1" ]; then
   /sbin/chkconfig --add nvidia ||:
   /etc/init.d/nvidia start &>/dev/null ||:
 fi
+if [ -x /sbin/grubby ] ; then
+  GRUBBYLASTKERNEL=`/sbin/grubby --default-kernel`
+  /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nomodeset rdblacklist=nouveau' &>/dev/null
+fi
+if [ -x /usr/sbin/setsebool ] ; then
+  SELINUXEXECSTACK=`grep 0 /selinux/booleans/allow_execstack | wc -l`
+  if [ ${SELINUXEXECSTACK} -eq "1" ] ; then
+    /usr/sbin/setsebool -P allow_execstack on &>/dev/null
+  fi
+fi ||:
 
 %post libs -p /sbin/ldconfig
 
@@ -287,6 +305,9 @@ fi ||:
 %files
 %defattr(-,root,root,-)
 %doc nvidiapkg/usr/share/doc/*
+%dir %{_sysconfdir}/OpenCL
+%dir %{_sysconfdir}/OpenCL/vendors
+%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %config(noreplace) %{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
 %{_initrddir}/nvidia
 %exclude %{_bindir}/nvidia-settings
@@ -321,19 +342,47 @@ fi ||:
 %files devel
 %defattr(-,root,root,-)
 %dir %{_includedir}/nvidia
+%dir %{_includedir}/nvidia/CL
 %dir %{_includedir}/nvidia/GL
 %dir %{_includedir}/nvidia/cuda
 %exclude %dir %{_includedir}/nvidia/vdpau
+%{_includedir}/nvidia/CL/*.h
 %{_includedir}/nvidia/GL/*.h
 %{_includedir}/nvidia/cuda/*.h
 %exclude  %{_includedir}/nvidia/vdpau/*.h
 %exclude %{nvidialibdir}/libXvMCNVIDIA.a
 %exclude %{nvidialibdir}/libcuda.so
+%{nvidialibdir}/libOpenCL.so
+%{nvidialibdir}/libnvidia-compiler.so
 %{nvidialibdir}/libGL.so
 %{nvidialibdir}/libXvMCNVIDIA.so
 
 
 %changelog
+* Wed Jun 16 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:195.36.31-1
+- Update to 195.36.31
+- Add post section to change boot option with grubby
+- Add post section Enabled Selinux allow_execstack boolean.
+- Fallback to nouveau instead of nv
+- AddARGBGLXVisuals is enabled by default since 195xx serie.
+
+* Sat Apr 24 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:195.36.24-1
+- Update to 195.36.24
+
+* Sat Mar 27 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:195.36.15-1
+- Update to 195.36.15
+- Use macro for Epoch
+
+* Sun Mar 14 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:190.53-4
+- Fix multilibs requirements
+
+* Fri Mar 12 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 1:190.53-2
+- Bump Epoch - Fan problem in recent release
+  http://www.nvnews.net/vbulletin/announcement.php?f=14
+
+* Sat Feb 27 2010 Nicolas Chauvet <kwizart@fedoraproject.org> - 195.36.08-1
+- Update to 195.36.08
+
 * Wed Dec 30 2009 Nicolas Chauvet <kwizart@fedoraproject.org> - 190.53-1
 - Update to 190.53
 - Switch to new libvdpau location in %%{_libdir}/vdpau
