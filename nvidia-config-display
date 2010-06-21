@@ -76,8 +76,8 @@ class nvidiaConfigDisplay(GlxConfig):
                     break
                 else:
                     self.addModule(module)
-        # Problems with Compiz without these.
-        self.addOption(self.majorVendor,"AddARGBGLXVisuals", "True")
+        # Problems with Compiz without these. - not needed since 195.xxx
+        #self.addOption(self.majorVendor,"AddARGBGLXVisuals", "True")
         #self.addOption(self.majorVendor,"DisableGLXRootClipping", "True")
         Utils.writeXorgConf(self.xconfig, self.xconfigpath)
         # We have to read saved status file to restore the Xorg configuration. 
@@ -94,9 +94,9 @@ class nvidiaConfigDisplay(GlxConfig):
         prevDriver = self.config.getOldDriver()
         if prevDriver == self.majorVendor:
             print _('Will not allow reverting from driver \'%s\' to \'%s\'.') % (self.vendor, self.vendor)
-            print _('Using the \'nv\' driver instead.')
-            prevDriver = "nv"
-            self.config.setOldDriver("nv")
+            print _('Using the \'nouveau\' driver instead.')
+            prevDriver = "nouveau"
+            self.config.setOldDriver("nouveau")
         self.removeOption(self.majorVendor,"AddARGBGLXVisuals")
         self.removeOption(self.majorVendor,"DisableGLXRootClipping")
         self.toggleDriver(self.majorVendor, prevDriver)
