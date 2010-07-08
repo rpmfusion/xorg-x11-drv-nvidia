@@ -9,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         195.36.31
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -281,11 +281,11 @@ if [ "$1" -eq "1" ]; then
 fi
 if [ -x /sbin/grubby ] ; then
   GRUBBYLASTKERNEL=`/sbin/grubby --default-kernel`
-  /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nomodeset rdblacklist=nouveau' &>/dev/null
+  /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nouveau.modeset=0 rdblacklist=nouveau' &>/dev/null
 fi
 if [ -x /usr/sbin/setsebool ] ; then
-  SELINUXEXECSTACK=`grep 0 /selinux/booleans/allow_execstack | wc -l`
-  if [ ${SELINUXEXECSTACK} -eq "1" ] ; then
+  SELINUXEXECSTACK=`cat /selinux/booleans/allow_execstack 2>/dev/null`
+  if [ "${SELINUXEXECSTACK}" == "0 0" ] ; then
     /usr/sbin/setsebool -P allow_execstack on &>/dev/null
   fi
 fi ||:
@@ -359,6 +359,9 @@ fi ||:
 
 
 %changelog
+* Thu Jul 08 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:195.36.31-2
+- Improve post script as reported in rfbz#1262
+
 * Wed Jun 16 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:195.36.31-1
 - Update to 195.36.31
 - Add post section to change boot option with grubby
