@@ -278,10 +278,10 @@ if [ "$1" -eq "1" ]; then
   # Add init script and start it
   /sbin/chkconfig --add nvidia ||:
   /etc/init.d/nvidia start &>/dev/null ||:
-fi
-if [ -x /sbin/grubby ] ; then
-  GRUBBYLASTKERNEL=`/sbin/grubby --default-kernel`
-  /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nouveau.modeset=0 rdblacklist=nouveau' &>/dev/null
+  if [ -x /sbin/grubby ] ; then
+    GRUBBYLASTKERNEL=`/sbin/grubby --default-kernel`
+    /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nouveau.modeset=0 rdblacklist=nouveau' &>/dev/null
+  fi
 fi
 if [ -x /usr/sbin/setsebool ] ; then
   SELINUXEXECSTACK=`cat /selinux/booleans/allow_execstack 2>/dev/null`
@@ -361,6 +361,7 @@ fi ||:
 %changelog
 * Thu Jul 08 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:195.36.31-2
 - Improve post script as reported in rfbz#1262
+- Only blacklist nouveau with grubby on install.
 
 * Wed Jun 16 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:195.36.31-1
 - Update to 195.36.31
