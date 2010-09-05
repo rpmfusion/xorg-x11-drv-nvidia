@@ -229,6 +229,9 @@ install -D -p -m 0755 %{SOURCE10} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-displ
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/pixmaps
 install -pm 0644 nvidia-settings.png $RPM_BUILD_ROOT%{_datadir}/pixmaps
 
+# Remove duplicate install
+rm $RPM_BUILD_ROOT%{_libdir}/nvidia/libnvidia-{cfg,tls}.so
+
 # Remove execstack needs on F-12 and laters
 %if 0%{?fedora} >= 12 || 0%{?rhel} > 5
 find $RPM_BUILD_ROOT%{_libdir} -name '*.so.*' -type f -exec execstack -c {} ';'
