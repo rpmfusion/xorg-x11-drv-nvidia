@@ -8,15 +8,15 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         195.36.31
-Release:         2%{?dist}
+Version:         256.53
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
 License:         Redistributable, no modification permitted
 URL:             http://www.nvidia.com/
-Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}-pkg0.run
-Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}-pkg0.run
+Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
+Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}-no-compat32.run
 Source5:         nvidia-init
 Source6:         blacklist-nouveau.conf
 Source10:        nvidia-config-display
@@ -123,8 +123,7 @@ This package provides the shared libraries for %{name}.
 %setup -q -c -T
 sh %{SOURCE0} --extract-only --target nvidiapkg-x86
 sh %{SOURCE1} --extract-only --target nvidiapkg-x64
-tar -cjf nvidia-kmod-data-%{version}.tar.bz2 nvidiapkg-*/LICENSE nvidiapkg-*/usr/src/
-
+tar -cjf nvidia-kmod-data-%{version}.tar.bz2 nvidiapkg-*/LICENSE nvidiapkg-*/kernel
 # Tweak to have debuginfo - part 2/2
 %if 0%{?fedora} >= 7
 cp -p %{_prefix}/lib/rpm/find-debuginfo.sh .
@@ -136,11 +135,12 @@ ln -s nvidiapkg-x86 nvidiapkg
 %else
 ln -s nvidiapkg-x64 nvidiapkg
 %endif
-mv nvidiapkg/LICENSE nvidiapkg/usr/share/doc/
-# More docs
-cp %{SOURCE11} nvidiapkg/usr/share/doc/README.Fedora
-find nvidiapkg/usr/share/doc/ -type f | xargs chmod 0644
 
+# Tweak to have debuginfo - part 2/2
+%if 0%{?fedora} >= 7
+cp -p %{_prefix}/lib/rpm/find-debuginfo.sh .
+sed -i -e 's|strict=true|strict=false|' find-debuginfo.sh
+%endif
 
 %build
 # Nothing to build
@@ -150,126 +150,96 @@ echo "Nothing to build"
 %install
 rm -rf $RPM_BUILD_ROOT
 
-set +x
-for file in $(cd nvidiapkg &> /dev/null; find . -type f | grep -v -e 'makeself.sh$' -e 'mkprecompiled$' -e 'tls_test$' -e 'tls_test_dso.so$' -e 'nvidia-settings.desktop$' -e '^./Makefile'  -e '^./nvidia-installer' -e '^./pkg-history.txt' -e '^./.manifest' -e '/usr/share/doc/' -e 'libGL.la$' -e 'drivers/nvidia_drv.o$' -e 'nvidia-installer.1.gz$' -e '^./usr/src/')
-do
-  if [[ ! "/${file##./usr/lib/vdpau}" = "/${file}" ]]
-  then
-    install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{_libdir}/vdpau/${file##./usr/lib/vdpau}
-  elif [[ ! "/${file##./etc/OpenCL/vendors}" = "/${file}" ]]
-  then
-    install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{_sysconfdir}/OpenCL/vendors/${file##./etc/OpenCL/vendors/}
-  elif [[ ! "/${file##./usr/lib/}" = "/${file}" ]]
-  then
-    install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{nvidialibdir}/${file##./usr/lib/}
-  elif [[ ! "/${file##./usr/X11R6/lib/modules/extensions}" = "/${file}" ]]
-  then
-    install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{_libdir}/xorg/modules/extensions/nvidia/${file##./usr/X11R6/lib/modules/extensions}
-  elif [[ ! "/${file##./usr/X11R6/lib/modules}" = "/${file}" ]]
-  then
-    install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{_libdir}/xorg/modules/${file##./usr/X11R6/lib/modules}
-  elif [[ ! "/${file##./usr/X11R6/lib/}" = "/${file}" ]]
-  then
-    install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/%{nvidialibdir}/${file##./usr/X11R6/lib/}
-  elif [[ ! "/${file##./usr/include/}" = "/${file}" ]]
-  then
-    install -D -p -m 0644 nvidiapkg/${file} $RPM_BUILD_ROOT/%{_includedir}/nvidia/${file##./usr/include/}
-  elif [[ ! "/${file##./usr/bin/}" = "/${file}" ]]
-  then
-    if [[ ! "/${file##./usr/bin/nvidia-xconfig}" = "/${file}" ]]
-    then
-      install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/usr/sbin/${file##./usr/bin/}
-    elif [[ ! "/${file##./usr/bin/nvidia-bug-report.sh}" = "/${file}" ]]
-    then
-      install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/usr/bin/${file##./usr/bin/}
-    else
-      install -D -p -m 0755 nvidiapkg/${file} $RPM_BUILD_ROOT/${file}
-    fi
-  elif [[ ! "/${file##./usr/share/man/}" = "/${file}" ]]
-  then
-    install -D -p -m 0644 nvidiapkg/${file} $RPM_BUILD_ROOT/%{_mandir}/${file##./usr/share/man/}
-    gunzip $RPM_BUILD_ROOT/%{_mandir}/${file##./usr/share/man/}
-  elif [[ ! "/${file##./usr/share/pixmaps/}" = "/${file}" ]]
-  then
-    install -D -p -m 0644 nvidiapkg/${file} $RPM_BUILD_ROOT/%{_datadir}/pixmaps/${file##./usr/share/pixmaps/}
-  else
-    echo ${file} found -- don\'t know how to handle
-    exit 1
-  fi
-done
-set -x
+cd nvidiapkg
 
-# Move the libnvidia-wfb.so lib to the Nvidia xorg extension directory.
-mv $RPM_BUILD_ROOT%{_libdir}/xorg/modules/libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libnvidia-wfb.so.%{version}
+# The new 256.x version supplies all the files in a relatively flat structure
+# .. so explicitly deal out the files to the correct places
+# .. nvidia-installer looks too closely at the current machine, so it's hard
+# .. to generate rpm's unless a NVIDIA card is in the machine.
 
-# Fixme: should we do this directly in above for-loop? Yes, we should! No, please don't!
-ln -s libGLcore.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLcore.so
-ln -s libGLcore.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGLcore.so.1
-ln -s libGL.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGL.so
-ln -s libGL.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libGL.so.1
-ln -s libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-tls.so.1
-ln -s libnvidia-tls.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/tls/libnvidia-tls.so.1
-ln -s libnvidia-cfg.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-cfg.so.1
-ln -s libXvMCNVIDIA.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libXvMCNVIDIA.so
-ln -s libXvMCNVIDIA.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libXvMCNVIDIA_dynamic.so.1
-ln -s libglx.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libglx.so
+rm -f nvidia-installer*
 
+install -m 0755 -d $RPM_BUILD_ROOT%{_bindir}
 
-# This is 97xx specific. libnvidia-wfb.so is a replacement of libwfb.so
-# It is used by card > NV30 but required by G80 and newer.
-%if 0%{?fedora} >= 9
-rm -rf $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libnvidia-wfb.so.%{version}
-%else
-ln -s libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libnvidia-wfb.so.1
-ln -s libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libwfb.so
-%endif
+# ld.so.conf.d file
+install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
+echo "%{nvidialibdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 
-# This is 169.04 adds - cuda libs and headers
-ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so.1
-ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libcuda.so
-
-# This is 180.xx adds - vdpau libs and headers
-ln -s libvdpau_nvidia.so.%{version} $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_nvidia.so.1
-
-# This is 195.xx adds - OpenCL support
-ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1
-ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so
-ln -s libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-compiler.so.1
-ln -s libnvidia-compiler.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libnvidia-compiler.so
-
-# X configuration script
-install -D -p -m 0755 %{SOURCE10} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
+#Blacklist nouveau (since F-11)
+install    -m 0755 -d         $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
+install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
 
 # Install initscript
 install -D -p -m 0755 %{SOURCE5} $RPM_BUILD_ROOT%{_initrddir}/nvidia
 
-# ld.so.conf.d file
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
-echo "%{nvidialibdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
+# OpenCL config
+install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
+install -p -m 0755 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
 
-#Blacklist nouveau by F-11
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
-install -pm 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
+# Simple wildcard install of libs
+install -m 0755 -d $RPM_BUILD_ROOT%{nvidialibdir}/tls/
+install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/vdpau/
+install -p -m 0755 lib*.so.%{version}          $RPM_BUILD_ROOT%{nvidialibdir}/
+install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{nvidialibdir}/tls/
 
-# Change perms on static libs. Can't fathom how to do it nicely above.
-find $RPM_BUILD_ROOT/%{nvidialibdir} -type f -name "*.a" -exec chmod 0644 '{}' \;
+# .. but some in a different place
+install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
+install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
+rm -f $RPM_BUILD_ROOT%{nvidialibdir}/lib{nvidia-wfb,glx,vdpau*}.so.%{version}
 
-# Remove execstack needs on F-12 and laters - disabled
-%if 0
-find $RPM_BUILD_ROOT%{nvidialibdir} -name '*.so.*' -type f -exec execstack -c {} ';'
-execstack -c $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/libglx.so.%{version}
-execstack -c $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/nvidia_drv.so
+# Finish up the special case libs
+install -p -m 0755 libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
+install -p -m 0755 libglx.so.%{version}        $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
+install -p -m 0755 nvidia_drv.so               $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
+install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau/
+install -p -m 0644 libXvMCNVIDIA.a             $RPM_BUILD_ROOT%{nvidialibdir}/
+
+# Deal out include files
+install -m 0755 -d $RPM_BUILD_ROOT%{_includedir}/nvidia/{CL,GL,cuda,vdpau}/
+install -p -m 0644 cl*.h    $RPM_BUILD_ROOT%{_includedir}/nvidia/CL/
+install -p -m 0644 gl*.h    $RPM_BUILD_ROOT%{_includedir}/nvidia/GL/
+install -p -m 0644 cuda*.h  $RPM_BUILD_ROOT%{_includedir}/nvidia/cuda/
+install -p -m 0644 vdpau*.h $RPM_BUILD_ROOT%{_includedir}/nvidia/vdpau/
+
+# Install binaries
+install -p -m 0755 nvidia-{bug-report.sh,smi} $RPM_BUILD_ROOT%{_bindir}
+
+# Install man pages
+install    -m 0755 -d   $RPM_BUILD_ROOT%{_mandir}/man1/
+install -p -m 0644 *.gz $RPM_BUILD_ROOT%{_mandir}/man1/
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/{nvidia-settings,nvidia-xconfig}*
+
+# Make our documentation available for later
+cp -p %{SOURCE11} README.Fedora
+
+# Make unversioned links to dynamic libs
+for lib in $( find $RPM_BUILD_ROOT%{_libdir} -name lib\*.%{version} ) ; do
+ #ln -s libGL.so.256.52  $RPM_BUILD_ROOT%{nvidialibdir}/libGL.so
+  ln -s ${lib##*/} ${lib%.%{version}}
+  ln -s ${lib##*/} ${lib%.%{version}}.1
+done
+
+# OpenCL is really just a link to libcuda.so?
+ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so
+
+# X configuration script
+install -D -p -m 0755 %{SOURCE10} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
+
+# Install nvidia icon
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/pixmaps
+install -pm 0644 nvidia-settings.png $RPM_BUILD_ROOT%{_datadir}/pixmaps
+
+# Remove execstack needs on F-12 and laters
+%if 0%{?fedora} >= 12 || 0%{?rhel} > 5
+find $RPM_BUILD_ROOT%{_libdir} -name '*.so.*' -type f -exec execstack -c {} ';'
 %ifarch x86_64
-execstack -c $RPM_BUILD_ROOT%{_bindir}/nvidia-{settings,smi}
-execstack -c $RPM_BUILD_ROOT%{_sbindir}/nvidia-xconfig
+execstack -c $RPM_BUILD_ROOT%{_bindir}/nvidia-smi
 %endif
 %endif
-
 
 
 %clean
 rm -rf $RPM_BUILD_ROOT
-
 
 %post
 if [ "$1" -eq "1" ]; then
@@ -304,14 +274,16 @@ fi ||:
 
 %files
 %defattr(-,root,root,-)
-%doc nvidiapkg/usr/share/doc/*
+%doc nvidiapkg/LICENSE
+%doc nvidiapkg/NVIDIA_Changelog
+%doc nvidiapkg/README.txt
+%doc nvidiapkg/README.Fedora
+%doc nvidiapkg/html
 %dir %{_sysconfdir}/OpenCL
 %dir %{_sysconfdir}/OpenCL/vendors
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %config(noreplace) %{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
 %{_initrddir}/nvidia
-%exclude %{_bindir}/nvidia-settings
-%exclude %{_sbindir}/nvidia-xconfig
 %{_bindir}/nvidia-bug-report.sh
 %{_bindir}/nvidia-smi
 %{_sbindir}/nvidia-config-display
@@ -321,8 +293,6 @@ fi ||:
 %{_libdir}/xorg/modules/extensions/nvidia/*.so*
 #/no_multilib
 %{_datadir}/pixmaps/*.png
-%exclude %{_mandir}/man1/nvidia-settings.*
-%exclude %{_mandir}/man1/nvidia-xconfig.*
 %{_mandir}/man1/nvidia-smi.*
 
 %files libs
@@ -332,11 +302,10 @@ fi ||:
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %{nvidialibdir}/*.so.*
 %{nvidialibdir}/libcuda.so
-%{nvidialibdir}/libGLcore.so
-%{nvidialibdir}/tls/*.so.*
-%exclude %{nvidialibdir}/libvdpau.*
-%{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
-%{_libdir}/vdpau/libvdpau_nvidia.so.1
+%{nvidialibdir}/libnvidia-glcore.so
+%{nvidialibdir}/tls/*.so*
+%exclude %{_libdir}/vdpau/libvdpau.*
+%{_libdir}/vdpau/libvdpau_nvidia.so*
 %exclude %{_libdir}/vdpau/libvdpau_trace.so*
 
 %files devel
@@ -359,6 +328,16 @@ fi ||:
 
 
 %changelog
+* Tue Aug 31 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:256.53-1
+- Update to 256.53
+
+* Sat Aug 28 2010 Bob Arendt <rda@rincon.com> - 1:256.52-1
+- Update to 265.52 (Adds support for xorg-server driver ABI ver 8, for xorg-server-1.9)
+
+* Mon Aug 16 2010 Bob Arendt <rda@rincon.com> - 1:256.44-1
+- Update to 265.44 (Cuda 3.1 compatible)
+- libGLcore.so becomes nvidia-libglcore.so
+
 * Thu Jul 08 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:195.36.31-2
 - Improve post script as reported in rfbz#1262
 - Only blacklist nouveau with grubby on install.
