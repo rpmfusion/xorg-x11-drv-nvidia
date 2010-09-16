@@ -9,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         256.53
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -180,6 +180,7 @@ install -p -m 0755 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
 install -m 0755 -d $RPM_BUILD_ROOT%{nvidialibdir}/tls/
 install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/vdpau/
 install -p -m 0755 lib*.so.%{version}          $RPM_BUILD_ROOT%{nvidialibdir}/
+install -p -m 0755 libOpenCL.so.1.0.0          $RPM_BUILD_ROOT%{nvidialibdir}/
 install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{nvidialibdir}/tls/
 
 # .. but some in a different place
@@ -219,8 +220,9 @@ for lib in $( find $RPM_BUILD_ROOT%{_libdir} -name lib\*.%{version} ) ; do
   ln -s ${lib##*/} ${lib%.%{version}}.1
 done
 
-# OpenCL is really just a link to libcuda.so?
-ln -s libcuda.so.%{version} $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so
+ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so.1
+ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so
+
 
 # X configuration script
 install -D -p -m 0755 %{SOURCE10} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
@@ -331,6 +333,9 @@ fi ||:
 
 
 %changelog
+* Thu Sep 16 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:256.53-2
+- Fix OpenCL support
+
 * Tue Aug 31 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:256.53-1
 - Update to 256.53
 
