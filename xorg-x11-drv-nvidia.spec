@@ -8,8 +8,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         256.53
-Release:         2%{?dist}
+Version:         260.19.06
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -195,13 +195,6 @@ install -p -m 0755 nvidia_drv.so               $RPM_BUILD_ROOT%{_libdir}/xorg/mo
 install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau/
 install -p -m 0644 libXvMCNVIDIA.a             $RPM_BUILD_ROOT%{nvidialibdir}/
 
-# Deal out include files
-install -m 0755 -d $RPM_BUILD_ROOT%{_includedir}/nvidia/{CL,GL,cuda,vdpau}/
-install -p -m 0644 cl*.h    $RPM_BUILD_ROOT%{_includedir}/nvidia/CL/
-install -p -m 0644 gl*.h    $RPM_BUILD_ROOT%{_includedir}/nvidia/GL/
-install -p -m 0644 cuda*.h  $RPM_BUILD_ROOT%{_includedir}/nvidia/cuda/
-install -p -m 0644 vdpau*.h $RPM_BUILD_ROOT%{_includedir}/nvidia/vdpau/
-
 # Install binaries
 install -p -m 0755 nvidia-{bug-report.sh,smi} $RPM_BUILD_ROOT%{_bindir}
 
@@ -315,24 +308,19 @@ fi ||:
 
 %files devel
 %defattr(-,root,root,-)
-%dir %{_includedir}/nvidia
-%dir %{_includedir}/nvidia/CL
-%dir %{_includedir}/nvidia/GL
-%dir %{_includedir}/nvidia/cuda
-%exclude %dir %{_includedir}/nvidia/vdpau
-%{_includedir}/nvidia/CL/*.h
-%{_includedir}/nvidia/GL/*.h
-%{_includedir}/nvidia/cuda/*.h
-%exclude  %{_includedir}/nvidia/vdpau/*.h
 %exclude %{nvidialibdir}/libXvMCNVIDIA.a
 %exclude %{nvidialibdir}/libcuda.so
 %{nvidialibdir}/libOpenCL.so
 %{nvidialibdir}/libnvidia-compiler.so
 %{nvidialibdir}/libGL.so
 %{nvidialibdir}/libXvMCNVIDIA.so
+%{nvidialibdir}/libnvcuvid.so
 
 
 %changelog
+* Thu Oct 07 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.06-1
+- Update to 260.19.06 beta
+
 * Thu Sep 16 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:256.53-2
 - Fix OpenCL support
 
