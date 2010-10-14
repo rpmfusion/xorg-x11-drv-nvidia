@@ -319,7 +319,7 @@ fi ||:
 
 %changelog
 * Thu Oct 14 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.12-1
-- rebuilt
+- Update to 260.19.12
 
 * Thu Oct 07 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.06-1
 - Update to 260.19.06 beta
