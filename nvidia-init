@@ -43,6 +43,7 @@ start() {
     if action $"Checking for module $modname:" test -f $module;then
         action $"Enabling the $name driver:" $exec enable
         RETVAL=$?
+	[ -e /sbin/restorecon ] && /sbin/restorecon /dev/nvidia{ctl,0,1,2,3}
     else
         echo -en $"$modname for kernel $(uname -r) was not found." && echo_warning;echo -en '\n'
         echo -en $"The $name driver will not be enabled until one is found." && echo_warning;echo -en '\n'
