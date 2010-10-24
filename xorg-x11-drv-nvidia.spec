@@ -9,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         260.19.12
-Release:         1%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -250,7 +250,7 @@ if [ "$1" -eq "1" ]; then
     GRUBBYLASTKERNEL=`/sbin/grubby --default-kernel`
     /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nouveau.modeset=0 rdblacklist=nouveau' &>/dev/null
   fi
-fi
+fi || :
 if [ -x /usr/sbin/setsebool ] ; then
   SELINUXEXECSTACK=`cat /selinux/booleans/allow_execstack 2>/dev/null`
   if [ "${SELINUXEXECSTACK}" == "0 0" ] ; then
@@ -263,9 +263,20 @@ fi ||:
 %preun
 if [ "$1" -eq "0" ]; then
     # Disable driver on final removal
-    test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display disable &>/dev/null ||:
-    %{_initrddir}/nvidia stop &> /dev/null ||:
-    /sbin/chkconfig --del nvidia ||:
+    test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display disable &>/dev/null
+    %{_initrddir}/nvidia stop &>/dev/null
+    /sbin/chkconfig --del nvidia &>/dev/null
+    #Clear grub option to disable nouveau for all kernels
+    if [ -x /sbin/grubby ] ; then
+      KERNELS=`ls /boot/vmlinuz-*%{?dist}.$(uname -m)`
+      for kernel in ${KERNELS} ; do
+      /sbin/grubby --update-kernel=${kernel} \
+        --remove-args='nouveau.modeset=0 rdblacklist=nouveau nomodeset' &>/dev/null
+      done
+    fi
+    #Backup and disable previously used xorg.conf
+    [ -f %{_sysconfdir}/X11/xorg.conf ] && \
+      mv  %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.%{name}_uninstalled &>/dev/null
 fi ||:
 
 %postun libs -p /sbin/ldconfig
@@ -318,6 +329,10 @@ fi ||:
 
 
 %changelog
+* Sun Oct 24 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.12-3
+- Improve uninstallation script rfbz#1398
+- Fix selinux context on device creation rfbz#1421
+
 * Thu Oct 14 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.12-1
 - Update to 260.19.12
 
