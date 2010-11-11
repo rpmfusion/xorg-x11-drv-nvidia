@@ -8,8 +8,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         260.19.12
-Release:         4%{?dist}
+Version:         260.19.21
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -42,7 +42,7 @@ ExclusiveArch: i386 x86_64
 Requires:  nvidia-xconfig
 Requires:  nvidia-settings
 
-Requires:        nvidia-kmod = %{version}
+Requires:        nvidia-kmod >= %{version}
 
 # Needed in all nvidia or fglrx driver packages
 BuildRequires:   prelink
@@ -347,6 +347,9 @@ fi ||:
 
 
 %changelog
+* Thu Nov 11 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.21-1
+- Update to 260.19.21
+
 * Tue Nov 02 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.12-4
 - Disable selinux restorecon on initscript.
 - Avoid using livna-config-display on fedora 14 and later
