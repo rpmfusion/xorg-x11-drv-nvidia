@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         260.19.21
+Version:         260.19.29
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -16,7 +16,7 @@ Group:           User Interface/X Hardware Support
 License:         Redistributable, no modification permitted
 URL:             http://www.nvidia.com/
 Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
-Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}-no-compat32.run
+Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source2:         00-nvidia.conf
 Source3:         nvidia-xorg.conf
 #Source5:         nvidia-init
@@ -233,7 +233,8 @@ install -pm 0644 nvidia-settings.png $RPM_BUILD_ROOT%{_datadir}/pixmaps
 rm $RPM_BUILD_ROOT%{_libdir}/nvidia/libnvidia-{cfg,tls}.so
 
 # Remove execstack needs on F-12 and laters
-%if 0%{?fedora} >= 12 || 0%{?rhel} > 5
+#if 0%{?fedora} >= 12 || 0%{?rhel} > 5
+%if 0
 find $RPM_BUILD_ROOT%{_libdir} -name '*.so.*' -type f -exec execstack -c {} ';'
 %ifarch x86_64
 execstack -c $RPM_BUILD_ROOT%{_bindir}/nvidia-smi
@@ -347,6 +348,9 @@ fi ||:
 
 
 %changelog
+* Tue Dec 14 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.29-1
+- Update to 260.19.29
+
 * Thu Nov 11 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.21-1
 - Update to 260.19.21
 
