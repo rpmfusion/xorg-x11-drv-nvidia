@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         260.19.21
+Version:         260.19.29
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -90,7 +90,11 @@ for driver version %{version}.
 %package devel
 Summary:         Development files for %{name}
 Group:           Development/Libraries
+%if 0%{?fedora} > 10 || 0%{?rhel} > 5
+Requires:        %{name}-libs%{_isa} = %{?epoch}:%{version}-%{release}
+%else
 Requires:        %{name}-libs-%{_target_cpu} = %{?epoch}:%{version}-%{release}
+%endif
 #Introduced in F10 when 173xx has forked to legacy serie
 Obsoletes:       xorg-x11-drv-nvidia-newest-devel < %{version}-100
 Provides:        xorg-x11-drv-nvidia-newest-devel = %{version}-101
@@ -228,7 +232,8 @@ install -pm 0644 nvidia-settings.png $RPM_BUILD_ROOT%{_datadir}/pixmaps
 rm $RPM_BUILD_ROOT%{_libdir}/nvidia/libnvidia-{cfg,tls}.so
 
 # Remove execstack needs on F-12 and laters
-%if 0%{?fedora} >= 12 || 0%{?rhel} > 5
+#if 0%{?fedora} >= 12 || 0%{?rhel} > 5
+%if 0
 find $RPM_BUILD_ROOT%{_libdir} -name '*.so.*' -type f -exec execstack -c {} ';'
 %ifarch x86_64
 execstack -c $RPM_BUILD_ROOT%{_bindir}/nvidia-smi
@@ -329,6 +334,10 @@ fi ||:
 
 
 %changelog
+* Tue Dec 14 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.29-1
+- Update to 260.19.29
+- Explicitely use %%{_isa} dependency from -devel to -libs
+
 * Thu Nov 11 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.21-1
 - Update to 260.19.21
 
