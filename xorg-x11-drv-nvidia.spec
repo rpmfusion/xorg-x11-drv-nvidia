@@ -9,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         260.19.29
-Release:         2%{?dist}
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -17,11 +17,9 @@ License:         Redistributable, no modification permitted
 URL:             http://www.nvidia.com/
 Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
 Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-Source2:         00-nvidia.conf
-Source3:         nvidia-xorg.conf
-#Source5:         nvidia-init
+Source5:         nvidia-init
 Source6:         blacklist-nouveau.conf
-#Source10:        nvidia-config-display
+Source10:        nvidia-config-display
 Source11:        nvidia-README.Fedora
 # So we don't pull other nvidia variants
 Source91:        filter-requires.sh
@@ -43,22 +41,23 @@ Requires:  nvidia-xconfig
 Requires:  nvidia-settings
 
 Requires:        nvidia-kmod >= %{version}
+Requires(post):  nvidia-kmod >= %{version}
 
 # Needed in all nvidia or fglrx driver packages
 BuildRequires:   prelink
 Requires:        which
-#Requires:        livna-config-display >= 0.0.21
+Requires:        livna-config-display >= 0.0.21
 %if 0%{?fedora} > 10 || 0%{?rhel} > 5
 Requires:        %{name}-libs%{_isa} = %{?epoch}:%{version}-%{release}
 %else
 Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
 %endif
 
-#Requires(post):  livna-config-display
-#Requires(preun): livna-config-display
-#Requires(post):  chkconfig
+Requires(post):  livna-config-display
+Requires(preun): livna-config-display
+Requires(post):  chkconfig
 Requires(post):  ldconfig
-#Requires(preun): chkconfig
+Requires(preun): chkconfig
 
 
 Provides:        nvidia-kmod-common = %{?epoch}:%{version}
@@ -175,7 +174,7 @@ install    -m 0755 -d         $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
 install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
 
 # Install initscript
-#install -D -p -m 0755 %{SOURCE5} $RPM_BUILD_ROOT%{_initrddir}/nvidia
+install -D -p -m 0755 %{SOURCE5} $RPM_BUILD_ROOT%{_initrddir}/nvidia
 
 # OpenCL config
 install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
@@ -223,7 +222,7 @@ ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{nvidialibdir}/libOpenCL.so
 
 
 # X configuration script
-#install -D -p -m 0755 %{SOURCE10} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
+install -D -p -m 0755 %{SOURCE10} $RPM_BUILD_ROOT%{_sbindir}/nvidia-config-display
 
 # Install nvidia icon
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/pixmaps
@@ -241,13 +240,6 @@ execstack -c $RPM_BUILD_ROOT%{_bindir}/nvidia-smi
 %endif
 %endif
 
-#Install static driver dependant configuration files
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
-install -pm 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
-sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
-touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
-install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
-
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -255,10 +247,10 @@ rm -rf $RPM_BUILD_ROOT
 %post
 if [ "$1" -eq "1" ]; then
   # Enable nvidia driver when installing
-  #%{_sbindir}/nvidia-config-display enable &>/dev/null ||:
+  %{_sbindir}/nvidia-config-display enable &>/dev/null ||:
   # Add init script and start it
-  #/sbin/chkconfig --add nvidia ||:
-  #/etc/init.d/nvidia start &>/dev/null ||:
+  /sbin/chkconfig --add nvidia ||:
+  /etc/init.d/nvidia start &>/dev/null ||:
   if [ -x /sbin/grubby ] ; then
     GRUBBYLASTKERNEL=`/sbin/grubby --default-kernel`
     /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nouveau.modeset=0 rdblacklist=nouveau' &>/dev/null
@@ -273,19 +265,15 @@ fi ||:
 
 %post libs -p /sbin/ldconfig
 
-%posttrans
- [ -f %{_sysconfdir}/X11/xorg.conf ] || \
-   cp -p %{_sysconfdir}/X11/nvidia-xorg.conf %{_sysconfdir}/X11/xorg.conf || :
-
 %preun
 if [ "$1" -eq "0" ]; then
     # Disable driver on final removal
-    #test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display disable &>/dev/null
-    #%{_initrddir}/nvidia stop &>/dev/null
-    #/sbin/chkconfig --del nvidia &>/dev/null
+    test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display disable &>/dev/null
+    %{_initrddir}/nvidia stop &>/dev/null
+    /sbin/chkconfig --del nvidia &>/dev/null
     #Clear grub option to disable nouveau for all kernels
     if [ -x /sbin/grubby ] ; then
-      KERNELS=`ls /boot/vmlinuz-*%{?dist}.$(uname -m)*`
+      KERNELS=`ls /boot/vmlinuz-*%{?dist}.$(uname -m)`
       for kernel in ${KERNELS} ; do
       /sbin/grubby --update-kernel=${kernel} \
         --remove-args='nouveau.modeset=0 rdblacklist=nouveau nomodeset' &>/dev/null
@@ -308,13 +296,11 @@ fi ||:
 %dir %{_sysconfdir}/OpenCL
 %dir %{_sysconfdir}/OpenCL/vendors
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
-%config %{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
 %config(noreplace) %{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
-%config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
-#{_initrddir}/nvidia
+%{_initrddir}/nvidia
 %{_bindir}/nvidia-bug-report.sh
 %{_bindir}/nvidia-smi
-#{_sbindir}/nvidia-config-display
+%{_sbindir}/nvidia-config-display
 # Xorg libs that do not need to be multilib
 %dir %{_libdir}/xorg/modules/extensions/nvidia
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
@@ -348,25 +334,15 @@ fi ||:
 
 
 %changelog
-* Fri Dec 17 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.29-2
-- Fix uninstall on kvarriant - rfbz#1559
-
 * Tue Dec 14 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.29-1
 - Update to 260.19.29
+- Explicitely use %%{_isa} dependency from -devel to -libs
 
 * Thu Nov 11 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.21-1
 - Update to 260.19.21
 
-* Tue Nov 02 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.12-4
-- Disable selinux restorecon on initscript.
-- Avoid using livna-config-display on fedora 14 and later
-  because of rhbz#623742
-- Use static workaround
-- Explicitely use %%{_isa} dependency from -devel to -libs
-
 * Sun Oct 24 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.12-3
 - Improve uninstallation script rfbz#1398
-- Fix selinux context on device creation rfbz#1421
 
 * Thu Oct 14 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.12-1
 - Update to 260.19.12
