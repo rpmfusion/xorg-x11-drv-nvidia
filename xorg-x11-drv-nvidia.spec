@@ -9,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         260.19.29
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -273,7 +273,7 @@ if [ "$1" -eq "0" ]; then
     /sbin/chkconfig --del nvidia &>/dev/null
     #Clear grub option to disable nouveau for all kernels
     if [ -x /sbin/grubby ] ; then
-      KERNELS=`ls /boot/vmlinuz-*%{?dist}.$(uname -m)`
+      KERNELS=`ls /boot/vmlinuz-*%{?dist}.$(uname -m)*`
       for kernel in ${KERNELS} ; do
       /sbin/grubby --update-kernel=${kernel} \
         --remove-args='nouveau.modeset=0 rdblacklist=nouveau nomodeset' &>/dev/null
@@ -334,6 +334,9 @@ fi ||:
 
 
 %changelog
+* Fri Dec 17 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.29-2
+- Fix uninstall on kvarriant - rfbz#1559
+
 * Tue Dec 14 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.29-1
 - Update to 260.19.29
 - Explicitely use %%{_isa} dependency from -devel to -libs
