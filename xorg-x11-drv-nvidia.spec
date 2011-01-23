@@ -1,4 +1,5 @@
-%define        nvidialibdir      %{_libdir}/nvidia
+%global        nvidialibdir      %{_libdir}/nvidia
+%global        ignoreabi         1
 
 # Tweak to have debuginfo - part 1/2
 %if 0%{?fedora} >= 7
@@ -27,6 +28,7 @@ Source11:        nvidia-README.Fedora
 Source91:        filter-requires.sh
 # So we don't mess with mesa provides.
 Source92:        filter-provides.sh
+Source99:        00-ignoreabi.conf
 %define          _use_internal_dependency_generator 0
 %define          __find_requires %{SOURCE91}
 %define          __find_provides %{SOURCE92}
@@ -246,6 +248,9 @@ install -pm 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
 touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
 install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
+%{?_with_ignoreabi:
+install -pm 0644 %{SOURCE99} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
+}
 
 
 %clean
@@ -301,6 +306,9 @@ fi ||:
 %dir %{_sysconfdir}/OpenCL
 %dir %{_sysconfdir}/OpenCL/vendors
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
+%{?_with_ignoreabi:
+%config %{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
+}
 %config %{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
 %config(noreplace) %{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
@@ -344,6 +352,7 @@ fi ||:
 %changelog
 * Sun Jan 23 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.18-1
 - Update to 270.18 beta
+- Add support for IgnoreABI xorg option
 
 * Fri Jan 21 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.36-1
 - Update to 260.19.36
