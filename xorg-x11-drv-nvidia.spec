@@ -8,8 +8,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         260.19.29
-Release:         2%{?dist}
+Version:         260.19.36
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -232,8 +232,7 @@ install -pm 0644 nvidia-settings.png $RPM_BUILD_ROOT%{_datadir}/pixmaps
 rm $RPM_BUILD_ROOT%{_libdir}/nvidia/libnvidia-{cfg,tls}.so
 
 # Remove execstack needs on F-12 and laters
-#if 0%{?fedora} >= 12 || 0%{?rhel} > 5
-%if 0
+%if 0%{?fedora} >= 12 || 0%{?rhel} > 5
 find $RPM_BUILD_ROOT%{_libdir} -name '*.so.*' -type f -exec execstack -c {} ';'
 %ifarch x86_64
 execstack -c $RPM_BUILD_ROOT%{_bindir}/nvidia-smi
@@ -256,12 +255,6 @@ if [ "$1" -eq "1" ]; then
     /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nouveau.modeset=0 rdblacklist=nouveau' &>/dev/null
   fi
 fi || :
-if [ -x /usr/sbin/setsebool ] ; then
-  SELINUXEXECSTACK=`cat /selinux/booleans/allow_execstack 2>/dev/null`
-  if [ "${SELINUXEXECSTACK}" == "0 0" ] ; then
-    /usr/sbin/setsebool -P allow_execstack on &>/dev/null
-  fi
-fi ||:
 
 %post libs -p /sbin/ldconfig
 
@@ -334,6 +327,12 @@ fi ||:
 
 
 %changelog
+* Fri Jan 21 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.36-1
+- Update to 260.19.36
+- Restore execstack -c on redistributed binaries
+  instead of forcing selinux bool.
+  (nvidia-installer clears it at runtime when appropriate).
+
 * Fri Dec 17 2010 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.29-2
 - Fix uninstall on kvarriant - rfbz#1559
 
