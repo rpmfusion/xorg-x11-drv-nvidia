@@ -1,5 +1,5 @@
 %global        nvidialibdir      %{_libdir}/nvidia
-%global        ignoreabi         1
+%global        ignoreabi         0
 
 # Tweak to have debuginfo - part 1/2
 %if 0%{?fedora} >= 7
