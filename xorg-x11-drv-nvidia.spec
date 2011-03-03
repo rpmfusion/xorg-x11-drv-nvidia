@@ -9,7 +9,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         270.18
+Version:         270.30
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -350,6 +350,15 @@ fi ||:
 
 
 %changelog
+* Thu Mar 03 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.30-1
+- Update to 270.30
+
+* Tue Mar 01 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.29-1
+- Update to 270.29
+
+* Tue Feb 22 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.26-1
+- Update to 270.26
+
 * Sun Jan 23 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.18-1
 - Update to 270.18 beta
 - Add support for IgnoreABI xorg option
