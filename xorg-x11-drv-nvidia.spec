@@ -9,7 +9,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         270.30
+Version:         270.41.03
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -110,7 +110,7 @@ such as OpenGL headers.
 Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{?epoch}:%{version}-%{release}
-Requires:        libvdpau%{_isa} >= 0.3
+Requires:        libvdpau%{_isa} >= 0.4
 Provides:        %{name}-libs-%{_target_cpu} = %{?epoch}:%{version}-%{release}
 %ifarch %{ix86}
 Provides:        %{name}-libs-32bit = %{?epoch}:%{version}-%{release}
@@ -350,6 +350,9 @@ fi ||:
 
 
 %changelog
+* Tue Apr 12 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.41.03-1
+- Update to 270.41.03
+
 * Thu Mar 03 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.30-1
 - Update to 270.30
 
