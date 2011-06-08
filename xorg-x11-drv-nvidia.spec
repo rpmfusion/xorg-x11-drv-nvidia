@@ -1,15 +1,12 @@
 %global        nvidialibdir      %{_libdir}/nvidia
 %global        ignoreabi         0
 
-# Tweak to have debuginfo - part 1/2
-%if 0%{?fedora} >= 7
-%define __debug_install_post %{_builddir}/%{?buildsubdir}/find-debuginfo.sh %{_builddir}/%{?buildsubdir}\
-%{nil}
-%endif
+%global	       debug_package %{nil}
+%global	       __strip /bin/true
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         270.41.06
+Version:         270.41.19
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -20,18 +17,9 @@ Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-L
 Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source2:         00-nvidia.conf
 Source3:         nvidia-xorg.conf
-#Source5:         nvidia-init
 Source6:         blacklist-nouveau.conf
-#Source10:        nvidia-config-display
 Source11:        nvidia-README.Fedora
-# So we don't pull other nvidia variants
-Source91:        filter-requires.sh
-# So we don't mess with mesa provides.
-Source92:        filter-provides.sh
 Source99:        00-ignoreabi.conf
-%define          _use_internal_dependency_generator 0
-%define          __find_requires %{SOURCE91}
-%define          __find_provides %{SOURCE92}
 
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %if 0%{?fedora} > 11 || 0%{?rhel} > 5
@@ -80,6 +68,20 @@ Provides:        nvidia-x11-drv = %{version}-%{release}
 Obsoletes:       xorg-x11-drv-nvidia-newest < %{version}-100
 Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
 
+%{?filter_setup:
+%filter_from_provides /^libnvidia/d;
+%filter_from_provides /^libGLCore\.so/d;
+%filter_from_provides /^libGL\.so/d;
+%filter_from_provides /^libvdpau_nvidia\.so\.1/d;
+%filter_from_provides /^libXvMCNVIDIA_dynamic\.so\.1/d;
+%filter_from_provides /^libglx\.so/d;
+%filter_from_requires /^libnvidia/d;
+%filter_from_requires /^libGLCore\.so/d;
+%filter_from_requires /^libGL\.so/d;
+%filter_from_requires /^libvdpau_nvidia\.so\.1/d;
+%filter_from_requires /^libXvMCNVIDIA_dynamic\.so\.1/d;
+%filter_setup
+}
 
 %description
 This package provides the most recent NVIDIA display driver which allows for
@@ -131,22 +133,11 @@ This package provides the shared libraries for %{name}.
 sh %{SOURCE0} --extract-only --target nvidiapkg-x86
 sh %{SOURCE1} --extract-only --target nvidiapkg-x64
 tar -cjf nvidia-kmod-data-%{version}.tar.bz2 nvidiapkg-*/LICENSE nvidiapkg-*/kernel
-# Tweak to have debuginfo - part 2/2
-%if 0%{?fedora} >= 7
-cp -p %{_prefix}/lib/rpm/find-debuginfo.sh .
-sed -i -e 's|strict=true|strict=false|' find-debuginfo.sh
-%endif
 
 %ifarch %{ix86}
 ln -s nvidiapkg-x86 nvidiapkg
 %else
 ln -s nvidiapkg-x64 nvidiapkg
-%endif
-
-# Tweak to have debuginfo - part 2/2
-%if 0%{?fedora} >= 7
-cp -p %{_prefix}/lib/rpm/find-debuginfo.sh .
-sed -i -e 's|strict=true|strict=false|' find-debuginfo.sh
 %endif
 
 %build
@@ -350,6 +341,10 @@ fi ||:
 
 
 %changelog
+* Wed Jun 08 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.41.19-1
+- Update to 270.41.19
+- Use official filter macros - patch from <Jochen herr-schmitt de>
+
 * Sat Apr 30 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.41.06-1
 - Update to 270.41.06
 
