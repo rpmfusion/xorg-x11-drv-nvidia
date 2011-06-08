@@ -1,14 +1,12 @@
-%define        nvidialibdir      %{_libdir}/nvidia
+%global        nvidialibdir      %{_libdir}/nvidia
+%global        ignoreabi         0
 
-# Tweak to have debuginfo - part 1/2
-%if 0%{?fedora} >= 7
-%define __debug_install_post %{_builddir}/%{?buildsubdir}/find-debuginfo.sh %{_builddir}/%{?buildsubdir}\
-%{nil}
-%endif
+%global	       debug_package %{nil}
+%global	       __strip /bin/true
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         260.19.36
+Version:         270.41.19
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -19,17 +17,9 @@ Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-L
 Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source2:         00-nvidia.conf
 Source3:         nvidia-xorg.conf
-#Source5:         nvidia-init
 Source6:         blacklist-nouveau.conf
-#Source10:        nvidia-config-display
 Source11:        nvidia-README.Fedora
-# So we don't pull other nvidia variants
-Source91:        filter-requires.sh
-# So we don't mess with mesa provides.
-Source92:        filter-provides.sh
-%define          _use_internal_dependency_generator 0
-%define          __find_requires %{SOURCE91}
-%define          __find_provides %{SOURCE92}
+Source99:        00-ignoreabi.conf
 
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %if 0%{?fedora} > 11 || 0%{?rhel} > 5
@@ -78,6 +68,20 @@ Provides:        nvidia-x11-drv = %{version}-%{release}
 Obsoletes:       xorg-x11-drv-nvidia-newest < %{version}-100
 Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
 
+%{?filter_setup:
+%filter_from_provides /^libnvidia/d;
+%filter_from_provides /^libGLCore\.so/d;
+%filter_from_provides /^libGL\.so/d;
+%filter_from_provides /^libvdpau_nvidia\.so\.1/d;
+%filter_from_provides /^libXvMCNVIDIA_dynamic\.so\.1/d;
+%filter_from_provides /^libglx\.so/d;
+%filter_from_requires /^libnvidia/d;
+%filter_from_requires /^libGLCore\.so/d;
+%filter_from_requires /^libGL\.so/d;
+%filter_from_requires /^libvdpau_nvidia\.so\.1/d;
+%filter_from_requires /^libXvMCNVIDIA_dynamic\.so\.1/d;
+%filter_setup
+}
 
 %description
 This package provides the most recent NVIDIA display driver which allows for
@@ -108,7 +112,7 @@ such as OpenGL headers.
 Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{?epoch}:%{version}-%{release}
-Requires:        libvdpau%{_isa} >= 0.3
+Requires:        libvdpau%{_isa} >= 0.4
 Provides:        %{name}-libs-%{_target_cpu} = %{?epoch}:%{version}-%{release}
 %ifarch %{ix86}
 Provides:        %{name}-libs-32bit = %{?epoch}:%{version}-%{release}
@@ -129,22 +133,11 @@ This package provides the shared libraries for %{name}.
 sh %{SOURCE0} --extract-only --target nvidiapkg-x86
 sh %{SOURCE1} --extract-only --target nvidiapkg-x64
 tar -cjf nvidia-kmod-data-%{version}.tar.bz2 nvidiapkg-*/LICENSE nvidiapkg-*/kernel
-# Tweak to have debuginfo - part 2/2
-%if 0%{?fedora} >= 7
-cp -p %{_prefix}/lib/rpm/find-debuginfo.sh .
-sed -i -e 's|strict=true|strict=false|' find-debuginfo.sh
-%endif
 
 %ifarch %{ix86}
 ln -s nvidiapkg-x86 nvidiapkg
 %else
 ln -s nvidiapkg-x64 nvidiapkg
-%endif
-
-# Tweak to have debuginfo - part 2/2
-%if 0%{?fedora} >= 7
-cp -p %{_prefix}/lib/rpm/find-debuginfo.sh .
-sed -i -e 's|strict=true|strict=false|' find-debuginfo.sh
 %endif
 
 %build
@@ -246,6 +239,9 @@ install -pm 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
 touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
 install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
+%{?_with_ignoreabi:
+install -pm 0644 %{SOURCE99} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
+}
 
 
 %clean
@@ -301,6 +297,9 @@ fi ||:
 %dir %{_sysconfdir}/OpenCL
 %dir %{_sysconfdir}/OpenCL/vendors
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
+%{?_with_ignoreabi:
+%config %{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
+}
 %config %{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
 %config(noreplace) %{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
@@ -338,9 +337,33 @@ fi ||:
 %{nvidialibdir}/libGL.so
 %{nvidialibdir}/libXvMCNVIDIA.so
 %{nvidialibdir}/libnvcuvid.so
+%{nvidialibdir}/libnvidia-ml.so
 
 
 %changelog
+* Wed Jun 08 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.41.19-1
+- Update to 270.41.19
+- Use official filter macros - patch from <Jochen herr-schmitt de>
+
+* Sat Apr 30 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.41.06-1
+- Update to 270.41.06
+
+* Tue Apr 12 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.41.03-1
+- Update to 270.41.03
+
+* Thu Mar 03 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.30-1
+- Update to 270.30
+
+* Tue Mar 01 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.29-1
+- Update to 270.29
+
+* Tue Feb 22 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.26-1
+- Update to 270.26
+
+* Sun Jan 23 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:270.18-1
+- Update to 270.18 beta
+- Add support for IgnoreABI xorg option
+
 * Fri Jan 21 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:260.19.36-1
 - Update to 260.19.36
 - Restore execstack -c on redistributed binaries
