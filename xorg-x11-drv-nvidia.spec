@@ -6,7 +6,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         275.21
+Version:         280.13
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -75,11 +75,14 @@ Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
 %filter_from_provides /^libvdpau_nvidia\.so\.1/d;
 %filter_from_provides /^libXvMCNVIDIA_dynamic\.so\.1/d;
 %filter_from_provides /^libglx\.so/d;
+%filter_from_provides /^libcuda\.so\.1/d;
 %filter_from_requires /^libnvidia/d;
 %filter_from_requires /^libGLCore\.so/d;
 %filter_from_requires /^libGL\.so/d;
 %filter_from_requires /^libvdpau_nvidia\.so\.1/d;
 %filter_from_requires /^libXvMCNVIDIA_dynamic\.so\.1/d;
+%filter_from_requires /^libglx\.so/d;
+%filter_from_requires /^libcuda\.so\.1/d;
 %filter_setup
 }
 
@@ -341,11 +344,18 @@ fi ||:
 
 
 %changelog
-* Fri Jul 22 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:275.21-1
-- Update to 275.21
+* Tue Aug 02 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:280.13-1
+- Update to 280.13
 
-* Sun Jul 17 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:275.19-1
-- Update to 275.19
+* Sun Jul 24 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:280.11-1
+- Update to 280.11
+
+* Tue Jul 05 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:280.04-2
+- Fix filter_from_requires/provides libglx.so
+- Fix filter_from_requires/provides libcuda.so.1
+
+* Fri Jul 01 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:280.04-1
+- Update to 280.04 (beta)
 
 * Tue Jun 14 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:275.09.07-1
 - Update to 275.09.07
