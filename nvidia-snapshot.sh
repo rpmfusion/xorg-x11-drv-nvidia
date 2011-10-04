@@ -14,7 +14,7 @@ unset CDPATH
 pwd=$(pwd)
 version=$(grep Version xorg-x11-drv-nvidia*.spec | cut -f 2 -d ':' | sed 's/ //g')
 
-for arch in x86 x64 ; do
+for arch in x86 x86_64 ; do
  if [ ! -e NVIDIA-Linux-${arch}-${version}.run ] ; then
   wget -N ftp://download.nvidia.com/XFree86/Linux-${arch}/${version}/NVIDIA-Linux-${arch}-${version}.run
  fi
