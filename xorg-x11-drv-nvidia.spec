@@ -6,7 +6,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         285.05.09
+Version:         290.06
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -49,6 +49,11 @@ Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
 #Requires(post):  chkconfig
 Requires(post):  ldconfig
 #Requires(preun): chkconfig
+
+%if 0%{?fedora} == 16
+Conflicts:       selinux-policy-targeted < 3.10.0-53
+%endif
+
 
 
 Provides:        nvidia-kmod-common = %{?epoch}:%{version}
@@ -344,6 +349,9 @@ fi ||:
 
 
 %changelog
+* Wed Nov 09 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:290.06-1
+- Update to 290.06 beta
+
 * Tue Oct 04 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:285.05.09-1
 - Update to 285.05.09
 
