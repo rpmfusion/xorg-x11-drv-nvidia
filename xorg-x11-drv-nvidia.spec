@@ -7,7 +7,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         290.06
-Release:         1%{?dist}
+Release:         2%{?dist}.1
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -264,7 +264,7 @@ if [ "$1" -eq "1" ]; then
   #/etc/init.d/nvidia start &>/dev/null ||:
   if [ -x /sbin/grubby ] ; then
     GRUBBYLASTKERNEL=`/sbin/grubby --default-kernel`
-    /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nouveau.modeset=0 rdblacklist=nouveau' &>/dev/null
+    /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nouveau.modeset=0 rd.driver.blacklist=nouveau' &>/dev/null
   fi
 fi || :
 
@@ -285,7 +285,7 @@ if [ "$1" -eq "0" ]; then
       KERNELS=`ls /boot/vmlinuz-*%{?dist}.$(uname -m)*`
       for kernel in ${KERNELS} ; do
       /sbin/grubby --update-kernel=${kernel} \
-        --remove-args='nouveau.modeset=0 rdblacklist=nouveau nomodeset' &>/dev/null
+        --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset' &>/dev/null
       done
     fi
     #Backup and disable previously used xorg.conf
@@ -349,6 +349,9 @@ fi ||:
 
 
 %changelog
+* Thu Nov 10 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:290.06-2
+- Switch to rd.driver.blacklist from the deprecated rdblacklist on install
+
 * Wed Nov 09 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:290.06-1
 - Update to 290.06 beta
 
