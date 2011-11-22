@@ -6,8 +6,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         290.06
-Release:         2%{?dist}.1
+Version:         290.10
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -349,6 +349,9 @@ fi ||:
 
 
 %changelog
+* Tue Nov 22 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:290.10-1
+- Update to 290.10
+
 * Thu Nov 10 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:290.06-2
 - Switch to rd.driver.blacklist from the deprecated rdblacklist on install
 
