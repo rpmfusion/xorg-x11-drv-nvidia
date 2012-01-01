@@ -6,7 +6,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         290.10
+Version:         295.09
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -80,14 +80,12 @@ Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
 %filter_from_provides /^libvdpau_nvidia\.so\.1/d;
 %filter_from_provides /^libXvMCNVIDIA_dynamic\.so\.1/d;
 %filter_from_provides /^libglx\.so/d;
-%filter_from_provides /^libcuda\.so\.1/d;
 %filter_from_requires /^libnvidia/d;
 %filter_from_requires /^libGLCore\.so/d;
 %filter_from_requires /^libGL\.so/d;
 %filter_from_requires /^libvdpau_nvidia\.so\.1/d;
 %filter_from_requires /^libXvMCNVIDIA_dynamic\.so\.1/d;
 %filter_from_requires /^libglx\.so/d;
-%filter_from_requires /^libcuda\.so\.1/d;
 %filter_setup
 }
 
@@ -349,6 +347,10 @@ fi ||:
 
 
 %changelog
+* Sat Dec 31 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:295.09-1
+- Update to 295.09 (beta)
+- Remove libcuda.so.1 filter - rfbz#2083
+
 * Tue Nov 22 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:290.10-1
 - Update to 290.10
 
