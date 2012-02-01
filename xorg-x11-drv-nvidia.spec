@@ -6,7 +6,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         295.09
+Version:         295.17
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -138,7 +138,7 @@ This package provides the shared libraries for %{name}.
 %setup -q -c -T
 sh %{SOURCE0} --extract-only --target nvidiapkg-x86
 sh %{SOURCE1} --extract-only --target nvidiapkg-x64
-tar -cjf nvidia-kmod-data-%{version}.tar.bz2 nvidiapkg-*/LICENSE nvidiapkg-*/kernel
+tar -cJf nvidia-kmod-data-%{version}.tar.xz nvidiapkg-*/LICENSE nvidiapkg-*/kernel
 
 %ifarch %{ix86}
 ln -s nvidiapkg-x86 nvidiapkg
@@ -255,14 +255,16 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 if [ "$1" -eq "1" ]; then
-  # Enable nvidia driver when installing
-  #%{_sbindir}/nvidia-config-display enable &>/dev/null ||:
-  # Add init script and start it
-  #/sbin/chkconfig --add nvidia ||:
-  #/etc/init.d/nvidia start &>/dev/null ||:
+  ISGRUB1=""
+  if [[ -f /boot/grub/grub.conf && ! -f /boot/grub2/grub2.cfg ]] ; then
+      ISGRUB1="--grub"
+  fi
   if [ -x /sbin/grubby ] ; then
     GRUBBYLASTKERNEL=`/sbin/grubby --default-kernel`
-    /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nouveau.modeset=0 rd.driver.blacklist=nouveau' &>/dev/null
+    /sbin/grubby $ISGRUB1 \
+      --update-kernel=${GRUBBYLASTKERNEL} \
+      --args='nouveau.modeset=0 rd.driver.blacklist=nouveau' \
+       &>/dev/null
   fi
 fi || :
 
@@ -274,21 +276,21 @@ fi || :
 
 %preun
 if [ "$1" -eq "0" ]; then
-    # Disable driver on final removal
-    #test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display disable &>/dev/null
-    #%{_initrddir}/nvidia stop &>/dev/null
-    #/sbin/chkconfig --del nvidia &>/dev/null
-    #Clear grub option to disable nouveau for all kernels
-    if [ -x /sbin/grubby ] ; then
-      KERNELS=`ls /boot/vmlinuz-*%{?dist}.$(uname -m)*`
-      for kernel in ${KERNELS} ; do
-      /sbin/grubby --update-kernel=${kernel} \
+  ISGRUB1=""
+  if [[ -f /boot/grub/grub.conf && ! -f /boot/grub2/grub2.cfg ]] ; then
+      ISGRUB1="--grub"
+  fi
+  if [ -x /sbin/grubby ] ; then
+    KERNELS=`ls /boot/vmlinuz-*%{?dist}.$(uname -m)*`
+    for kernel in ${KERNELS} ; do
+      /sbin/grubby $ISGRUB1 \
+        --update-kernel=${kernel} \
         --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset' &>/dev/null
-      done
-    fi
-    #Backup and disable previously used xorg.conf
-    [ -f %{_sysconfdir}/X11/xorg.conf ] && \
-      mv  %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.%{name}_uninstalled &>/dev/null
+    done
+  fi
+  #Backup and disable previously used xorg.conf
+  [ -f %{_sysconfdir}/X11/xorg.conf ] && \
+    mv  %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.%{name}_uninstalled &>/dev/null
 fi ||:
 
 %postun libs -p /sbin/ldconfig
@@ -347,6 +349,11 @@ fi ||:
 
 
 %changelog
+* Wed Feb 01 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:295.17-1
+- Update to 295.17 (beta)
+- Fix kernel options when using grub legacy.
+- Change nvidia-kmod-data archive to xz compression
+
 * Sat Dec 31 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:295.09-1
 - Update to 295.09 (beta)
 - Remove libcuda.so.1 filter - rfbz#2083
