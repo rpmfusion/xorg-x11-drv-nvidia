@@ -6,7 +6,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         295.17
+Version:         295.20
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -349,6 +349,9 @@ fi ||:
 
 
 %changelog
+* Tue Feb 14 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:295.20-1
+- Update to 295.20
+
 * Wed Feb 01 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:295.17-1
 - Update to 295.17 (beta)
 - Fix kernel options when using grub legacy.
