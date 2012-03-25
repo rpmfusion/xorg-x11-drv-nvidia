@@ -7,7 +7,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         295.33
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -349,13 +349,20 @@ fi ||:
 
 
 %changelog
-* Sun Mar 25 2012 leigh scott <leigh123linux@googlemail.com> - 1:295.33-2
-- Change nvidia-kmod-data archive to xz compression
-- Remove libcuda.so.1 filter - rfbz#2083
-- Fix kernel options when using grub legacy.
-
-* Sun Mar 25 2012 leigh scott <leigh123linux@googlemail.com> - 1:295.33-1
+* Thu Mar 22 2012 leigh scott <leigh123linux@googlemail.com> - 1:295.33-3
 - Update to 295.33
+
+* Tue Feb 14 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:295.20-1
+- Update to 295.20
+
+* Wed Feb 01 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:295.17-1
+- Update to 295.17 (beta)
+- Fix kernel options when using grub legacy.
+- Change nvidia-kmod-data archive to xz compression
+
+* Sat Dec 31 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:295.09-1
+- Update to 295.09 (beta)
+- Remove libcuda.so.1 filter - rfbz#2083
 
 * Tue Nov 22 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:290.10-1
 - Update to 290.10
