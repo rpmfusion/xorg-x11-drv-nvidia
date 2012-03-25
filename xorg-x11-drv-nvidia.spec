@@ -7,7 +7,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         295.33
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -80,14 +80,12 @@ Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
 %filter_from_provides /^libvdpau_nvidia\.so\.1/d;
 %filter_from_provides /^libXvMCNVIDIA_dynamic\.so\.1/d;
 %filter_from_provides /^libglx\.so/d;
-%filter_from_provides /^libcuda\.so\.1/d;
 %filter_from_requires /^libnvidia/d;
 %filter_from_requires /^libGLCore\.so/d;
 %filter_from_requires /^libGL\.so/d;
 %filter_from_requires /^libvdpau_nvidia\.so\.1/d;
 %filter_from_requires /^libXvMCNVIDIA_dynamic\.so\.1/d;
 %filter_from_requires /^libglx\.so/d;
-%filter_from_requires /^libcuda\.so\.1/d;
 %filter_setup
 }
 
@@ -140,7 +138,7 @@ This package provides the shared libraries for %{name}.
 %setup -q -c -T
 sh %{SOURCE0} --extract-only --target nvidiapkg-x86
 sh %{SOURCE1} --extract-only --target nvidiapkg-x64
-tar -cjf nvidia-kmod-data-%{version}.tar.bz2 nvidiapkg-*/LICENSE nvidiapkg-*/kernel
+tar -cJf nvidia-kmod-data-%{version}.tar.xz nvidiapkg-*/LICENSE nvidiapkg-*/kernel
 
 %ifarch %{ix86}
 ln -s nvidiapkg-x86 nvidiapkg
@@ -257,14 +255,16 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 if [ "$1" -eq "1" ]; then
-  # Enable nvidia driver when installing
-  #%{_sbindir}/nvidia-config-display enable &>/dev/null ||:
-  # Add init script and start it
-  #/sbin/chkconfig --add nvidia ||:
-  #/etc/init.d/nvidia start &>/dev/null ||:
+  ISGRUB1=""
+  if [[ -f /boot/grub/grub.conf && ! -f /boot/grub2/grub2.cfg ]] ; then
+      ISGRUB1="--grub"
+  fi
   if [ -x /sbin/grubby ] ; then
     GRUBBYLASTKERNEL=`/sbin/grubby --default-kernel`
-    /sbin/grubby --update-kernel=${GRUBBYLASTKERNEL} --args='nouveau.modeset=0 rd.driver.blacklist=nouveau' &>/dev/null
+    /sbin/grubby $ISGRUB1 \
+      --update-kernel=${GRUBBYLASTKERNEL} \
+      --args='nouveau.modeset=0 rd.driver.blacklist=nouveau' \
+       &>/dev/null
   fi
 fi || :
 
@@ -276,21 +276,21 @@ fi || :
 
 %preun
 if [ "$1" -eq "0" ]; then
-    # Disable driver on final removal
-    #test -f %{_sbindir}/nvidia-config-display && %{_sbindir}/nvidia-config-display disable &>/dev/null
-    #%{_initrddir}/nvidia stop &>/dev/null
-    #/sbin/chkconfig --del nvidia &>/dev/null
-    #Clear grub option to disable nouveau for all kernels
-    if [ -x /sbin/grubby ] ; then
-      KERNELS=`ls /boot/vmlinuz-*%{?dist}.$(uname -m)*`
-      for kernel in ${KERNELS} ; do
-      /sbin/grubby --update-kernel=${kernel} \
+  ISGRUB1=""
+  if [[ -f /boot/grub/grub.conf && ! -f /boot/grub2/grub2.cfg ]] ; then
+      ISGRUB1="--grub"
+  fi
+  if [ -x /sbin/grubby ] ; then
+    KERNELS=`ls /boot/vmlinuz-*%{?dist}.$(uname -m)*`
+    for kernel in ${KERNELS} ; do
+      /sbin/grubby $ISGRUB1 \
+        --update-kernel=${kernel} \
         --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset' &>/dev/null
-      done
-    fi
-    #Backup and disable previously used xorg.conf
-    [ -f %{_sysconfdir}/X11/xorg.conf ] && \
-      mv  %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.%{name}_uninstalled &>/dev/null
+    done
+  fi
+  #Backup and disable previously used xorg.conf
+  [ -f %{_sysconfdir}/X11/xorg.conf ] && \
+    mv  %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.%{name}_uninstalled &>/dev/null
 fi ||:
 
 %postun libs -p /sbin/ldconfig
@@ -349,6 +349,11 @@ fi ||:
 
 
 %changelog
+* Sun Mar 25 2012 leigh scott <leigh123linux@googlemail.com> - 1:295.33-2
+- Change nvidia-kmod-data archive to xz compression
+- Remove libcuda.so.1 filter - rfbz#2083
+- Fix kernel options when using grub legacy.
+
 * Sun Mar 25 2012 leigh scott <leigh123linux@googlemail.com> - 1:295.33-1
 - Update to 295.33
 
