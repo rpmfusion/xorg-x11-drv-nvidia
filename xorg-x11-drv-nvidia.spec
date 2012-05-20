@@ -7,7 +7,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         295.49
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -260,11 +260,14 @@ if [ "$1" -eq "1" ]; then
       ISGRUB1="--grub"
   fi
   if [ -x /sbin/grubby ] ; then
-    GRUBBYLASTKERNEL=`/sbin/grubby --default-kernel`
-    /sbin/grubby $ISGRUB1 \
-      --update-kernel=${GRUBBYLASTKERNEL} \
-      --args='nouveau.modeset=0 rd.driver.blacklist=nouveau' \
-       &>/dev/null
+    KERNELS=`/sbin/grubby --default-kernel`
+    [ -z $KERNELS ] && KERNELS=`ls /boot/vmlinuz-*%{?dist}.$(uname -m)*`
+    for kernel in ${KERNELS} ; do
+      /sbin/grubby $ISGRUB1 \
+        --update-kernel=${kernel} \
+        --args='nouveau.modeset=0 rd.driver.blacklist=nouveau' \
+         &>/dev/null
+    done
   fi
 fi || :
 
@@ -349,6 +352,9 @@ fi ||:
 
 
 %changelog
+* Sun May 20 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:295.49-2
+- Fix %%post when grubby --default-kernel is broken
+
 * Thu May 03 2012 leigh scott <leigh123linux@googlemail.com> - 1:295.49-1
 - Update to 295.49
 
