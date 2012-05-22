@@ -6,8 +6,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         295.49
-Release:         2%{?dist}
+Version:         295.53
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -352,6 +352,9 @@ fi ||:
 
 
 %changelog
+* Tue May 22 2012 leigh scott <leigh123linux@googlemail.com> - 1:295.53-1
+- Update to 295.53
+
 * Sun May 20 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:295.49-2
 - Fix %%post when grubby --default-kernel is broken
 
