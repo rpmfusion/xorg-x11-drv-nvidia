@@ -6,7 +6,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         280.13
+Version:         295.53
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -50,6 +50,11 @@ Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
 Requires(post):  ldconfig
 #Requires(preun): chkconfig
 
+%if 0%{?fedora} == 16
+Conflicts:       selinux-policy-targeted < 3.10.0-53
+%endif
+
+
 
 Provides:        nvidia-kmod-common = %{?epoch}:%{version}
 Conflicts:       xorg-x11-drv-nvidia-beta
@@ -75,14 +80,12 @@ Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
 %filter_from_provides /^libvdpau_nvidia\.so\.1/d;
 %filter_from_provides /^libXvMCNVIDIA_dynamic\.so\.1/d;
 %filter_from_provides /^libglx\.so/d;
-%filter_from_provides /^libcuda\.so\.1/d;
 %filter_from_requires /^libnvidia/d;
 %filter_from_requires /^libGLCore\.so/d;
 %filter_from_requires /^libGL\.so/d;
 %filter_from_requires /^libvdpau_nvidia\.so\.1/d;
 %filter_from_requires /^libXvMCNVIDIA_dynamic\.so\.1/d;
 %filter_from_requires /^libglx\.so/d;
-%filter_from_requires /^libcuda\.so\.1/d;
 %filter_setup
 }
 
@@ -135,7 +138,7 @@ This package provides the shared libraries for %{name}.
 %setup -q -c -T
 sh %{SOURCE0} --extract-only --target nvidiapkg-x86
 sh %{SOURCE1} --extract-only --target nvidiapkg-x64
-tar -cjf nvidia-kmod-data-%{version}.tar.bz2 nvidiapkg-*/LICENSE nvidiapkg-*/kernel
+tar -cJf nvidia-kmod-data-%{version}.tar.xz nvidiapkg-*/LICENSE nvidiapkg-*/kernel
 
 %ifarch %{ix86}
 ln -s nvidiapkg-x86 nvidiapkg
@@ -344,6 +347,41 @@ fi ||:
 
 
 %changelog
+* Tue May 22 2012 leigh scott <leigh123linux@googlemail.com> - 1:295.53-1
+- Update to 295.53
+
+* Thu May 03 2012 leigh scott <leigh123linux@googlemail.com> - 1:295.49-1
+- Update to 295.49
+
+* Wed Apr 11 2012 leigh scott <leigh123linux@googlemail.com> - 1:295.40-1
+- Update to 295.40
+
+* Thu Mar 22 2012 leigh scott <leigh123linux@googlemail.com> - 1:295.33-1
+- Update to 295.33
+
+* Tue Feb 14 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:295.20-1
+- Update to 295.20
+
+* Wed Feb 01 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:295.17-1
+- Update to 295.17 (beta)
+- Change nvidia-kmod-data archive to xz compression
+
+* Sat Dec 31 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:295.09-1
+- Update to 295.09 (beta)
+- Remove libcuda.so.1 filter - rfbz#2083
+
+* Tue Nov 22 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:290.10-1
+- Update to 290.10
+
+* Wed Nov 09 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:290.06-1
+- Update to 290.06 beta
+
+* Tue Oct 04 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:285.05.09-1
+- Update to 285.05.09
+
+* Sat Aug 27 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:285.03-1
+- Update to 285.03
+
 * Tue Aug 02 2011 Nicolas Chauvet <kwizart@gmail.com> - 1:280.13-1
 - Update to 280.13
 
