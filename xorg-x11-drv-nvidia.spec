@@ -325,6 +325,7 @@ fi ||:
 #/no_multilib
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-smi.*
+%exclude %{_mandir}/man1/nvidia-cuda-proxy-control.1.gz
 
 %files libs
 %defattr(-,root,root,-)
