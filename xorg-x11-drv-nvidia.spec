@@ -7,7 +7,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         304.22
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -200,7 +200,7 @@ install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau/
 install -p -m 0644 libXvMCNVIDIA.a             $RPM_BUILD_ROOT%{nvidialibdir}/
 
 # Install binaries
-install -p -m 0755 nvidia-{bug-report.sh,smi} $RPM_BUILD_ROOT%{_bindir}
+install -p -m 0755 nvidia-{bug-report.sh,smi,cuda-proxy-control,cuda-proxy-server} $RPM_BUILD_ROOT%{_bindir}
 
 # Install man pages
 install    -m 0755 -d   $RPM_BUILD_ROOT%{_mandir}/man1/
@@ -317,6 +317,8 @@ fi ||:
 #{_initrddir}/nvidia
 %{_bindir}/nvidia-bug-report.sh
 %{_bindir}/nvidia-smi
+%{_bindir}/nvidia-cuda-proxy-control
+%{_bindir}/nvidia-cuda-proxy-server
 #{_sbindir}/nvidia-config-display
 # Xorg libs that do not need to be multilib
 %dir %{_libdir}/xorg/modules/extensions/nvidia
@@ -325,7 +327,7 @@ fi ||:
 #/no_multilib
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-smi.*
-%exclude %{_mandir}/man1/nvidia-cuda-proxy-control.1.gz
+%{_mandir}/man1/nvidia-cuda-proxy-control.1.gz
 
 %files libs
 %defattr(-,root,root,-)
@@ -353,6 +355,9 @@ fi ||:
 
 
 %changelog
+* Sat Jul 14 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.22-2
+- Add nvidia-cuda-proxy binaries and man file
+
 * Fri Jul 13 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.22-1
 - Update to 304.22
 
