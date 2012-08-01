@@ -6,7 +6,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         295.59
+Version:         304.30
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -200,7 +200,7 @@ install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau/
 install -p -m 0644 libXvMCNVIDIA.a             $RPM_BUILD_ROOT%{nvidialibdir}/
 
 # Install binaries
-install -p -m 0755 nvidia-{bug-report.sh,smi} $RPM_BUILD_ROOT%{_bindir}
+install -p -m 0755 nvidia-{bug-report.sh,smi,cuda-proxy-control,cuda-proxy-server} $RPM_BUILD_ROOT%{_bindir}
 
 # Install man pages
 install    -m 0755 -d   $RPM_BUILD_ROOT%{_mandir}/man1/
@@ -317,6 +317,8 @@ fi ||:
 #{_initrddir}/nvidia
 %{_bindir}/nvidia-bug-report.sh
 %{_bindir}/nvidia-smi
+%{_bindir}/nvidia-cuda-proxy-control
+%{_bindir}/nvidia-cuda-proxy-server
 #{_sbindir}/nvidia-config-display
 # Xorg libs that do not need to be multilib
 %dir %{_libdir}/xorg/modules/extensions/nvidia
@@ -325,6 +327,7 @@ fi ||:
 #/no_multilib
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-smi.*
+%{_mandir}/man1/nvidia-cuda-proxy-control.1.*
 
 %files libs
 %defattr(-,root,root,-)
@@ -349,9 +352,13 @@ fi ||:
 %{nvidialibdir}/libXvMCNVIDIA.so
 %{nvidialibdir}/libnvcuvid.so
 %{nvidialibdir}/libnvidia-ml.so
+%{nvidialibdir}/libnvidia-opencl.so
 
 
 %changelog
+* Wed Aug 01 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.30-1
+- Update to 304.30
+
 * Mon Jun 11 2012 leigh scott <leigh123linux@googlemail.com> - 1:295.59-1
 - Update to 295.59
 
