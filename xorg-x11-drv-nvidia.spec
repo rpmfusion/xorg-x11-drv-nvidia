@@ -6,7 +6,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         304.30
+Version:         304.32
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -327,7 +327,7 @@ fi ||:
 #/no_multilib
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-smi.*
-%{_mandir}/man1/nvidia-cuda-proxy-control.1.gz
+%{_mandir}/man1/nvidia-cuda-proxy-control.1.*
 
 %files libs
 %defattr(-,root,root,-)
@@ -356,6 +356,9 @@ fi ||:
 
 
 %changelog
+* Sat Aug 04 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.32-1
+- Update to 304.32
+
 * Tue Jul 31 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.30-1
 - Update to 304.30
 
