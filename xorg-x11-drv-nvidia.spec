@@ -6,7 +6,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         304.37
+Version:         304.43
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -97,6 +97,9 @@ GeForce5 and below are NOT supported by this release.
 For the full product support list, please consult the release notes
 for driver version %{version}.
 
+Please use the following documentation:
+http://rpmfusion.org/Howto/nVidia
+
 
 %package devel
 Summary:         Development files for %{name}
@@ -118,7 +121,7 @@ such as OpenGL headers.
 Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{?epoch}:%{version}-%{release}
-Requires:        libvdpau%{_isa} >= 0.4
+Requires:        libvdpau%{_isa} >= 0.5
 Provides:        %{name}-libs-%{_target_cpu} = %{?epoch}:%{version}-%{release}
 %ifarch %{ix86}
 Provides:        %{name}-libs-32bit = %{?epoch}:%{version}-%{release}
@@ -265,7 +268,7 @@ if [ "$1" -eq "1" ]; then
     for kernel in ${KERNELS} ; do
       /sbin/grubby $ISGRUB1 \
         --update-kernel=${kernel} \
-        --args='nouveau.modeset=0 rd.driver.blacklist=nouveau' \
+        --args='nouveau.modeset=0 rd.driver.blacklist=nouveau video=vesa:off vga=normal' \
          &>/dev/null
     done
   fi
@@ -288,7 +291,7 @@ if [ "$1" -eq "0" ]; then
     for kernel in ${KERNELS} ; do
       /sbin/grubby $ISGRUB1 \
         --update-kernel=${kernel} \
-        --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset' &>/dev/null
+        --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset video=vesa:off' &>/dev/null
     done
   fi
   #Backup and disable previously used xorg.conf
@@ -356,6 +359,12 @@ fi ||:
 
 
 %changelog
+* Wed Sep 05 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.43-1
+- Update to 304.43
+- Force libvdpau >= 0.5 - rhbz#849486
+- Workaround grub2 fb initialization at install time - rfbz#2391
+- Reference our own documentation of the driver.
+
 * Tue Aug 14 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.37-1
 - Update to 304.37 release
 
