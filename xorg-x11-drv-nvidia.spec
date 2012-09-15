@@ -6,8 +6,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         304.43
-Release:         2%{?dist}
+Version:         304.48
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -364,6 +364,9 @@ fi ||:
 
 
 %changelog
+* Sat Sep 15 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.48-1
+- Update to 304.48
+
 * Sat Sep 15 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.43-2
 - Add missing headers to -devel - rfbz#2475
 
