@@ -204,7 +204,7 @@ install -p -m 0755 nvidia-{bug-report.sh,smi,cuda-proxy-control,cuda-proxy-serve
 
 # Install headers
 install -m 0755 -d $RPM_BUILD_ROOT%{_includedir}/nvidia/GL/
-install -p -m 0755 {gl.h,glext.h,glx.h,glxext.h} $RPM_BUILD_ROOT%{_includedir}/nvidia/GL/
+install -p -m 0644 {gl.h,glext.h,glx.h,glxext.h} $RPM_BUILD_ROOT%{_includedir}/nvidia/GL/
 
 # Install man pages
 install    -m 0755 -d   $RPM_BUILD_ROOT%{_mandir}/man1/
