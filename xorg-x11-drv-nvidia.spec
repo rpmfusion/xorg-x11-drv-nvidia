@@ -6,7 +6,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         304.51
+Version:         310.14
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -78,13 +78,11 @@ Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
 %filter_from_provides /^libGLCore\.so/d;
 %filter_from_provides /^libGL\.so/d;
 %filter_from_provides /^libvdpau_nvidia\.so\.1/d;
-%filter_from_provides /^libXvMCNVIDIA_dynamic\.so\.1/d;
 %filter_from_provides /^libglx\.so/d;
 %filter_from_requires /^libnvidia/d;
 %filter_from_requires /^libGLCore\.so/d;
 %filter_from_requires /^libGL\.so/d;
 %filter_from_requires /^libvdpau_nvidia\.so\.1/d;
-%filter_from_requires /^libXvMCNVIDIA_dynamic\.so\.1/d;
 %filter_from_requires /^libglx\.so/d;
 %filter_setup
 }
@@ -200,7 +198,6 @@ install -p -m 0755 libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/mo
 install -p -m 0755 libglx.so.%{version}        $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
 install -p -m 0755 nvidia_drv.so               $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
 install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau/
-install -p -m 0644 libXvMCNVIDIA.a             $RPM_BUILD_ROOT%{nvidialibdir}/
 
 # Install binaries
 install -p -m 0755 nvidia-{bug-report.sh,smi,cuda-proxy-control,cuda-proxy-server} $RPM_BUILD_ROOT%{_bindir}
@@ -351,19 +348,21 @@ fi ||:
 
 %files devel
 %defattr(-,root,root,-)
-%exclude %{nvidialibdir}/libXvMCNVIDIA.a
 %exclude %{nvidialibdir}/libcuda.so
 %{_includedir}/nvidia/
 %{nvidialibdir}/libOpenCL.so
 %{nvidialibdir}/libnvidia-compiler.so
 %{nvidialibdir}/libGL.so
-%{nvidialibdir}/libXvMCNVIDIA.so
 %{nvidialibdir}/libnvcuvid.so
 %{nvidialibdir}/libnvidia-ml.so
 %{nvidialibdir}/libnvidia-opencl.so
+%{nvidialibdir}/libnvidia-encode.so
 
 
 %changelog
+* Tue Oct 16 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:310.14-1
+- Update to 310.14
+
 * Mon Sep 24 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.51-1
 - Update to 304.51
 
