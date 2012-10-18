@@ -21,5 +21,5 @@ for arch in x86 x86_64 ; do
  sh NVIDIA-Linux-${arch}-${version}.run --extract-only --target nvidiapkg-${arch}
 done
 
-tar -cjf nvidia-kmod-data-${version}.tar.bz2 nvidiapkg-*/LICENSE nvidiapkg-*/kernel
+tar -cJf nvidia-kmod-data-${version}.tar.xz nvidiapkg-*/LICENSE nvidiapkg-*/kernel
 
