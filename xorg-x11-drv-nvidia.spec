@@ -50,11 +50,6 @@ Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
 Requires(post):  ldconfig
 #Requires(preun): chkconfig
 
-%if 0%{?fedora} == 16
-Conflicts:       selinux-policy-targeted < 3.10.0-53
-%endif
-
-
 
 Provides:        nvidia-kmod-common = %{?epoch}:%{version}
 Conflicts:       xorg-x11-drv-nvidia-beta
