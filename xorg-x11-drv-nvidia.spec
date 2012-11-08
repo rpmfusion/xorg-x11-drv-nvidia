@@ -1,4 +1,5 @@
 %global        nvidialibdir      %{_libdir}/nvidia
+%global        nvidiaxorgdir     %{_libdir}/nvidia/xorg
 %global        ignoreabi         0
 
 %global	       debug_package %{nil}
@@ -6,7 +7,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         304.60
+Version:         304.64
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -191,13 +192,13 @@ install -p -m 0755 libOpenCL.so.1.0.0          $RPM_BUILD_ROOT%{nvidialibdir}/
 install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{nvidialibdir}/tls/
 
 # .. but some in a different place
-install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
-install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
+install -m 0755 -d $RPM_BUILD_ROOT%{nvidiaxorgdir}
+install -m 0755 -d $RPM_BUILD_ROOT%{nvidiaxorgdir}
 rm -f $RPM_BUILD_ROOT%{nvidialibdir}/lib{nvidia-wfb,glx,vdpau*}.so.%{version}
 
 # Finish up the special case libs
-install -p -m 0755 libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
-install -p -m 0755 libglx.so.%{version}        $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
+install -p -m 0755 libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{nvidiaxorgdir}
+install -p -m 0755 libglx.so.%{version}        $RPM_BUILD_ROOT%{nvidiaxorgdir}
 install -p -m 0755 nvidia_drv.so               $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
 install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau/
 install -p -m 0644 libXvMCNVIDIA.a             $RPM_BUILD_ROOT%{nvidialibdir}/
@@ -328,9 +329,9 @@ fi ||:
 %{_bindir}/nvidia-cuda-proxy-server
 #{_sbindir}/nvidia-config-display
 # Xorg libs that do not need to be multilib
-%dir %{_libdir}/xorg/modules/extensions/nvidia
+%dir %{nvidiaxorgdir}
+%{nvidiaxorgdir}/*.so*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
-%{_libdir}/xorg/modules/extensions/nvidia/*.so*
 #/no_multilib
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-smi.*
@@ -364,6 +365,10 @@ fi ||:
 
 
 %changelog
+* Thu Nov 08 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.64-1
+- Update to 304.64
+- Move nvidia xorg libraries to _libdir/nvidia/xorg - rfbz#2264
+
 * Thu Oct 18 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.60-1
 - Update to 304.60
 
