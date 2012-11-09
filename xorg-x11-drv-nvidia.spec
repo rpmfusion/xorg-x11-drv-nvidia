@@ -193,7 +193,7 @@ install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{nvidialibdir}/tl
 
 #
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
-mkdir -p %{nvidiaxorgdir}
+mkdir -p $RPM_BUILD_ROOT%{nvidiaxorgdir}
 
 # .. but some in a different place
 install -m 0755 -d $RPM_BUILD_ROOT%{nvidiaxorgdir}
