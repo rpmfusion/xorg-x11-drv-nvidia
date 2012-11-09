@@ -191,6 +191,10 @@ install -p -m 0755 lib*.so.%{version}          $RPM_BUILD_ROOT%{nvidialibdir}/
 install -p -m 0755 libOpenCL.so.1.0.0          $RPM_BUILD_ROOT%{nvidialibdir}/
 install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{nvidialibdir}/tls/
 
+#
+mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
+mkdir -p %{nvidiaxorgdir}
+
 # .. but some in a different place
 install -m 0755 -d $RPM_BUILD_ROOT%{nvidiaxorgdir}
 install -m 0755 -d $RPM_BUILD_ROOT%{nvidiaxorgdir}
