@@ -1,4 +1,5 @@
 %global        nvidialibdir      %{_libdir}/nvidia
+%global        nvidiaxorgdir     %{_libdir}/nvidia/xorg
 %global        ignoreabi         0
 
 %global	       debug_package %{nil}
@@ -6,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         310.14
-Release:         2%{?dist}
+Version:         304.64
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -50,6 +51,11 @@ Requires:        %{name}-libs-%{_target_cpu} = %{version}-%{release}
 Requires(post):  ldconfig
 #Requires(preun): chkconfig
 
+%if 0%{?fedora} == 16
+Conflicts:       selinux-policy-targeted < 3.10.0-53
+%endif
+
+
 
 Provides:        nvidia-kmod-common = %{?epoch}:%{version}
 Conflicts:       xorg-x11-drv-nvidia-beta
@@ -73,12 +79,13 @@ Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
 %filter_from_provides /^libGLCore\.so/d;
 %filter_from_provides /^libGL\.so/d;
 %filter_from_provides /^libvdpau_nvidia\.so\.1/d;
+%filter_from_provides /^libXvMCNVIDIA_dynamic\.so\.1/d;
 %filter_from_provides /^libglx\.so/d;
 %filter_from_requires /^libnvidia/d;
 %filter_from_requires /^libGLCore\.so/d;
 %filter_from_requires /^libGL\.so/d;
-%filter_from_requires /^libnvcuvid/d;
 %filter_from_requires /^libvdpau_nvidia\.so\.1/d;
+%filter_from_requires /^libXvMCNVIDIA_dynamic\.so\.1/d;
 %filter_from_requires /^libglx\.so/d;
 %filter_setup
 }
@@ -184,16 +191,21 @@ install -p -m 0755 lib*.so.%{version}          $RPM_BUILD_ROOT%{nvidialibdir}/
 install -p -m 0755 libOpenCL.so.1.0.0          $RPM_BUILD_ROOT%{nvidialibdir}/
 install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{nvidialibdir}/tls/
 
+#
+mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
+mkdir -p %{nvidiaxorgdir}
+
 # .. but some in a different place
-install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
-install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
+install -m 0755 -d $RPM_BUILD_ROOT%{nvidiaxorgdir}
+install -m 0755 -d $RPM_BUILD_ROOT%{nvidiaxorgdir}
 rm -f $RPM_BUILD_ROOT%{nvidialibdir}/lib{nvidia-wfb,glx,vdpau*}.so.%{version}
 
 # Finish up the special case libs
-install -p -m 0755 libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
-install -p -m 0755 libglx.so.%{version}        $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
+install -p -m 0755 libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{nvidiaxorgdir}
+install -p -m 0755 libglx.so.%{version}        $RPM_BUILD_ROOT%{nvidiaxorgdir}
 install -p -m 0755 nvidia_drv.so               $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
 install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau/
+install -p -m 0644 libXvMCNVIDIA.a             $RPM_BUILD_ROOT%{nvidialibdir}/
 
 # Install binaries
 install -p -m 0755 nvidia-{bug-report.sh,smi,cuda-proxy-control,cuda-proxy-server} $RPM_BUILD_ROOT%{_bindir}
@@ -321,9 +333,9 @@ fi ||:
 %{_bindir}/nvidia-cuda-proxy-server
 #{_sbindir}/nvidia-config-display
 # Xorg libs that do not need to be multilib
-%dir %{_libdir}/xorg/modules/extensions/nvidia
+%dir %{nvidiaxorgdir}
+%{nvidiaxorgdir}/*.so*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
-%{_libdir}/xorg/modules/extensions/nvidia/*.so*
 #/no_multilib
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-smi.*
@@ -336,7 +348,6 @@ fi ||:
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %{nvidialibdir}/*.so.*
 %{nvidialibdir}/libcuda.so
-%{nvidialibdir}/libnvcuvid.so
 %{nvidialibdir}/libnvidia-glcore.so
 %{nvidialibdir}/tls/*.so*
 %exclude %{_libdir}/vdpau/libvdpau.*
@@ -345,22 +356,25 @@ fi ||:
 
 %files devel
 %defattr(-,root,root,-)
+%exclude %{nvidialibdir}/libXvMCNVIDIA.a
 %exclude %{nvidialibdir}/libcuda.so
 %{_includedir}/nvidia/
 %{nvidialibdir}/libOpenCL.so
 %{nvidialibdir}/libnvidia-compiler.so
 %{nvidialibdir}/libGL.so
+%{nvidialibdir}/libXvMCNVIDIA.so
+%{nvidialibdir}/libnvcuvid.so
 %{nvidialibdir}/libnvidia-ml.so
 %{nvidialibdir}/libnvidia-opencl.so
-%{nvidialibdir}/libnvidia-encode.so
 
 
 %changelog
-* Tue Oct 16 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:310.14-2
-- move libnvcuvid.so to main package
+* Thu Nov 08 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.64-1
+- Update to 304.64
+- Move nvidia xorg libraries to _libdir/nvidia/xorg - rfbz#2264
 
-* Tue Oct 16 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:310.14-1
-- Update to 310.14
+* Thu Oct 18 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.60-1
+- Update to 304.60
 
 * Mon Sep 24 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.51-1
 - Update to 304.51
