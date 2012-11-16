@@ -7,7 +7,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         304.64
+Version:         310.19
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -79,13 +79,12 @@ Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
 %filter_from_provides /^libGLCore\.so/d;
 %filter_from_provides /^libGL\.so/d;
 %filter_from_provides /^libvdpau_nvidia\.so\.1/d;
-%filter_from_provides /^libXvMCNVIDIA_dynamic\.so\.1/d;
 %filter_from_provides /^libglx\.so/d;
 %filter_from_requires /^libnvidia/d;
 %filter_from_requires /^libGLCore\.so/d;
 %filter_from_requires /^libGL\.so/d;
+%filter_from_requires /^libnvcuvid/d;
 %filter_from_requires /^libvdpau_nvidia\.so\.1/d;
-%filter_from_requires /^libXvMCNVIDIA_dynamic\.so\.1/d;
 %filter_from_requires /^libglx\.so/d;
 %filter_setup
 }
@@ -205,7 +204,6 @@ install -p -m 0755 libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{nvidiaxorgdir}
 install -p -m 0755 libglx.so.%{version}        $RPM_BUILD_ROOT%{nvidiaxorgdir}
 install -p -m 0755 nvidia_drv.so               $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
 install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau/
-install -p -m 0644 libXvMCNVIDIA.a             $RPM_BUILD_ROOT%{nvidialibdir}/
 
 # Install binaries
 install -p -m 0755 nvidia-{bug-report.sh,smi,cuda-proxy-control,cuda-proxy-server} $RPM_BUILD_ROOT%{_bindir}
@@ -348,6 +346,7 @@ fi ||:
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %{nvidialibdir}/*.so.*
 %{nvidialibdir}/libcuda.so
+%{nvidialibdir}/libnvcuvid.so
 %{nvidialibdir}/libnvidia-glcore.so
 %{nvidialibdir}/tls/*.so*
 %exclude %{_libdir}/vdpau/libvdpau.*
@@ -356,19 +355,20 @@ fi ||:
 
 %files devel
 %defattr(-,root,root,-)
-%exclude %{nvidialibdir}/libXvMCNVIDIA.a
 %exclude %{nvidialibdir}/libcuda.so
 %{_includedir}/nvidia/
 %{nvidialibdir}/libOpenCL.so
 %{nvidialibdir}/libnvidia-compiler.so
 %{nvidialibdir}/libGL.so
-%{nvidialibdir}/libXvMCNVIDIA.so
-%{nvidialibdir}/libnvcuvid.so
 %{nvidialibdir}/libnvidia-ml.so
 %{nvidialibdir}/libnvidia-opencl.so
+%{nvidialibdir}/libnvidia-encode.so
 
 
 %changelog
+* Fri Nov 16 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:310.19-1
+- Update to 310.19
+
 * Thu Nov 08 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.64-1
 - Update to 304.64
 - Move nvidia xorg libraries to _libdir/nvidia/xorg - rfbz#2264
