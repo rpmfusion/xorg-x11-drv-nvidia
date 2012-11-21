@@ -1,4 +1,5 @@
 %global        nvidialibdir      %{_libdir}/nvidia
+%global        nvidiaxorgdir     %{_libdir}/nvidia/xorg
 %global        ignoreabi         0
 
 %global	       debug_package %{nil}
@@ -6,7 +7,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         304.60
+Version:         304.64
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -97,6 +98,9 @@ GeForce5 and below are NOT supported by this release.
 For the full product support list, please consult the release notes
 for driver version %{version}.
 
+Please use the following documentation:
+http://rpmfusion.org/Howto/nVidia
+
 
 %package devel
 Summary:         Development files for %{name}
@@ -118,7 +122,7 @@ such as OpenGL headers.
 Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{?epoch}:%{version}-%{release}
-Requires:        libvdpau%{_isa} >= 0.4
+Requires:        libvdpau%{_isa} >= 0.5
 Provides:        %{name}-libs-%{_target_cpu} = %{?epoch}:%{version}-%{release}
 %ifarch %{ix86}
 Provides:        %{name}-libs-32bit = %{?epoch}:%{version}-%{release}
@@ -187,14 +191,18 @@ install -p -m 0755 lib*.so.%{version}          $RPM_BUILD_ROOT%{nvidialibdir}/
 install -p -m 0755 libOpenCL.so.1.0.0          $RPM_BUILD_ROOT%{nvidialibdir}/
 install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{nvidialibdir}/tls/
 
+#
+mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
+mkdir -p $RPM_BUILD_ROOT%{nvidiaxorgdir}
+
 # .. but some in a different place
-install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
-install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
+install -m 0755 -d $RPM_BUILD_ROOT%{nvidiaxorgdir}
+install -m 0755 -d $RPM_BUILD_ROOT%{nvidiaxorgdir}
 rm -f $RPM_BUILD_ROOT%{nvidialibdir}/lib{nvidia-wfb,glx,vdpau*}.so.%{version}
 
 # Finish up the special case libs
-install -p -m 0755 libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
-install -p -m 0755 libglx.so.%{version}        $RPM_BUILD_ROOT%{_libdir}/xorg/modules/extensions/nvidia/
+install -p -m 0755 libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{nvidiaxorgdir}
+install -p -m 0755 libglx.so.%{version}        $RPM_BUILD_ROOT%{nvidiaxorgdir}
 install -p -m 0755 nvidia_drv.so               $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
 install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau/
 install -p -m 0644 libXvMCNVIDIA.a             $RPM_BUILD_ROOT%{nvidialibdir}/
@@ -269,7 +277,7 @@ if [ "$1" -eq "1" ]; then
     for kernel in ${KERNELS} ; do
       /sbin/grubby $ISGRUB1 \
         --update-kernel=${kernel} \
-        --args='nouveau.modeset=0 rd.driver.blacklist=nouveau' \
+        --args='nouveau.modeset=0 rd.driver.blacklist=nouveau video=vesa:off vga=normal' \
          &>/dev/null
     done
   fi
@@ -292,7 +300,7 @@ if [ "$1" -eq "0" ]; then
     for kernel in ${KERNELS} ; do
       /sbin/grubby $ISGRUB1 \
         --update-kernel=${kernel} \
-        --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset' &>/dev/null
+        --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset video=vesa:off' &>/dev/null
     done
   fi
   #Backup and disable previously used xorg.conf
@@ -325,9 +333,9 @@ fi ||:
 %{_bindir}/nvidia-cuda-proxy-server
 #{_sbindir}/nvidia-config-display
 # Xorg libs that do not need to be multilib
-%dir %{_libdir}/xorg/modules/extensions/nvidia
+%dir %{nvidiaxorgdir}
+%{nvidiaxorgdir}/*.so*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
-%{_libdir}/xorg/modules/extensions/nvidia/*.so*
 #/no_multilib
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-smi.*
@@ -361,14 +369,27 @@ fi ||:
 
 
 %changelog
+* Thu Nov 08 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.64-1
+- Update to 304.64
+- Move nvidia xorg libraries to _libdir/nvidia/xorg - rfbz#2264
+
 * Thu Oct 18 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.60-1
 - Update to 304.60
 
-* Thu Oct 11 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.51-1
-- Update to 304.51 release
+* Mon Sep 24 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.51-1
+- Update to 304.51
 
-* Sat Sep 15 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.37-2
+* Sat Sep 15 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.48-1
+- Update to 304.48
+
+* Sat Sep 15 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.43-2
 - Add missing headers to -devel - rfbz#2475
+
+* Wed Sep 05 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.43-1
+- Update to 304.43
+- Force libvdpau >= 0.5 - rhbz#849486
+- Workaround grub2 fb initialization at install time - rfbz#2391
+- Reference our own documentation of the driver.
 
 * Tue Aug 14 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.37-1
 - Update to 304.37 release
@@ -376,11 +397,20 @@ fi ||:
 * Sat Aug 04 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.32-1
 - Update to 304.32
 
-* Wed Aug 01 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.30-1
+* Tue Jul 31 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.30-1
 - Update to 304.30
 
-* Mon Jun 11 2012 leigh scott <leigh123linux@googlemail.com> - 1:295.59-1
-- Update to 295.59
+* Sat Jul 14 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.22-2
+- Add nvidia-cuda-proxy binaries and man file
+
+* Fri Jul 13 2012 Leigh Scott <leigh123linux@googlemail.com> - 1:304.22-1
+- Update to 304.22
+
+* Sat Jun 16 2012 leigh scott <leigh123linux@googlemail.com> - 1:302.17-1
+- Update to 302.17
+
+* Tue May 22 2012 leigh scott <leigh123linux@googlemail.com> - 1:302.11-1
+- Update to 302.11
 
 * Tue May 22 2012 leigh scott <leigh123linux@googlemail.com> - 1:295.53-1
 - Update to 295.53
