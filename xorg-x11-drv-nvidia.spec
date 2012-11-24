@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         304.64
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -277,7 +277,7 @@ if [ "$1" -eq "1" ]; then
     for kernel in ${KERNELS} ; do
       /sbin/grubby $ISGRUB1 \
         --update-kernel=${kernel} \
-        --args='nouveau.modeset=0 rd.driver.blacklist=nouveau video=vesa:off vga=normal' \
+        --args='nouveau.modeset=0 rd.driver.blacklist=nouveau video=vesa:off gfxpayload=text' \
          &>/dev/null
     done
   fi
@@ -300,7 +300,7 @@ if [ "$1" -eq "0" ]; then
     for kernel in ${KERNELS} ; do
       /sbin/grubby $ISGRUB1 \
         --update-kernel=${kernel} \
-        --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset video=vesa:off' &>/dev/null
+        --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset video=vesa:off gfxpayload=text' &>/dev/null
     done
   fi
   #Backup and disable previously used xorg.conf
@@ -369,6 +369,9 @@ fi ||:
 
 
 %changelog
+* Sat Nov 24 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.64-2
+- Use grub2 gfxpayload=text instead of deprecated vga option
+
 * Thu Nov 08 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.64-1
 - Update to 304.64
 - Move nvidia xorg libraries to _libdir/nvidia/xorg - rfbz#2264
