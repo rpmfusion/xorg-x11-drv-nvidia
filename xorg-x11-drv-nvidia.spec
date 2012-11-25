@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         304.64
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -261,6 +261,11 @@ install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
 install -pm 0644 %{SOURCE99} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 }
 
+#Workaround for self made xorg.conf using a Files section.
+%if 0%{?fedora} < 18
+ln -fs ../../nvidia/xorg $RPM_BUILD_ROOT%{_libdir}/xorg/modules/nvidia-%{version}
+%endif
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -277,7 +282,7 @@ if [ "$1" -eq "1" ]; then
     for kernel in ${KERNELS} ; do
       /sbin/grubby $ISGRUB1 \
         --update-kernel=${kernel} \
-        --args='nouveau.modeset=0 rd.driver.blacklist=nouveau video=vesa:off gfxpayload=text' \
+        --args='nouveau.modeset=0 rd.driver.blacklist=nouveau video=vesa:off vga=normal' \
          &>/dev/null
     done
   fi
@@ -300,7 +305,7 @@ if [ "$1" -eq "0" ]; then
     for kernel in ${KERNELS} ; do
       /sbin/grubby $ISGRUB1 \
         --update-kernel=${kernel} \
-        --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset video=vesa:off gfxpayload=text' &>/dev/null
+        --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset video=vesa:off' &>/dev/null
     done
   fi
   #Backup and disable previously used xorg.conf
@@ -336,6 +341,9 @@ fi ||:
 %dir %{nvidiaxorgdir}
 %{nvidiaxorgdir}/*.so*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
+%if 0%{?fedora} < 18
+%{_libdir}/xorg/modules/nvidia-%{version}
+%endif
 #/no_multilib
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-smi.*
@@ -369,8 +377,8 @@ fi ||:
 
 
 %changelog
-* Sat Nov 24 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.64-2
-- Use grub2 gfxpayload=text instead of deprecated vga option
+* Sun Nov 25 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.64-3
+- Add workaround for incorrect Files section - rfbz#2580
 
 * Thu Nov 08 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.64-1
 - Update to 304.64
