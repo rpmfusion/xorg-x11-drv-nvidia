@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         304.64
-Release:         1%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -261,6 +261,11 @@ install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
 install -pm 0644 %{SOURCE99} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 }
 
+#Workaround for self made xorg.conf using a Files section.
+%if 0%{?fedora} < 18
+ln -fs ../../nvidia/xorg $RPM_BUILD_ROOT%{_libdir}/xorg/modules/nvidia-%{version}
+%endif
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -336,6 +341,9 @@ fi ||:
 %dir %{nvidiaxorgdir}
 %{nvidiaxorgdir}/*.so*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
+%if 0%{?fedora} < 18
+%{_libdir}/xorg/modules/nvidia-%{version}
+%endif
 #/no_multilib
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-smi.*
@@ -369,6 +377,9 @@ fi ||:
 
 
 %changelog
+* Sun Nov 25 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.64-3
+- Add workaround for incorrect Files section - rfbz#2580
+
 * Thu Nov 08 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.64-1
 - Update to 304.64
 - Move nvidia xorg libraries to _libdir/nvidia/xorg - rfbz#2264
