@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         304.64
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -305,7 +305,8 @@ if [ "$1" -eq "0" ]; then
     for kernel in ${KERNELS} ; do
       /sbin/grubby $ISGRUB1 \
         --update-kernel=${kernel} \
-        --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset video=vesa:off' &>/dev/null
+        --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset video=vesa:off vga=normal' \
+         &>/dev/null
     done
   fi
   #Backup and disable previously used xorg.conf
@@ -377,6 +378,9 @@ fi ||:
 
 
 %changelog
+* Thu Jan 10 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:304.64-4
+- Fix preun scriptlet
+
 * Sun Nov 25 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.64-3
 - Add workaround for incorrect Files section - rfbz#2580
 
