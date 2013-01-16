@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         310.19
-Release:         2%{?dist}
+Version:         313.18
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -83,7 +83,6 @@ Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
 %filter_from_requires /^libnvidia/d;
 %filter_from_requires /^libGLCore\.so/d;
 %filter_from_requires /^libGL\.so/d;
-%filter_from_requires /^libnvcuvid/d;
 %filter_from_requires /^libvdpau_nvidia\.so\.1/d;
 %filter_from_requires /^libglx\.so/d;
 %filter_setup
@@ -347,7 +346,6 @@ fi ||:
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %{nvidialibdir}/*.so.*
 %{nvidialibdir}/libcuda.so
-%{nvidialibdir}/libnvcuvid.so
 %{nvidialibdir}/libnvidia-glcore.so
 %{nvidialibdir}/tls/*.so*
 %exclude %{_libdir}/vdpau/libvdpau.*
@@ -361,12 +359,16 @@ fi ||:
 %{nvidialibdir}/libOpenCL.so
 %{nvidialibdir}/libnvidia-compiler.so
 %{nvidialibdir}/libGL.so
+%{nvidialibdir}/libnvcuvid.so
 %{nvidialibdir}/libnvidia-ml.so
 %{nvidialibdir}/libnvidia-opencl.so
 %{nvidialibdir}/libnvidia-encode.so
 
 
 %changelog
+* Wed Jan 16 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:313.18-1
+- Update to 313.18
+
 * Thu Jan 10 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:310.19-2
 - Fix preun scriptlet
 
