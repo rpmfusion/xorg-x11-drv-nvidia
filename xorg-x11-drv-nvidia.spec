@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         313.18
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -172,8 +172,8 @@ install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
 echo "%{nvidialibdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 
 #Blacklist nouveau (since F-11)
-install    -m 0755 -d         $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
-install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
+install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
+install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
 
 # Install initscript
 #install -D -p -m 0755 %{SOURCE5} $RPM_BUILD_ROOT%{_initrddir}/nvidia
@@ -322,7 +322,7 @@ fi ||:
 %config %{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
 }
 %config %{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
-%config(noreplace) %{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
+%config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
 #{_initrddir}/nvidia
 %{_bindir}/nvidia-bug-report.sh
@@ -366,6 +366,9 @@ fi ||:
 
 
 %changelog
+* Fri Jan 18 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:313.18-2
+- move blacklist to %%{_prefix}/lib/modprobe.d/
+
 * Wed Jan 16 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:313.18-1
 - Update to 313.18
 
