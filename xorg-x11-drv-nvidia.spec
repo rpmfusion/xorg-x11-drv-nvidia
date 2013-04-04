@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         304.64
-Release:         5%{?dist}
+Version:         304.88
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -378,6 +378,9 @@ fi ||:
 
 
 %changelog
+* Thu Apr 04 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:304.88-1
+- Update to 304.88
+
 * Fri Jan 18 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:304.64-5
 - move blacklist to %%{_prefix}/lib/modprobe.d/
 
