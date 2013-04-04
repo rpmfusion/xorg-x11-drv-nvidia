@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         304.64
-Release:         3%{?dist}
+Version:         304.88
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -174,8 +174,8 @@ install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
 echo "%{nvidialibdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 
 #Blacklist nouveau (since F-11)
-install    -m 0755 -d         $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
-install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/modprobe.d/
+install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
+install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
 
 # Install initscript
 #install -D -p -m 0755 %{SOURCE5} $RPM_BUILD_ROOT%{_initrddir}/nvidia
@@ -305,7 +305,8 @@ if [ "$1" -eq "0" ]; then
     for kernel in ${KERNELS} ; do
       /sbin/grubby $ISGRUB1 \
         --update-kernel=${kernel} \
-        --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset video=vesa:off' &>/dev/null
+        --remove-args='nouveau.modeset=0 rdblacklist=nouveau rd.driver.blacklist=nouveau nomodeset video=vesa:off vga=normal' \
+         &>/dev/null
     done
   fi
   #Backup and disable previously used xorg.conf
@@ -329,7 +330,7 @@ fi ||:
 %config %{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
 }
 %config %{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
-%config(noreplace) %{_sysconfdir}/modprobe.d/blacklist-nouveau.conf
+%config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
 #{_initrddir}/nvidia
 %{_bindir}/nvidia-bug-report.sh
@@ -377,6 +378,15 @@ fi ||:
 
 
 %changelog
+* Thu Apr 04 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:304.88-1
+- Update to 304.88
+
+* Fri Jan 18 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:304.64-5
+- move blacklist to %%{_prefix}/lib/modprobe.d/
+
+* Thu Jan 10 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:304.64-4
+- Fix preun scriptlet
+
 * Sun Nov 25 2012 Nicolas Chauvet <kwizart@gmail.com> - 1:304.64-3
 - Add workaround for incorrect Files section - rfbz#2580
 
