@@ -209,7 +209,7 @@ install -p -m 0755 nvidia_drv.so               $RPM_BUILD_ROOT%{_libdir}/xorg/mo
 install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau/
 
 # Install binaries
-install -p -m 0755 nvidia-{bug-report.sh,smi,cuda-proxy-control,cuda-proxy-server} $RPM_BUILD_ROOT%{_bindir}
+install -p -m 0755 nvidia-{bug-report.sh,smi,cuda-proxy-control,cuda-proxy-server,modprobe} $RPM_BUILD_ROOT%{_bindir}
 
 # Install headers
 install -m 0755 -d $RPM_BUILD_ROOT%{_includedir}/nvidia/GL/
