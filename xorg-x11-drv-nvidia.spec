@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         304.88
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -73,6 +73,10 @@ Provides:        nvidia-x11-drv = %{version}-%{release}
 #Introduced in F10 when 173xx has forked to legacy serie
 Obsoletes:       xorg-x11-drv-nvidia-newest < %{version}-100
 Provides:        xorg-x11-drv-nvidia-newest = %{version}-101
+
+#Support for cuda
+#Don't put an epoch here
+Provides:        cuda-driver = %{version}
 
 %{?filter_setup:
 %filter_from_provides /^libnvidia/d;
@@ -378,6 +382,9 @@ fi ||:
 
 
 %changelog
+* Wed May 01 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:304.88-2
+- Add support for cuda
+
 * Thu Apr 04 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:304.88-1
 - Update to 304.88
 
