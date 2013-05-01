@@ -333,6 +333,7 @@ fi ||:
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-cuda-proxy-control
 %{_bindir}/nvidia-cuda-proxy-server
+%{_bindir}/nvidia-modprobe
 #{_sbindir}/nvidia-config-display
 # Xorg libs that do not need to be multilib
 %dir %{nvidiaxorgdir}
@@ -342,6 +343,7 @@ fi ||:
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-proxy-control.1.*
+%{_mandir}/man1/nvidia-modprobe.1.*
 
 %files libs
 %defattr(-,root,root,-)
