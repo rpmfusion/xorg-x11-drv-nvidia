@@ -7,7 +7,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         319.12
+Version:         319.17
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -209,7 +209,7 @@ install -p -m 0755 nvidia_drv.so               $RPM_BUILD_ROOT%{_libdir}/xorg/mo
 install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau/
 
 # Install binaries
-install -p -m 0755 nvidia-{bug-report.sh,smi,cuda-proxy-control,cuda-proxy-server,modprobe} $RPM_BUILD_ROOT%{_bindir}
+install -p -m 0755 nvidia-{bug-report.sh,smi,cuda-mps-control,cuda-mps-server,persistenced,modprobe} $RPM_BUILD_ROOT%{_bindir}
 
 # Install headers
 install -m 0755 -d $RPM_BUILD_ROOT%{_includedir}/nvidia/GL/
@@ -331,8 +331,9 @@ fi ||:
 #{_initrddir}/nvidia
 %{_bindir}/nvidia-bug-report.sh
 %{_bindir}/nvidia-smi
-%{_bindir}/nvidia-cuda-proxy-control
-%{_bindir}/nvidia-cuda-proxy-server
+%{_bindir}/nvidia-cuda-mps-control
+%{_bindir}/nvidia-cuda-mps-server
+%{_bindir}/nvidia-persistenced
 %{_bindir}/nvidia-modprobe
 #{_sbindir}/nvidia-config-display
 # Xorg libs that do not need to be multilib
@@ -342,7 +343,8 @@ fi ||:
 #/no_multilib
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-smi.*
-%{_mandir}/man1/nvidia-cuda-proxy-control.1.*
+%{_mandir}/man1/nvidia-cuda-mps-control.1.*
+%{_mandir}/man1/nvidia-persistenced.1.*
 %{_mandir}/man1/nvidia-modprobe.1.*
 
 %files libs
@@ -372,6 +374,10 @@ fi ||:
 
 
 %changelog
+* Sat May 11 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:319.17-1
+- Update to 319.17
+- Add support for cuda
+
 * Wed Apr 10 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.12-1
 - Update to 319.12
 
