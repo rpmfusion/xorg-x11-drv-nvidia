@@ -1,4 +1,4 @@
-%global        _nvidia_serie       nvidia-304xx
+%global        _nvidia_serie       nvidia
 %global        _nvidia_libdir      %{_libdir}/%{_nvidia_serie}
 %global        _nvidia_xorgdir     %{_nvidia_libdir}/xorg
 
