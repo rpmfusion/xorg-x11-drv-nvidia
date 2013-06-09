@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         319.23
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -329,6 +329,9 @@ fi ||:
 
 
 %changelog
+* Sun Jun 09 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.23-4
+- Fix C&P error with the serie
+
 * Sat Jun 08 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.23-3
 - Few resync with devel
 - Disable execstack fix
