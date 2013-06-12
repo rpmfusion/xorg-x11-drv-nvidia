@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         319.23
-Release:         4%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -232,7 +232,31 @@ if [ "$1" -eq "1" ]; then
     KERNELS=`/sbin/grubby --default-kernel`
     DIST=`rpm -E %%{?dist}`
     ARCH=`uname -m`
-    [ -z $KERNELS ] && KERNELS=`ls /boot/vmlinuz-*${DIST}.${ARCH}{,.PAE}`
+    [ -z $KERNELS ] && KERNELS=`ls /boot/vmlinuz-*${DIST}.${ARCH}*`
+    for kernel in ${KERNELS} ; do
+      /sbin/grubby $ISGRUB1 \
+        --update-kernel=${kernel} \
+        --args="nouveau.modeset=0 rd.driver.blacklist=nouveau video=vesa:off $GFXPAYLOAD" \
+         &>/dev/null
+    done
+  fi
+fi || :
+
+%triggerpostun -- xorg-x11-drv-nvidia < 1:%{version}-5
+if [ "$1" -eq "1" ]; then
+  ISGRUB1=""
+  if [[ -f /boot/grub/grub.conf && ! -f /boot/grub2/grub.cfg ]] ; then
+      ISGRUB1="--grub"
+      GFXPAYLOAD="vga=normal"
+  else
+      echo "GRUB_GFXPAYLOAD_LINUX=text" >> %{_sysconfdir}/default/grub
+      grub2-mkconfig -o /boot/grub2/grub.cfg
+  fi
+  if [ -x /sbin/grubby ] ; then
+    KERNELS=`/sbin/grubby --default-kernel`
+    DIST=`rpm -E %%{?dist}`
+    ARCH=`uname -m`
+    [ -z $KERNELS ] && KERNELS=`ls /boot/vmlinuz-*${DIST}.${ARCH}*`
     for kernel in ${KERNELS} ; do
       /sbin/grubby $ISGRUB1 \
         --update-kernel=${kernel} \
@@ -257,7 +281,7 @@ if [ "$1" -eq "0" ]; then
   if [ -x /sbin/grubby ] ; then
     DIST=`rpm -E %%{?dist}`
     ARCH=`uname -m`
-    KERNELS=`ls /boot/vmlinuz-*${DIST}.${ARCH}{,.PAE}`
+    KERNELS=`ls /boot/vmlinuz-*${DIST}.${ARCH}*`
     for kernel in ${KERNELS} ; do
       /sbin/grubby $ISGRUB1 \
         --update-kernel=${kernel} \
@@ -329,6 +353,10 @@ fi ||:
 
 
 %changelog
+* Wed Jun 12 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.23-5
+- Relax kernel flavor cases
+- Use triggerpostun to update config on updates
+
 * Sun Jun 09 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.23-4
 - Fix C&P error with the serie
 
