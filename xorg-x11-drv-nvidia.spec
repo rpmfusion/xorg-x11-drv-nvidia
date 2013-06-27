@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         319.23
-Release:         5%{?dist}
+Version:         319.32
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -16,6 +16,7 @@ License:         Redistributable, no modification permitted
 URL:             http://www.nvidia.com/
 Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
 Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+#Source4:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-armv7l-gnueabihf-%{version}.run
 Source2:         00-nvidia.conf
 Source3:         nvidia-xorg.conf
 Source6:         blacklist-nouveau.conf
@@ -353,6 +354,9 @@ fi ||:
 
 
 %changelog
+* Thu Jun 27 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.32-1
+- Update to 319.32
+
 * Wed Jun 12 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.23-5
 - Relax kernel flavor cases
 - Use triggerpostun to update config on updates
