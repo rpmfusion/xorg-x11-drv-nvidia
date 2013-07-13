@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         319.23
-Release:         5%{?dist}
+Version:         319.32
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -16,18 +16,12 @@ License:         Redistributable, no modification permitted
 URL:             http://www.nvidia.com/
 Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
 Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source4:         ftp://download.nvidia.com/XFree86/Linux-32bit-ARM/%{version}/NVIDIA-Linux-armv7l-gnueabihf-%{version}.run
 Source2:         00-nvidia.conf
 Source3:         nvidia-xorg.conf
 Source6:         blacklist-nouveau.conf
 
-BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-%if 0%{?fedora} > 11 || 0%{?rhel} > 5
-ExclusiveArch: i686 x86_64
-%else 0%{?fedora} == 11
-ExclusiveArch: i586 x86_64
-%else
-ExclusiveArch: i386 x86_64
-%endif
+ExclusiveArch: i686 x86_64 armv7hl
 Requires:  nvidia-xconfig
 Requires:  %{_nvidia_serie}-settings
 
@@ -35,12 +29,7 @@ Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 
 # Needed in all nvidia or fglrx driver packages
 Requires:        which
-#Requires:        livna-config-display >= 0.0.21
-%if 0%{?fedora} > 10 || 0%{?rhel} > 5
 Requires:        %{name}-libs%{_isa} = %{?epoch}:%{version}-%{release}
-%else
-Requires:        %{name}-libs-%{_target_cpu} = %{?epoch}:%{version}-%{release}
-%endif
 
 Requires(post):  ldconfig
 Requires(postun):  ldconfig
@@ -90,11 +79,7 @@ http://rpmfusion.org/Howto/nVidia
 %package devel
 Summary:         Development files for %{name}
 Group:           Development/Libraries
-%if 0%{?fedora} > 10 || 0%{?rhel} > 5
 Requires:        %{name}-libs%{_isa} = %{?epoch}:%{version}-%{release}
-%else
-Requires:        %{name}-libs-%{_target_cpu} = %{?epoch}:%{version}-%{release}
-%endif
 
 %description devel
 This package provides the development files of the %{name} package,
@@ -105,7 +90,6 @@ Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{?epoch}:%{version}-%{release}
 Requires:        libvdpau%{_isa} >= 0.5
-Provides:        %{name}-libs-%{_target_cpu} = %{?epoch}:%{version}-%{release}
 
 %description libs
 This package provides the shared libraries for %{name}.
@@ -113,15 +97,12 @@ This package provides the shared libraries for %{name}.
 
 %prep
 %setup -q -c -T
-sh %{SOURCE0} --extract-only --target nvidiapkg-x86
-sh %{SOURCE1} --extract-only --target nvidiapkg-x64
+sh %{SOURCE0} --extract-only --target nvidiapkg-i686
+sh %{SOURCE1} --extract-only --target nvidiapkg-x86_64
+sh %{SOURCE4} --extract-only --target nvidiapkg-armv7hl
 tar -cJf nvidia-kmod-data-%{version}.tar.xz nvidiapkg-*/LICENSE nvidiapkg-*/kernel
 
-%ifarch %{ix86}
-ln -s nvidiapkg-x86 nvidiapkg
-%else
-ln -s nvidiapkg-x64 nvidiapkg
-%endif
+ln -s nvidiapkg-%{_target_cpu} nvidiapkg
 
 %build
 # Nothing to build
@@ -150,16 +131,26 @@ echo "%{_nvidia_libdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_
 install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
 install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
 
+# Simple wildcard install of libs
+install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}
+install -p -m 0755 lib*.so.%{version}          $RPM_BUILD_ROOT%{_nvidia_libdir}/
+%ifarch x86_64 i686
+install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
+install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/vdpau/
+install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
+%endif
+
+%ifarch x86_64 i686
 # OpenCL config
 install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
 install -p -m 0755 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
-
-# Simple wildcard install of libs
-install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
-install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/vdpau/
-install -p -m 0755 lib*.so.%{version}          $RPM_BUILD_ROOT%{_nvidia_libdir}/
 install -p -m 0755 libOpenCL.so.1.0.0          $RPM_BUILD_ROOT%{_nvidia_libdir}/
-install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
+ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so.1
+ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so
+
+#Vdpau
+install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau
+%endif
 
 #
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
@@ -176,10 +167,9 @@ install -p -m 0755 libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_nvidia_xorgdir}
 %endif
 install -p -m 0755 libglx.so.%{version}        $RPM_BUILD_ROOT%{_nvidia_xorgdir}
 install -p -m 0755 nvidia_drv.so               $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
-install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau/
 
 # Install binaries
-install -p -m 0755 nvidia-{bug-report.sh,smi,cuda-mps-control,cuda-mps-server,persistenced,modprobe} $RPM_BUILD_ROOT%{_bindir}
+install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,persistenced,modprobe} $RPM_BUILD_ROOT%{_bindir}
 
 # Install headers
 install -m 0755 -d $RPM_BUILD_ROOT%{_includedir}/nvidia/GL/
@@ -196,9 +186,6 @@ for lib in $( find $RPM_BUILD_ROOT%{_libdir} -name lib\*.%{version} ) ; do
   ln -s ${lib##*/} ${lib%.%{version}}.1
 done
 
-ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so.1
-ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so
-
 
 # Install nvidia icon
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/pixmaps
@@ -214,9 +201,6 @@ sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.
 touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
 install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
 
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %post
 if [ "$1" -eq "1" ]; then
@@ -303,18 +287,21 @@ fi ||:
 %doc nvidiapkg/NVIDIA_Changelog
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/html
+%ifarch x86_64 i686
 %dir %{_sysconfdir}/OpenCL
 %dir %{_sysconfdir}/OpenCL/vendors
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
+%endif
 %config %{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
 %config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
 %{_bindir}/nvidia-bug-report.sh
+%{_bindir}/nvidia-debugdump
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-cuda-mps-control
 %{_bindir}/nvidia-cuda-mps-server
-%{_bindir}/nvidia-persistenced
-%{_bindir}/nvidia-modprobe
+%exclude %{_bindir}/nvidia-persistenced
+%exclude %{_bindir}/nvidia-modprobe
 # Xorg libs that do not need to be multilib
 %dir %{_nvidia_xorgdir}
 %{_nvidia_xorgdir}/*.so*
@@ -323,36 +310,49 @@ fi ||:
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
-%{_mandir}/man1/nvidia-persistenced.1.*
-%{_mandir}/man1/nvidia-modprobe.1.*
+%exclude %{_mandir}/man1/nvidia-persistenced.1.*
+%exclude %{_mandir}/man1/nvidia-modprobe.1.*
 
 %files libs
 %defattr(-,root,root,-)
 %dir %{_nvidia_libdir}
-%dir %{_nvidia_libdir}/tls
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %{_nvidia_libdir}/*.so.*
-%{_nvidia_libdir}/libcuda.so
-%{_nvidia_libdir}/libnvidia-glcore.so
+%ifarch x86_64 i686
+%dir %{_nvidia_libdir}/tls
 %{_nvidia_libdir}/tls/*.so*
 %exclude %{_libdir}/vdpau/libvdpau.*
 %{_libdir}/vdpau/libvdpau_nvidia.so*
 %exclude %{_libdir}/vdpau/libvdpau_trace.so*
+%endif
 
 %files devel
 %defattr(-,root,root,-)
 %exclude %{_nvidia_libdir}/libcuda.so
 %{_includedir}/nvidia/
+%ifarch x86_64 i686
 %{_nvidia_libdir}/libOpenCL.so
 %{_nvidia_libdir}/libnvidia-compiler.so
+%{_nvidia_libdir}/libnvidia-encode.so
+%endif
 %{_nvidia_libdir}/libGL.so
+%{_nvidia_libdir}/libnvidia-glcore.so
 %{_nvidia_libdir}/libnvcuvid.so
 %{_nvidia_libdir}/libnvidia-ml.so
 %{_nvidia_libdir}/libnvidia-opencl.so
-%{_nvidia_libdir}/libnvidia-encode.so
 
 
 %changelog
+* Sat Jul 13 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.32-2
+- Add armhfp support
+- Spec file clean-up
+
+* Sun Jul 07 2013 leigh scott <leigh123linux@googlemail.com> - 1:319.32-1.1
+- move .so files to devel
+
+* Thu Jun 27 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.32-1
+- Update to 319.32
+
 * Wed Jun 12 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.23-5
 - Relax kernel flavor cases
 - Use triggerpostun to update config on updates
