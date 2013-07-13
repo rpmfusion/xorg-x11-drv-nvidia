@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         319.32
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -364,8 +364,8 @@ fi
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
-%exclude %{_mandir}/man1/nvidia-persistenced.1.*
-%exclude %{_mandir}/man1/nvidia-modprobe.1.*
+%{_mandir}/man1/nvidia-persistenced.1.*
+%{_mandir}/man1/nvidia-modprobe.1.*
 
 %files libs
 %defattr(-,root,root,-)
@@ -397,7 +397,7 @@ fi
 
 
 %changelog
-* Sat Jul 13 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.32-3
+* Sat Jul 13 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.32-4
 - Restore nvidia-settings and nvidia-xconfig - rfbz#2852
 - Add virtual provides for nvidia-modprobe/nvidia-persistenced
 - Enable nvidia-persistenced systemd service
