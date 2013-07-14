@@ -361,8 +361,8 @@ fi
 #/no_multilib
 %{_datadir}/applications/*nvidia-settings.desktop
 %{_datadir}/pixmaps/*.png
-%{_mandir}/nvidia-settings
-%{_mandir}/nvidia-xconfig
+%{_mandir}/man1/nvidia-settings.*
+%{_mandir}/man1/nvidia-xconfig.*
 %{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
 %{_mandir}/man1/nvidia-persistenced.1.*
