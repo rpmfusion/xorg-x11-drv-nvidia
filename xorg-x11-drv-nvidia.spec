@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         325.08
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -191,7 +191,6 @@ install -p -m 0644 {gl.h,glext.h,glx.h,glxext.h} $RPM_BUILD_ROOT%{_includedir}/n
 # Install man pages
 install    -m 0755 -d   $RPM_BUILD_ROOT%{_mandir}/man1/
 install -p -m 0644 *.gz $RPM_BUILD_ROOT%{_mandir}/man1/
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/{nvidia-settings,nvidia-xconfig}*
 
 # Make unversioned links to dynamic libs
 for lib in $( find $RPM_BUILD_ROOT%{_libdir} -name lib\*.%{version} ) ; do
@@ -362,6 +361,8 @@ fi
 #/no_multilib
 %{_datadir}/applications/*nvidia-settings.desktop
 %{_datadir}/pixmaps/*.png
+%{_mandir}/nvidia-settings
+%{_mandir}/nvidia-xconfig
 %{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
 %{_mandir}/man1/nvidia-persistenced.1.*
@@ -397,6 +398,9 @@ fi
 %{_nvidia_libdir}/libnvidia-vgxcfg.so
 
 %changelog
+* Sun Jul 14 2013 leigh scott <leigh123linux@googlemail.com> - 1:325.08-3
+- re-add man pages for settings and xconfig
+
 * Sat Jul 13 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:325.08-2
 - Rebased to 325.08
 
