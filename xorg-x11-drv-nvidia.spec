@@ -738,7 +738,7 @@ fi
 * Thu Jan  8 2009 kwizart < kwizart at gmail.com > - 180.22-1
 - Update to 180.22 (stable)
 
-* Sat Dec 28 2008 kwizart < kwizart at gmail.com > - 180.18-1
+* Sun Dec 28 2008 kwizart < kwizart at gmail.com > - 180.18-1
 - Update to 180.18 (beta)
 
 * Wed Dec 17 2008 kwizart < kwizart at gmail.com > - 180.16-1
@@ -804,7 +804,7 @@ fi
 - Update to 173.08 (beta) - Fedora 9 experimental support
   See: http://www.nvnews.net/vbulletin/showthread.php?t=111460
 
-* Fri Mar  8 2008 kwizart < kwizart at gmail.com > - 171.06-1
+* Sat Mar  8 2008 kwizart < kwizart at gmail.com > - 171.06-1
 - Update to 171.06 (beta)
 
 * Wed Feb 27 2008 kwizart < kwizart at gmail.com > - 169.12-1
@@ -994,7 +994,7 @@ fi
 * Thu May 25 2006 Thorsten Leemhuis <fedora AT leemhuis DOT info> - 1.0.8762-3
 - Obsolete old kmods
 
-* Thu May 24 2006 Thorsten Leemhuis <fedora AT leemhuis DOT info> - 1.0.8762-2
+* Wed May 24 2006 Thorsten Leemhuis <fedora AT leemhuis DOT info> - 1.0.8762-2
 - add missing defattr to files section for sub-package libs-32bit
 
 * Wed May 24 2006 Thorsten Leemhuis <fedora AT leemhuis DOT info> - 1.0.8762-1
