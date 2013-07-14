@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         319.32
-Release:         4%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -191,7 +191,6 @@ install -p -m 0644 {gl.h,glext.h,glx.h,glxext.h} $RPM_BUILD_ROOT%{_includedir}/n
 # Install man pages
 install    -m 0755 -d   $RPM_BUILD_ROOT%{_mandir}/man1/
 install -p -m 0644 *.gz $RPM_BUILD_ROOT%{_mandir}/man1/
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/{nvidia-settings,nvidia-xconfig}*
 
 # Make unversioned links to dynamic libs
 for lib in $( find $RPM_BUILD_ROOT%{_libdir} -name lib\*.%{version} ) ; do
@@ -362,6 +361,8 @@ fi
 #/no_multilib
 %{_datadir}/applications/*nvidia-settings.desktop
 %{_datadir}/pixmaps/*.png
+%{_mandir}/man1/nvidia-settings.*
+%{_mandir}/man1/nvidia-xconfig.*
 %{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
 %{_mandir}/man1/nvidia-persistenced.1.*
@@ -397,6 +398,9 @@ fi
 
 
 %changelog
+* Sun Jul 14 2013 leigh scott <leigh123linux@googlemail.com> - 1:319.32-5
+- re-add man pages for settings and xconfig
+
 * Sat Jul 13 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.32-4
 - Restore nvidia-settings and nvidia-xconfig - rfbz#2852
 - Add virtual provides for nvidia-modprobe/nvidia-persistenced
@@ -731,7 +735,7 @@ fi
 * Thu Jan  8 2009 kwizart < kwizart at gmail.com > - 180.22-1
 - Update to 180.22 (stable)
 
-* Sat Dec 28 2008 kwizart < kwizart at gmail.com > - 180.18-1
+* Sun Dec 28 2008 kwizart < kwizart at gmail.com > - 180.18-1
 - Update to 180.18 (beta)
 
 * Wed Dec 17 2008 kwizart < kwizart at gmail.com > - 180.16-1
@@ -797,7 +801,7 @@ fi
 - Update to 173.08 (beta) - Fedora 9 experimental support
   See: http://www.nvnews.net/vbulletin/showthread.php?t=111460
 
-* Fri Mar  8 2008 kwizart < kwizart at gmail.com > - 171.06-1
+* Sat Mar  8 2008 kwizart < kwizart at gmail.com > - 171.06-1
 - Update to 171.06 (beta)
 
 * Wed Feb 27 2008 kwizart < kwizart at gmail.com > - 169.12-1
@@ -987,7 +991,7 @@ fi
 * Thu May 25 2006 Thorsten Leemhuis <fedora AT leemhuis DOT info> - 1.0.8762-3
 - Obsolete old kmods
 
-* Thu May 24 2006 Thorsten Leemhuis <fedora AT leemhuis DOT info> - 1.0.8762-2
+* Wed May 24 2006 Thorsten Leemhuis <fedora AT leemhuis DOT info> - 1.0.8762-2
 - add missing defattr to files section for sub-package libs-32bit
 
 * Wed May 24 2006 Thorsten Leemhuis <fedora AT leemhuis DOT info> - 1.0.8762-1
