@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         319.32
-Release:         5%{?dist}
+Release:         6%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -64,12 +64,12 @@ Provides:        cuda-driver = %{version}
 
 %{?filter_setup:
 %filter_from_provides /^libnvidia/d;
-%filter_from_provides /^libGLCore\.so/d;
+%filter_from_provides /^libGLcore\.so/d;
 %filter_from_provides /^libGL\.so/d;
 %filter_from_provides /^libvdpau_nvidia\.so\.1/d;
 %filter_from_provides /^libglx\.so/d;
 %filter_from_requires /^libnvidia/d;
-%filter_from_requires /^libGLCore\.so/d;
+%filter_from_requires /^libGLcore\.so/d;
 %filter_from_requires /^libGL\.so/d;
 %filter_from_requires /^libvdpau_nvidia\.so\.1/d;
 %filter_from_requires /^libglx\.so/d;
@@ -398,6 +398,9 @@ fi
 
 
 %changelog
+* Mon Jul 15 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.32-6
+- Fix typo with libGLcore filter
+
 * Sun Jul 14 2013 leigh scott <leigh123linux@googlemail.com> - 1:319.32-5
 - re-add man pages for settings and xconfig
 
