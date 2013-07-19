@@ -54,6 +54,7 @@ Conflicts:       xorg-x11-drv-nvidia-legacy
 Conflicts:       xorg-x11-drv-nvidia-71xx
 Conflicts:       xorg-x11-drv-nvidia-96xx
 Conflicts:       xorg-x11-drv-nvidia-173xx
+Conflicts:       xorg-x11-drv-nvidia-304xx
 Conflicts:       xorg-x11-drv-fglrx
 Conflicts:       xorg-x11-drv-catalyst
 
