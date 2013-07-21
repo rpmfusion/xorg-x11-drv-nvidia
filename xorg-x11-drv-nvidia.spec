@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         325.08
-Release:         4%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -29,12 +29,12 @@ Requires(postun): systemd
 
 ExclusiveArch: i686 x86_64 armv7hl
 
-Obsoletes:  nvidia-xconfig < 1.0-30
-Provides:  nvidia-xconfig = %{version}-%{release}
-Obsoletes:  nvidia-settings < 1.0-34
-Provides:  nvidia-settings = %{version}-%{release}
-Obsoletes:  nvidia-settings-desktop < 1.0-34
-Provides:  nvidia-settings-desktop = %{version}-%{release}
+#Obsoletes:  nvidia-xconfig < 1.0-30
+#Provides:  nvidia-xconfig = %{version}-%{release}
+#Obsoletes:  nvidia-settings < 1.0-34
+#Provides:  nvidia-settings = %{version}-%{release}
+#Obsoletes:  nvidia-settings-desktop < 1.0-34
+#Provides:  nvidia-settings-desktop = %{version}-%{release}
 Provides:  nvidia-modprobe = %{version}-%{release}
 Provides:  nvidia-persistenced = %{version}-%{release}
 
@@ -398,6 +398,9 @@ fi
 %{_nvidia_libdir}/libnvidia-vgxcfg.so
 
 %changelog
+* Sun Jul 21 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:325.08-5
+- Disable Obsoletes/Provides of nvidia tools until rhbz#985944
+
 * Mon Jul 15 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:325.08-4
 - Fix typo with libGLcore filter
 
