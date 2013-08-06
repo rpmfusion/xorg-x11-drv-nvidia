@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         325.08
-Release:         5%{?dist}
+Version:         325.15
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -392,12 +392,16 @@ fi
 %endif
 %{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libnvidia-glcore.so
+%{_nvidia_libdir}/libnvidia-ifr.so
 %{_nvidia_libdir}/libnvcuvid.so
 %{_nvidia_libdir}/libnvidia-ml.so
 %{_nvidia_libdir}/libnvidia-opencl.so
 %{_nvidia_libdir}/libnvidia-vgxcfg.so
 
 %changelog
+* Tue Aug 06 2013 leigh <leigh123linux@googlemail.com> - 1:325.15-1
+- Update to 325.15 release
+
 * Sun Jul 21 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:325.08-5
 - Disable Obsoletes/Provides of nvidia tools until rhbz#985944
 
