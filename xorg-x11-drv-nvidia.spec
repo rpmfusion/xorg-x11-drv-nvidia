@@ -109,11 +109,16 @@ This package provides the shared libraries for %{name}.
 
 %prep
 %setup -q -c -T
+#Only extract the needed arch
+%ifarch %{ix86}
 sh %{SOURCE0} --extract-only --target nvidiapkg-i686
+%endif
+%ifarch x86_64
 sh %{SOURCE1} --extract-only --target nvidiapkg-x86_64
+%endif
+%ifarch armv7hl
 sh %{SOURCE4} --extract-only --target nvidiapkg-armv7hl
-tar -cJf nvidia-kmod-data-%{version}.tar.xz nvidiapkg-*/LICENSE nvidiapkg-*/kernel
-
+%endif
 ln -s nvidiapkg-%{_target_cpu} nvidiapkg
 
 %build
