@@ -240,6 +240,12 @@ sed -i -e "s/__USER__/root/" $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.serv
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/nvidia
 
 
+%pre
+if [ "$1" -eq "1" ]; then
+  if [ -x %{_bindir}/nvidia-uninstall ]; then
+    %{_bindir}/nvidia-uninstall -s && rm -f %{_bindir}/nvidia-uninstall &>/dev/null || :
+  fi
+fi
 
 %post
 if [ "$1" -eq "1" ]; then
