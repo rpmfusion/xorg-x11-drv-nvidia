@@ -21,5 +21,10 @@ for arch in x86 x86_64 ; do
  sh NVIDIA-Linux-${arch}-${version}.run --extract-only --target nvidiapkg-${arch}
 done
 
+if [ ! -e NVIDIA-Linux-armv7l-gnueabihf-${version}.run ] ; then
+  wget -N ftp://download.nvidia.com/XFree86/Linux-32bit-ARM/${version}/NVIDIA-Linux-armv7l-gnueabihf-${version}.run
+ fi
+sh NVIDIA-Linux-armv7l-gnueabihf-${version}.run --extract-only --target nvidiapkg-armv7hl
+
 tar -cjf nvidia-kmod-data-${version}.tar.bz2 nvidiapkg-*/LICENSE nvidiapkg-*/kernel
 
