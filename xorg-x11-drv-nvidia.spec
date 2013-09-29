@@ -422,7 +422,7 @@ fi
 %{_nvidia_libdir}/libnvidia-vgxcfg.so
 
 %changelog
-* Tue Aug 06 2013 leigh <leigh123linux@googlemail.com> - 1:325.15-1
+* Tue Aug 06 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:325.15-1
 - Update to 325.15 release
 
 * Sun Jul 21 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:325.08-5
