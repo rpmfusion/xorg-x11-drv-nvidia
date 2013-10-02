@@ -12,14 +12,23 @@ cleanup() {
 
 unset CDPATH
 pwd=$(pwd)
-version=$(grep Version xorg-x11-drv-nvidia*.spec | cut -f 2 -d ':' | sed 's/ //g')
+nvspec=$(ls ${pwd}/xorg-x11-drv-nvidia*.spec)
+version=$(grep ^Version: ${nvspec} | awk '{print $2}')
+arches="$(grep ^ExclusiveArch: ${nvspec} | awk '{print $2,$3,$4}')"
 
-for arch in x86 x86_64 ; do
- if [ ! -e NVIDIA-Linux-${arch}-${version}.run ] ; then
-  wget -N ftp://download.nvidia.com/XFree86/Linux-${arch}/${version}/NVIDIA-Linux-${arch}-${version}.run
+
+#Avoid to re-create an existing tarball
+ [ -e ${pwd}/nvidia-kmod-data-${version}.tar.xz ] && exit 0
+
+for arch in ${arches} ; do
+ nvarch=${arch}
+ [ ${arch} == i686 ]  && nvarch=x86
+ [ ${arch} == armv7hl ]  && nvarch=armv7l-gnueabihf
+ if [ ! -e NVIDIA-Linux-${nvarch}-${version}.run ] ; then
+    spectool --gf -S ${nvspec}
  fi
- sh NVIDIA-Linux-${arch}-${version}.run --extract-only --target nvidiapkg-${arch}
+ sh NVIDIA-Linux-${nvarch}-${version}.run --extract-only --target nvidiapkg-${arch}
 done
 
-tar -cJf nvidia-kmod-data-${version}.tar.xz nvidiapkg-*/LICENSE nvidiapkg-*/kernel
+tar Jcf nvidia-kmod-data-${version}.tar.xz nvidiapkg-*/LICENSE nvidiapkg-*/kernel
 
