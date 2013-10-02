@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         319.60
-Release:         0%{?dist}
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -22,10 +22,12 @@ Source3:         nvidia-xorg.conf
 Source6:         blacklist-nouveau.conf
 
 BuildRequires:   desktop-file-utils
+%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
 Buildrequires:   systemd
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
+%endif
 
 ExclusiveArch: i686 x86_64 armv7hl
 
@@ -110,11 +112,16 @@ This package provides the shared libraries for %{name}.
 
 %prep
 %setup -q -c -T
+#Only extract the needed arch
+%ifarch %{ix86}
 sh %{SOURCE0} --extract-only --target nvidiapkg-i686
+%endif
+%ifarch x86_64
 sh %{SOURCE1} --extract-only --target nvidiapkg-x86_64
+%endif
+%ifarch armv7hl
 sh %{SOURCE4} --extract-only --target nvidiapkg-armv7hl
-tar -cJf nvidia-kmod-data-%{version}.tar.xz nvidiapkg-*/LICENSE nvidiapkg-*/kernel
-
+%endif
 ln -s nvidiapkg-%{_target_cpu} nvidiapkg
 
 %build
@@ -226,16 +233,24 @@ ln -fs ../../%{_nvidia_serie}/xorg $RPM_BUILD_ROOT%{_libdir}/xorg/modules/%{_nvi
 
 #Install the initscript
 tar jxf nvidia-persistenced-init.tar.bz2
+%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
 mkdir -p $RPM_BUILD_ROOT%{_unitdir}
 install -pm 0644 nvidia-persistenced-init/systemd/nvidia-persistenced.service.template \
   $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.service
 #Change the daemon running owner
 sed -i -e "s/__USER__/root/" $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.service
+%endif
 
 #Create the default nvidia config directory
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/nvidia
 
 
+%pre
+if [ "$1" -eq "1" ]; then
+  if [ -x %{_bindir}/nvidia-uninstall ]; then
+    %{_bindir}/nvidia-uninstall -s && rm -f %{_bindir}/nvidia-uninstall &>/dev/null || :
+  fi
+fi
 
 %post
 if [ "$1" -eq "1" ]; then
@@ -259,7 +274,9 @@ if [ "$1" -eq "1" ]; then
          &>/dev/null
     done
   fi
+%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
   /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+%endif
 fi || :
 
 %triggerpostun -- xorg-x11-drv-nvidia < 1:%{version}-5
@@ -311,20 +328,24 @@ if [ "$1" -eq "0" ]; then
     done
   fi
 
+%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
   /bin/systemctl --no-reload disable nvidia-persistenced.service > /dev/null 2>&1 || :
   /bin/systemctl stop nvidia-persistenced.service > /dev/null 2>&1 || :
+%endif
 
   #Backup and disable previously used xorg.conf
   [ -f %{_sysconfdir}/X11/xorg.conf ] && \
     mv  %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.%{name}_uninstalled &>/dev/null
 fi ||:
 
+%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
 %postun
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
     # Package upgrade, not uninstall
     /bin/systemctl try-restart nvidia-persistenced.service >/dev/null 2>&1 || :
 fi
+%endif
 
 %postun libs -p /sbin/ldconfig
 
@@ -344,7 +365,9 @@ fi
 %config %{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
 %config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
+%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
 %{_unitdir}/nvidia-persistenced.service
+%endif
 %{_bindir}/nvidia-bug-report.sh
 %{_bindir}/nvidia-debugdump
 %{_bindir}/nvidia-smi
@@ -399,6 +422,9 @@ fi
 
 
 %changelog
+* Wed Oct 02 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.60-1
+- Update to 319.60
+
 * Sun Jul 21 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.32-7
 - Disable Obsoletes/Provides of nvidia tools until rhbz#985944
 
