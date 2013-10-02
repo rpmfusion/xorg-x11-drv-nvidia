@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         325.15
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -56,7 +56,6 @@ Conflicts:       xorg-x11-drv-nvidia-legacy
 Conflicts:       xorg-x11-drv-nvidia-71xx
 Conflicts:       xorg-x11-drv-nvidia-96xx
 Conflicts:       xorg-x11-drv-nvidia-173xx
-Conflicts:       xorg-x11-drv-nvidia-304xx
 Conflicts:       xorg-x11-drv-fglrx
 Conflicts:       xorg-x11-drv-catalyst
 
@@ -224,8 +223,10 @@ install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
 # Desktop entry for nvidia-settings
 desktop-file-install --vendor "" \
     --dir $RPM_BUILD_ROOT%{_datadir}/applications/ \
+%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
     --set-icon=nvidia-settings \
     --set-key=Exec --set-value=nvidia-settings \
+%endif
     nvidia-settings.desktop
 
 #Workaround for self made xorg.conf using a Files section.
@@ -407,13 +408,13 @@ fi
 
 %files devel
 %defattr(-,root,root,-)
-%exclude %{_nvidia_libdir}/libcuda.so
 %{_includedir}/nvidia/
 %ifarch x86_64 i686
 %{_nvidia_libdir}/libOpenCL.so
 %{_nvidia_libdir}/libnvidia-compiler.so
 %{_nvidia_libdir}/libnvidia-encode.so
 %endif
+%{_nvidia_libdir}/libcuda.so
 %{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libnvidia-glcore.so
 %{_nvidia_libdir}/libnvidia-ifr.so
@@ -423,19 +424,26 @@ fi
 %{_nvidia_libdir}/libnvidia-vgxcfg.so
 
 %changelog
+* Wed Oct 02 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:325.15-2
+- Avoid to exclude libcuda.so in devel
+- Drop desktop-file-install options not supported on EL6
+
 * Tue Aug 06 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:325.15-1
 - Update to 325.15 release
 
-* Sun Jul 21 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.32-7
+* Sun Jul 21 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:325.08-5
 - Disable Obsoletes/Provides of nvidia tools until rhbz#985944
 
-* Mon Jul 15 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.32-6
+* Mon Jul 15 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:325.08-4
 - Fix typo with libGLcore filter
 
-* Sun Jul 14 2013 leigh scott <leigh123linux@googlemail.com> - 1:319.32-5
+* Sun Jul 14 2013 leigh scott <leigh123linux@googlemail.com> - 1:325.08-3
 - re-add man pages for settings and xconfig
 
-* Sat Jul 13 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.32-4
+* Sat Jul 13 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:325.08-2
+- Rebased to 325.08
+
+* Sat Jul 13 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.32-3
 - Restore nvidia-settings and nvidia-xconfig - rfbz#2852
 - Add virtual provides for nvidia-modprobe/nvidia-persistenced
 - Enable nvidia-persistenced systemd service
