@@ -407,15 +407,16 @@ fi
 
 %files devel
 %defattr(-,root,root,-)
-%exclude %{_nvidia_libdir}/libcuda.so
 %{_includedir}/nvidia/
 %ifarch x86_64 i686
 %{_nvidia_libdir}/libOpenCL.so
 %{_nvidia_libdir}/libnvidia-compiler.so
 %{_nvidia_libdir}/libnvidia-encode.so
 %endif
+%{_nvidia_libdir}/libcuda.so
 %{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libnvidia-glcore.so
+%{_nvidia_libdir}/libnvidia-ifr.so
 %{_nvidia_libdir}/libnvcuvid.so
 %{_nvidia_libdir}/libnvidia-ml.so
 %{_nvidia_libdir}/libnvidia-opencl.so
@@ -424,6 +425,8 @@ fi
 %changelog
 * Wed Oct 02 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.60-1
 - Update to 319.60
+- Avoid to exclude libcuda.so in devel
+- Add libnvidia-ifr.so
 
 * Sun Jul 21 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.32-7
 - Disable Obsoletes/Provides of nvidia tools until rhbz#985944
