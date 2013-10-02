@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         325.15
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -223,8 +223,10 @@ install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
 # Desktop entry for nvidia-settings
 desktop-file-install --vendor "" \
     --dir $RPM_BUILD_ROOT%{_datadir}/applications/ \
+%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
     --set-icon=nvidia-settings \
     --set-key=Exec --set-value=nvidia-settings \
+%endif
     nvidia-settings.desktop
 
 #Workaround for self made xorg.conf using a Files section.
@@ -406,13 +408,13 @@ fi
 
 %files devel
 %defattr(-,root,root,-)
-%exclude %{_nvidia_libdir}/libcuda.so
 %{_includedir}/nvidia/
 %ifarch x86_64 i686
 %{_nvidia_libdir}/libOpenCL.so
 %{_nvidia_libdir}/libnvidia-compiler.so
 %{_nvidia_libdir}/libnvidia-encode.so
 %endif
+%{_nvidia_libdir}/libcuda.so
 %{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libnvidia-glcore.so
 %{_nvidia_libdir}/libnvidia-ifr.so
@@ -422,6 +424,10 @@ fi
 %{_nvidia_libdir}/libnvidia-vgxcfg.so
 
 %changelog
+* Wed Oct 02 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:325.15-2
+- Avoid to exclude libcuda.so in devel
+- Drop desktop-file-install options not supported on EL6
+
 * Tue Aug 06 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:325.15-1
 - Update to 325.15 release
 
