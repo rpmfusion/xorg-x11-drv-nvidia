@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         325.15
-Release:         2%{?dist}
+Version:         331.20
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -58,6 +58,7 @@ Conflicts:       xorg-x11-drv-nvidia-96xx
 Conflicts:       xorg-x11-drv-nvidia-173xx
 Conflicts:       xorg-x11-drv-fglrx
 Conflicts:       xorg-x11-drv-catalyst
+Conflicts:       xorg-x11-glamor
 
 
 #Support for cuda
@@ -400,9 +401,9 @@ fi
 %{_nvidia_libdir}/*.so.*
 %ifarch x86_64 i686
 %dir %{_nvidia_libdir}/tls
-%{_nvidia_libdir}/tls/*.so*
+%{_nvidia_libdir}/tls/*.so.*
 %exclude %{_libdir}/vdpau/libvdpau.*
-%{_libdir}/vdpau/libvdpau_nvidia.so*
+%{_libdir}/vdpau/libvdpau_nvidia.so.*
 %exclude %{_libdir}/vdpau/libvdpau_trace.so*
 %endif
 
@@ -414,16 +415,29 @@ fi
 %{_nvidia_libdir}/libnvidia-compiler.so
 %{_nvidia_libdir}/libnvidia-encode.so
 %endif
+%ifarch i686
+%{_nvidia_libdir}/libEGL.so
+%{_nvidia_libdir}/libGLESv1_CM.so
+%{_nvidia_libdir}/libGLESv2.so
+%{_nvidia_libdir}/libnvidia-eglcore.so
+%{_nvidia_libdir}/libnvidia-glsi.so
+%endif
 %{_nvidia_libdir}/libcuda.so
 %{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libnvidia-glcore.so
+%{_nvidia_libdir}/libnvidia-fbc.so
 %{_nvidia_libdir}/libnvidia-ifr.so
 %{_nvidia_libdir}/libnvcuvid.so
 %{_nvidia_libdir}/libnvidia-ml.so
 %{_nvidia_libdir}/libnvidia-opencl.so
-%{_nvidia_libdir}/libnvidia-vgxcfg.so
+%{_nvidia_libdir}/tls/libnvidia-tls.so
+%{_libdir}/vdpau/libvdpau_nvidia.so
 
 %changelog
+* Thu Nov 07 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:331.20-1
+- Update to 331.20
+- add conflicts xorg-x11-glamor
+
 * Wed Oct 02 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:325.15-2
 - Avoid to exclude libcuda.so in devel
 - Drop desktop-file-install options not supported on EL6
