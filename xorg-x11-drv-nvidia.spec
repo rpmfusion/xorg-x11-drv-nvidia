@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         325.15
-Release:         2%{?dist}
+Version:         331.20
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -19,7 +19,9 @@ Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDI
 Source4:         ftp://download.nvidia.com/XFree86/Linux-32bit-ARM/%{version}/NVIDIA-Linux-armv7l-gnueabihf-%{version}.run
 Source2:         00-nvidia.conf
 Source3:         nvidia-xorg.conf
+Source5:         00-avoid-glamor.conf
 Source6:         blacklist-nouveau.conf
+Source7:         alternate-install-present
 
 BuildRequires:   desktop-file-utils
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
@@ -216,6 +218,7 @@ rm $RPM_BUILD_ROOT%{_nvidia_libdir}/libnvidia-{cfg,tls}.so
 #Install static driver dependant configuration files
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
+install -pm 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
 touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
 install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
@@ -232,6 +235,13 @@ desktop-file-install --vendor "" \
 #Workaround for self made xorg.conf using a Files section.
 ln -fs ../../%{_nvidia_serie}/xorg $RPM_BUILD_ROOT%{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
 
+#Workaround for cuda availability - rfbz#2916
+ln -fs %{_nvidia_libdir}/libcuda.so.1 $RPM_BUILD_ROOT%{_libdir}/libcuda.so.1
+ln -fs %{_nvidia_libdir}/libcuda.so $RPM_BUILD_ROOT%{_libdir}/libcuda.so
+
+#Alternate-install-present is checked by the nvidia .run
+install -p -m 0644 %{SOURCE7}            $RPM_BUILD_ROOT%{_nvidia_libdir}
+
 #Install the initscript
 tar jxf nvidia-persistenced-init.tar.bz2
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
@@ -246,7 +256,7 @@ sed -i -e "s/__USER__/root/" $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.serv
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/nvidia
 
 
-%pre
+%pretrans
 if [ "$1" -eq "1" ]; then
   if [ -x %{_bindir}/nvidia-uninstall ]; then
     %{_bindir}/nvidia-uninstall -s && rm -f %{_bindir}/nvidia-uninstall &>/dev/null || :
@@ -315,6 +325,8 @@ if [ "$1" -eq "0" ]; then
   ISGRUB1=""
   if [[ -f /boot/grub/grub.conf && ! -f /boot/grub2/grub.cfg ]] ; then
       ISGRUB1="--grub"
+  else
+    sed -i -e 's|GRUB_GFXPAYLOAD_LINUX=text||g' /etc/default/grub
   fi
   if [ -x /sbin/grubby ] ; then
     DIST=`rpm -E %%{?dist}`
@@ -364,6 +376,7 @@ fi
 %endif
 %dir %{_sysconfdir}/nvidia
 %config %{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
+%config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 %config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
@@ -375,7 +388,8 @@ fi
 %{_bindir}/nvidia-cuda-mps-control
 %{_bindir}/nvidia-cuda-mps-server
 %{_bindir}/nvidia-persistenced
-%{_bindir}/nvidia-modprobe
+#nvidia-modprobe is setuid root to allow users to load the module in 
+%attr(4755, root, root) %{_bindir}/nvidia-modprobe
 %{_bindir}/nvidia-settings
 %{_bindir}/nvidia-xconfig
 # Xorg libs that do not need to be multilib
@@ -397,14 +411,16 @@ fi
 %defattr(-,root,root,-)
 %dir %{_nvidia_libdir}
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
+%{_nvidia_libdir}/alternate-install-present
 %{_nvidia_libdir}/*.so.*
 %ifarch x86_64 i686
 %dir %{_nvidia_libdir}/tls
-%{_nvidia_libdir}/tls/*.so*
+%{_nvidia_libdir}/tls/*.so.*
 %exclude %{_libdir}/vdpau/libvdpau.*
-%{_libdir}/vdpau/libvdpau_nvidia.so*
+%{_libdir}/vdpau/libvdpau_nvidia.so.*
 %exclude %{_libdir}/vdpau/libvdpau_trace.so*
 %endif
+%{_libdir}/libcuda.so.1
 
 %files devel
 %defattr(-,root,root,-)
@@ -414,16 +430,41 @@ fi
 %{_nvidia_libdir}/libnvidia-compiler.so
 %{_nvidia_libdir}/libnvidia-encode.so
 %endif
+%ifarch i686
+%{_nvidia_libdir}/libEGL.so
+%{_nvidia_libdir}/libGLESv1_CM.so
+%{_nvidia_libdir}/libGLESv2.so
+%{_nvidia_libdir}/libnvidia-eglcore.so
+%{_nvidia_libdir}/libnvidia-glsi.so
+%endif
 %{_nvidia_libdir}/libcuda.so
 %{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libnvidia-glcore.so
+%{_nvidia_libdir}/libnvidia-fbc.so
 %{_nvidia_libdir}/libnvidia-ifr.so
 %{_nvidia_libdir}/libnvcuvid.so
 %{_nvidia_libdir}/libnvidia-ml.so
 %{_nvidia_libdir}/libnvidia-opencl.so
-%{_nvidia_libdir}/libnvidia-vgxcfg.so
+%{_nvidia_libdir}/tls/libnvidia-tls.so
+%{_libdir}/libcuda.so
+%{_libdir}/vdpau/libvdpau_nvidia.so
 
 %changelog
+* Mon Nov 11 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:331.20-3
+- move nvidia-uninstall to %%pretrans
+- Setuid root for nvidia-modprobe to allow text users to load modules
+- Disable GRUB_GFXPAYLOAD_LINUX=text in grub2 when uninstalling
+- Workaround for cuda availability - rfbz#2916
+- Add alternate-install-present in -libs to prevent .run to overwrite us
+
+* Thu Nov 07 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:331.20-2
+- remove conflicts xorg-x11-glamor
+- disable glamor module
+
+* Thu Nov 07 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:331.20-1
+- Update to 331.20
+- add conflicts xorg-x11-glamor
+
 * Wed Oct 02 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:325.15-2
 - Avoid to exclude libcuda.so in devel
 - Drop desktop-file-install options not supported on EL6
