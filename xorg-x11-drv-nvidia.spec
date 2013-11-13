@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         331.20
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -256,7 +256,7 @@ sed -i -e "s/__USER__/root/" $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.serv
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/nvidia
 
 
-%pretrans
+%pre
 if [ "$1" -eq "1" ]; then
   if [ -x %{_bindir}/nvidia-uninstall ]; then
     %{_bindir}/nvidia-uninstall -s && rm -f %{_bindir}/nvidia-uninstall &>/dev/null || :
@@ -450,6 +450,9 @@ fi
 %{_libdir}/vdpau/libvdpau_nvidia.so
 
 %changelog
+* Wed Nov 13 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:331.20-4
+- Revert %%pretrans move - rfbz#3027
+
 * Mon Nov 11 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:331.20-3
 - move nvidia-uninstall to %%pretrans
 - Setuid root for nvidia-modprobe to allow text users to load modules
