@@ -68,13 +68,17 @@ Provides:        cuda-driver = %{version}
 
 %{?filter_setup:
 %filter_from_provides /^libnvidia/d;
+%filter_from_provides /^libEGL\.so/d;
 %filter_from_provides /^libGLcore\.so/d;
 %filter_from_provides /^libGL\.so/d;
+%filter_from_provides /^libGLES.*\.so/d;
 %filter_from_provides /^libvdpau_nvidia\.so\.1/d;
 %filter_from_provides /^libglx\.so/d;
 %filter_from_requires /^libnvidia/d;
+%filter_from_requires /^libEGL\.so/d;
 %filter_from_requires /^libGLcore\.so/d;
 %filter_from_requires /^libGL\.so/d;
+%filter_from_requires /^libGLES.*\.so/d;
 %filter_from_requires /^libvdpau_nvidia\.so\.1/d;
 %filter_from_requires /^libglx\.so/d;
 %filter_setup
