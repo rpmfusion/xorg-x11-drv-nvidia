@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         331.20
-Release:         4%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -68,13 +68,17 @@ Provides:        cuda-driver = %{version}
 
 %{?filter_setup:
 %filter_from_provides /^libnvidia/d;
+%filter_from_provides /^libEGL\.so/d;
 %filter_from_provides /^libGLcore\.so/d;
 %filter_from_provides /^libGL\.so/d;
+%filter_from_provides /^libGLES.*\.so/d;
 %filter_from_provides /^libvdpau_nvidia\.so\.1/d;
 %filter_from_provides /^libglx\.so/d;
 %filter_from_requires /^libnvidia/d;
+%filter_from_requires /^libEGL\.so/d;
 %filter_from_requires /^libGLcore\.so/d;
 %filter_from_requires /^libGL\.so/d;
+%filter_from_requires /^libGLES.*\.so/d;
 %filter_from_requires /^libvdpau_nvidia\.so\.1/d;
 %filter_from_requires /^libglx\.so/d;
 %filter_setup
@@ -429,8 +433,12 @@ fi
 %{_nvidia_libdir}/libOpenCL.so
 %{_nvidia_libdir}/libnvidia-compiler.so
 %{_nvidia_libdir}/libnvidia-encode.so
+%{_nvidia_libdir}/libnvidia-ifr.so
+%{_nvidia_libdir}/libnvidia-opencl.so
+%{_nvidia_libdir}/tls/libnvidia-tls.so
+%{_libdir}/vdpau/libvdpau_nvidia.so
 %endif
-%ifarch i686
+%ifarch i686 armv7hl
 %{_nvidia_libdir}/libEGL.so
 %{_nvidia_libdir}/libGLESv1_CM.so
 %{_nvidia_libdir}/libGLESv2.so
@@ -441,15 +449,15 @@ fi
 %{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libnvidia-glcore.so
 %{_nvidia_libdir}/libnvidia-fbc.so
-%{_nvidia_libdir}/libnvidia-ifr.so
 %{_nvidia_libdir}/libnvcuvid.so
 %{_nvidia_libdir}/libnvidia-ml.so
-%{_nvidia_libdir}/libnvidia-opencl.so
-%{_nvidia_libdir}/tls/libnvidia-tls.so
 %{_libdir}/libcuda.so
-%{_libdir}/vdpau/libvdpau_nvidia.so
 
 %changelog
+* Wed Dec 11 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:331.20-5
+- Add filter on libEGL and libGLES to avoid race with mesa
+- Fix build on ARM
+
 * Wed Nov 13 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:331.20-4
 - Revert %%pretrans move - rfbz#3027
 
