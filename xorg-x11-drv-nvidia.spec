@@ -7,7 +7,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         319.60
+Version:         319.76
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -412,17 +412,21 @@ fi
 %{_nvidia_libdir}/libOpenCL.so
 %{_nvidia_libdir}/libnvidia-compiler.so
 %{_nvidia_libdir}/libnvidia-encode.so
+%{_nvidia_libdir}/libnvidia-ifr.so
 %endif
 %{_nvidia_libdir}/libcuda.so
 %{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libnvidia-glcore.so
-%{_nvidia_libdir}/libnvidia-ifr.so
 %{_nvidia_libdir}/libnvcuvid.so
 %{_nvidia_libdir}/libnvidia-ml.so
 %{_nvidia_libdir}/libnvidia-opencl.so
 
 
 %changelog
+* Sat Dec 14 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.76-1
+- Update to 319.76
+- Fix Build on ARM
+
 * Wed Oct 02 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.60-1
 - Update to 319.60
 - Avoid to exclude libcuda.so in devel
