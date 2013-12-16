@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         331.20
-Release:         5%{?dist}
+Release:         6%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -58,6 +58,7 @@ Conflicts:       xorg-x11-drv-nvidia-legacy
 Conflicts:       xorg-x11-drv-nvidia-71xx
 Conflicts:       xorg-x11-drv-nvidia-96xx
 Conflicts:       xorg-x11-drv-nvidia-173xx
+Conflicts:       xorg-x11-drv-nvidia-304xx
 Conflicts:       xorg-x11-drv-fglrx
 Conflicts:       xorg-x11-drv-catalyst
 
@@ -246,6 +247,10 @@ ln -fs %{_nvidia_libdir}/libcuda.so $RPM_BUILD_ROOT%{_libdir}/libcuda.so
 #Alternate-install-present is checked by the nvidia .run
 install -p -m 0644 %{SOURCE7}            $RPM_BUILD_ROOT%{_nvidia_libdir}
 
+#install the NVIDIA supplied application profiles
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/nvidia
+install -p -m 0644 nvidia-application-profiles-%{version}-rc $RPM_BUILD_ROOT%{_datadir}/nvidia
+
 #Install the initscript
 tar jxf nvidia-persistenced-init.tar.bz2
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
@@ -402,6 +407,8 @@ fi
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
 #/no_multilib
+%dir %{_datadir}/nvidia
+%{_datadir}/nvidia/nvidia-application-profiles-%{version}-rc
 %{_datadir}/applications/*nvidia-settings.desktop
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-settings.*
@@ -454,6 +461,10 @@ fi
 %{_libdir}/libcuda.so
 
 %changelog
+* Mon Dec 16 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:331.20-6
+- Add Conflicts xorg-x11-drv-nvidia-304xx
+- Add system wide nvidia-application-profiles - rfbz#3057
+
 * Wed Dec 11 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:331.20-5
 - Add filter on libEGL and libGLES to avoid race with mesa
 - Fix build on ARM
