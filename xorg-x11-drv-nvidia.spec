@@ -231,6 +231,10 @@ desktop-file-install --vendor "" \
 #Workaround for self made xorg.conf using a Files section.
 ln -fs ../../%{_nvidia_serie}/xorg $RPM_BUILD_ROOT%{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
 
+#install the NVIDIA supplied application profiles
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/nvidia
+install -p -m 0644 nvidia-application-profiles-%{version}-rc $RPM_BUILD_ROOT%{_datadir}/nvidia
+
 #Install the initscript
 tar jxf nvidia-persistenced-init.tar.bz2
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
@@ -383,6 +387,8 @@ fi
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
 #/no_multilib
+%dir %{_datadir}/nvidia
+%{_datadir}/nvidia/nvidia-application-profiles-%{version}-rc
 %{_datadir}/applications/*nvidia-settings.desktop
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-settings.*
@@ -423,6 +429,9 @@ fi
 
 
 %changelog
+* Mon Dec 16 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.76-2
+- Add system wide nvidia-application-profiles - rfbz#3057
+
 * Sat Dec 14 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:319.76-1
 - Update to 319.76
 - Fix Build on ARM
