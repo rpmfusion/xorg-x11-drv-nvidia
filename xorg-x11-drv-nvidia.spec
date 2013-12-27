@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         331.20
-Release:         6%{?dist}
+Release:         7%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -17,7 +17,7 @@ URL:             http://www.nvidia.com/
 Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
 Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source4:         ftp://download.nvidia.com/XFree86/Linux-32bit-ARM/%{version}/NVIDIA-Linux-armv7l-gnueabihf-%{version}.run
-Source2:         00-nvidia.conf
+Source2:         99-nvidia.conf
 Source3:         nvidia-xorg.conf
 Source5:         00-avoid-glamor.conf
 Source6:         blacklist-nouveau.conf
@@ -224,8 +224,8 @@ rm $RPM_BUILD_ROOT%{_nvidia_libdir}/libnvidia-{cfg,tls}.so
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
-sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
-touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
+sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
+touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
 
 # Desktop entry for nvidia-settings
@@ -384,7 +384,7 @@ fi
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %endif
 %dir %{_sysconfdir}/nvidia
-%config %{_sysconfdir}/X11/xorg.conf.d/00-nvidia.conf
+%config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 %config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
@@ -461,6 +461,9 @@ fi
 %{_libdir}/libcuda.so
 
 %changelog
+* Fri Dec 27 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:331.20-7
+- fix module path issue with alien msttcore-fonts package
+
 * Mon Dec 16 2013 Nicolas Chauvet <kwizart@gmail.com> - 1:331.20-6
 - Add Conflicts xorg-x11-drv-nvidia-304xx
 - Add system wide nvidia-application-profiles - rfbz#3057
