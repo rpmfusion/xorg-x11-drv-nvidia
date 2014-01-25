@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         331.20
-Release:         7%{?dist}
+Version:         331.38
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -461,6 +461,9 @@ fi
 %{_libdir}/libcuda.so
 
 %changelog
+* Mon Jan 13 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:331.38-1
+- Update to 331.38
+
 * Fri Dec 27 2013 Leigh Scott <leigh123linux@googlemail.com> - 1:331.20-7
 - fix module path issue with alien msttcore-fonts package
 
