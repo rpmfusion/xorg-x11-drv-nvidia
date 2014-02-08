@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         334.16
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -249,7 +249,7 @@ install -p -m 0644 %{SOURCE7}            $RPM_BUILD_ROOT%{_nvidia_libdir}
 
 #install the NVIDIA supplied application profiles
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/nvidia
-install -p -m 0644 nvidia-application-profiles-%{version}-rc $RPM_BUILD_ROOT%{_datadir}/nvidia
+install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} $RPM_BUILD_ROOT%{_datadir}/nvidia
 
 #Install the initscript
 tar jxf nvidia-persistenced-init.tar.bz2
@@ -408,7 +408,7 @@ fi
 %{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
 #/no_multilib
 %dir %{_datadir}/nvidia
-%{_datadir}/nvidia/nvidia-application-profiles-%{version}-rc
+%{_datadir}/nvidia/nvidia-application-profiles-%{version}-*
 %{_datadir}/applications/*nvidia-settings.desktop
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-settings.*
@@ -459,6 +459,9 @@ fi
 %{_libdir}/libcuda.so
 
 %changelog
+* Sat Feb 08 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:334.16-2
+- install the NVIDIA supplied application profile key documentation
+
 * Sat Feb 08 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:334.16-1
 - Update to 334.16
 
