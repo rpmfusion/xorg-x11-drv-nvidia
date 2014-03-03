@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         334.16
-Release:         2%{?dist}
+Version:         334.21
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -459,6 +459,9 @@ fi
 %{_libdir}/libcuda.so
 
 %changelog
+* Mon Mar 03 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:334.21-1
+- Update to 334.21
+
 * Sat Feb 08 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:334.16-2
 - install the NVIDIA supplied application profile key documentation
 
