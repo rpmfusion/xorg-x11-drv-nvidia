@@ -7,7 +7,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         337.12
+Version:         337.19
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -459,6 +459,9 @@ fi
 %{_libdir}/libcuda.so
 
 %changelog
+* Tue May 06 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:337.19-1
+- Update to 337.19
+
 * Tue Apr 08 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:337.12-1
 - Update to 337.12
 
