@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         337.19
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -65,7 +65,7 @@ Conflicts:       xorg-x11-drv-catalyst
 
 #Support for cuda
 #Don't put an epoch here
-Provides:        cuda-driver = %{version}
+Provides:        cuda-drivers = %{version}
 
 %{?filter_setup:
 %filter_from_provides /^libnvidia/d;
@@ -106,6 +106,14 @@ Requires:        %{name}-libs%{_isa} = %{?epoch}:%{version}-%{release}
 This package provides the development files of the %{name} package,
 such as OpenGL headers.
 
+%package kmodsrc
+Summary:         %{name} kernel module source code
+Group:           System Environment/Kernel
+
+%description kmodsrc
+Source tree used for building kernel module packages (%{name}-kmod)
+which is generated during the build of main package.
+
 %package libs
 Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
@@ -120,15 +128,17 @@ This package provides the shared libraries for %{name}.
 %setup -q -c -T
 #Only extract the needed arch
 %ifarch %{ix86}
-sh %{SOURCE0} --extract-only --target nvidiapkg-i686
+sh %{SOURCE0} \
 %endif
 %ifarch x86_64
-sh %{SOURCE1} --extract-only --target nvidiapkg-x86_64
+sh %{SOURCE1} \
 %endif
 %ifarch armv7hl
-sh %{SOURCE4} --extract-only --target nvidiapkg-armv7hl
+sh %{SOURCE4} \
 %endif
+  --extract-only --target nvidiapkg-%{_target_cpu}
 ln -s nvidiapkg-%{_target_cpu} nvidiapkg
+
 
 %build
 # Nothing to build
@@ -162,7 +172,6 @@ install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}
 install -p -m 0755 lib*.so.%{version}          $RPM_BUILD_ROOT%{_nvidia_libdir}/
 %ifarch x86_64 i686
 install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
-install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/vdpau/
 install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
 %endif
 
@@ -173,10 +182,11 @@ install -p -m 0755 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
 install -p -m 0755 libOpenCL.so.1.0.0          $RPM_BUILD_ROOT%{_nvidia_libdir}/
 ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so.1
 ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so
+%endif
 
 #Vdpau
+install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/vdpau/
 install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau
-%endif
 
 #
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
@@ -264,6 +274,10 @@ sed -i -e "s/__USER__/root/" $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.serv
 #Create the default nvidia config directory
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/nvidia
 
+#Install the nvidia kernel modules sources archive
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/nvidia-kmod-%{version}
+tar Jcf $RPM_BUILD_ROOT%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_target_cpu}.tar.xz kernel  
+
 
 %pre
 if [ "$1" -eq "1" ]; then
@@ -299,7 +313,7 @@ if [ "$1" -eq "1" ]; then
 %endif
 fi || :
 
-%triggerpostun -- xorg-x11-drv-nvidia < 1:%{version}-5
+%triggerpostun -- xorg-x11-drv-nvidia < 1:319.23-5
 if [ "$1" -eq "1" ]; then
   ISGRUB1=""
   if [[ -f /boot/grub/grub.conf && ! -f /boot/grub2/grub.cfg ]] ; then
@@ -418,6 +432,10 @@ fi
 %{_mandir}/man1/nvidia-persistenced.1.*
 %{_mandir}/man1/nvidia-modprobe.1.*
 
+%files kmodsrc
+%dir %{_datadir}/nvidia-kmod-%{version}
+%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_target_cpu}.tar.xz
+
 %files libs
 %defattr(-,root,root,-)
 %dir %{_nvidia_libdir}
@@ -427,11 +445,12 @@ fi
 %ifarch x86_64 i686
 %dir %{_nvidia_libdir}/tls
 %{_nvidia_libdir}/tls/*.so.*
+%endif
 %exclude %{_libdir}/vdpau/libvdpau.*
 %{_libdir}/vdpau/libvdpau_nvidia.so.*
 %exclude %{_libdir}/vdpau/libvdpau_trace.so*
-%endif
 %{_libdir}/libcuda.so.1
+%{_libdir}/libcuda.so
 
 %files devel
 %defattr(-,root,root,-)
@@ -441,8 +460,8 @@ fi
 %{_nvidia_libdir}/libnvidia-compiler.so
 %{_nvidia_libdir}/libnvidia-opencl.so
 %{_nvidia_libdir}/tls/libnvidia-tls.so
-%{_libdir}/vdpau/libvdpau_nvidia.so
 %endif
+%{_libdir}/vdpau/libvdpau_nvidia.so
 %{_nvidia_libdir}/libnvidia-encode.so
 %{_nvidia_libdir}/libnvidia-ifr.so
 %{_nvidia_libdir}/libEGL.so
@@ -456,9 +475,14 @@ fi
 %{_nvidia_libdir}/libnvidia-fbc.so
 %{_nvidia_libdir}/libnvcuvid.so
 %{_nvidia_libdir}/libnvidia-ml.so
-%{_libdir}/libcuda.so
 
 %changelog
+* Sat May 17 2014 Nicolas Chauvet <kwizart@gmail.com> - 1:337.19-2
+- Provides libcuda.so in -libs rhbz#2979
+- Split modules content into -kmodsrc reducing nvidia-kmod*.src.rpm size
+- Distribute libvdau_nvidia.so on ARM
+- Fix version macro on triggerpostun
+
 * Tue May 06 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:337.19-1
 - Update to 337.19
 
