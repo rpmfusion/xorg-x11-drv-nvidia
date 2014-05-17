@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         331.67
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -65,7 +65,7 @@ Conflicts:       xorg-x11-drv-catalyst
 
 #Support for cuda
 #Don't put an epoch here
-Provides:        cuda-driver = %{version}
+Provides:        cuda-drivers = %{version}
 
 %{?filter_setup:
 %filter_from_provides /^libnvidia/d;
@@ -162,7 +162,6 @@ install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}
 install -p -m 0755 lib*.so.%{version}          $RPM_BUILD_ROOT%{_nvidia_libdir}/
 %ifarch x86_64 i686
 install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
-install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/vdpau/
 install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
 %endif
 
@@ -173,10 +172,11 @@ install -p -m 0755 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
 install -p -m 0755 libOpenCL.so.1.0.0          $RPM_BUILD_ROOT%{_nvidia_libdir}/
 ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so.1
 ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so
+%endif
 
 #Vdpau
+install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/vdpau/
 install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau
-%endif
 
 #
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
@@ -299,7 +299,7 @@ if [ "$1" -eq "1" ]; then
 %endif
 fi || :
 
-%triggerpostun -- xorg-x11-drv-nvidia < 1:%{version}-5
+%triggerpostun -- xorg-x11-drv-nvidia < 1:319.23-5
 if [ "$1" -eq "1" ]; then
   ISGRUB1=""
   if [[ -f /boot/grub/grub.conf && ! -f /boot/grub2/grub.cfg ]] ; then
@@ -432,6 +432,8 @@ fi
 %exclude %{_libdir}/vdpau/libvdpau_trace.so*
 %endif
 %{_libdir}/libcuda.so.1
+%{_nvidia_libdir}/libcuda.so
+%{_libdir}/libcuda.so
 
 %files devel
 %defattr(-,root,root,-)
@@ -452,15 +454,19 @@ fi
 %{_nvidia_libdir}/libnvidia-eglcore.so
 %{_nvidia_libdir}/libnvidia-glsi.so
 %endif
-%{_nvidia_libdir}/libcuda.so
 %{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libnvidia-glcore.so
 %{_nvidia_libdir}/libnvidia-fbc.so
 %{_nvidia_libdir}/libnvcuvid.so
 %{_nvidia_libdir}/libnvidia-ml.so
-%{_libdir}/libcuda.so
 
 %changelog
+* Sat May 17 2014 Nicolas Chauvet <kwizart@gmail.com> - 1:331.67-2
+- Fix for cuda-drivers provides
+- Provides libcuda.so in -libs rhbz#2979
+- Distribute libvdau_nvidia.so on ARM
+- Fix version macro on triggerpostun
+
 * Wed Apr 09 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:331.67-1
 - Update to 331.67
 
