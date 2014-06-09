@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         337.25
-Release:         2%{?dist}
+Version:         340.17
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -480,6 +480,9 @@ fi
 %{_nvidia_libdir}/libnvidia-ml.so
 
 %changelog
+* Mon Jun 09 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:340.17-1
+- Update to 340.17
+
 * Wed Jun 04 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:337.25-2
 - Add support for IgnoreABI xorg option
 
