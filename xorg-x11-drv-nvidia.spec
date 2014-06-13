@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         331.79
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -427,10 +427,10 @@ fi
 %ifarch x86_64 i686
 %dir %{_nvidia_libdir}/tls
 %{_nvidia_libdir}/tls/*.so.*
+%endif
 %exclude %{_libdir}/vdpau/libvdpau.*
 %{_libdir}/vdpau/libvdpau_nvidia.so.*
 %exclude %{_libdir}/vdpau/libvdpau_trace.so*
-%endif
 %{_libdir}/libcuda.so.1
 %{_nvidia_libdir}/libcuda.so
 %{_libdir}/libcuda.so
@@ -445,8 +445,8 @@ fi
 %{_nvidia_libdir}/libnvidia-ifr.so
 %{_nvidia_libdir}/libnvidia-opencl.so
 %{_nvidia_libdir}/tls/libnvidia-tls.so
-%{_libdir}/vdpau/libvdpau_nvidia.so
 %endif
+%{_libdir}/vdpau/libvdpau_nvidia.so
 %ifarch i686 armv7hl
 %{_nvidia_libdir}/libEGL.so
 %{_nvidia_libdir}/libGLESv1_CM.so
@@ -461,6 +461,9 @@ fi
 %{_nvidia_libdir}/libnvidia-ml.so
 
 %changelog
+* Fri Jun 13 2014 Nicolas Chauvet <kwizart@gmail.com> - 1:331.79-2
+- Add libvdpau on ARM
+
 * Tue May 20 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:331.79-1
 - Update to 331.79
 
