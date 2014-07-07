@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         340.17
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -23,6 +23,7 @@ Source5:         00-avoid-glamor.conf
 Source6:         blacklist-nouveau.conf
 Source7:         alternate-install-present
 Source8:         00-ignoreabi.conf
+Source9:         nvidia-settings.desktop
 
 BuildRequires:   desktop-file-utils
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
@@ -278,7 +279,10 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/nvidia
 
 #Install the nvidia kernel modules sources archive
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/nvidia-kmod-%{version}
-tar Jcf $RPM_BUILD_ROOT%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_target_cpu}.tar.xz kernel  
+tar Jcf $RPM_BUILD_ROOT%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_target_cpu}.tar.xz kernel
+
+#Add autostart file for nvidia-settings to load user config
+install -D -p -m 0644 %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
 
 
 %pre
@@ -405,6 +409,7 @@ fi
 %config %{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
 %config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
+%config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
 %{_unitdir}/nvidia-persistenced.service
 %endif
@@ -480,6 +485,9 @@ fi
 %{_nvidia_libdir}/libnvidia-ml.so
 
 %changelog
+* Mon Jul 07 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:340.17-2
+- add autostart file to load user settings
+
 * Mon Jun 09 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:340.17-1
 - Update to 340.17
 
