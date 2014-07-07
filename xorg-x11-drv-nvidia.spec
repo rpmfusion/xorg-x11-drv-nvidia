@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         331.79
-Release:         2%{?dist}
+Version:         331.89
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -461,6 +461,9 @@ fi
 %{_nvidia_libdir}/libnvidia-ml.so
 
 %changelog
+* Fri Jul 04 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:331.89-1
+- Update to 331.89
+
 * Fri Jun 13 2014 Nicolas Chauvet <kwizart@gmail.com> - 1:331.79-2
 - Add libvdpau on ARM
 
