@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         331.89
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -22,6 +22,7 @@ Source3:         nvidia-xorg.conf
 Source5:         00-avoid-glamor.conf
 Source6:         blacklist-nouveau.conf
 Source7:         alternate-install-present
+Source8:         nvidia-settings.desktop
 
 BuildRequires:   desktop-file-utils
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
@@ -264,6 +265,9 @@ sed -i -e "s/__USER__/root/" $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.serv
 #Create the default nvidia config directory
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/nvidia
 
+#Add autostart file for nvidia-settings to load user config
+install -D -p -m 0644 %{SOURCE8} $RPM_BUILD_ROOT%{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
+
 
 %pre
 if [ "$1" -eq "1" ]; then
@@ -388,6 +392,7 @@ fi
 %config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 %config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
+%config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
 %{_unitdir}/nvidia-persistenced.service
 %endif
@@ -461,6 +466,9 @@ fi
 %{_nvidia_libdir}/libnvidia-ml.so
 
 %changelog
+* Mon Jul 07 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:331.89-2
+- add autostart file to load user settings
+
 * Fri Jul 04 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:331.89-1
 - Update to 331.89
 
