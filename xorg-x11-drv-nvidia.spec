@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         340.17
-Release:         2%{?dist}
+Version:         340.24
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -485,6 +485,9 @@ fi
 %{_nvidia_libdir}/libnvidia-ml.so
 
 %changelog
+* Tue Jul 08 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:340.24-1
+- Update to 340.24
+
 * Mon Jul 07 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:340.17-2
 - add autostart file to load user settings
 
