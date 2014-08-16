@@ -64,11 +64,6 @@ Conflicts:       xorg-x11-drv-nvidia-304xx
 Conflicts:       xorg-x11-drv-fglrx
 Conflicts:       xorg-x11-drv-catalyst
 
-
-#Support for cuda
-#Don't put an epoch here
-Provides:        cuda-drivers = %{version}
-
 %{?filter_setup:
 %filter_from_provides /^libnvidia/d;
 %filter_from_provides /^libEGL\.so/d;
@@ -103,10 +98,22 @@ http://rpmfusion.org/Howto/nVidia
 Summary:         Development files for %{name}
 Group:           Development/Libraries
 Requires:        %{name}-libs%{_isa} = %{?epoch}:%{version}-%{release}
+Requires:        %{name}-cuda%{_isa} = %{?epoch}:%{version}-%{release}
 
 %description devel
 This package provides the development files of the %{name} package,
 such as OpenGL headers.
+
+%package cuda
+Summary:         CUDA libraries for %{name}
+Group:           Development/Libraries
+Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
+
+#Don't put an epoch here
+Provides:        cuda-drivers = %{version}
+
+%description cuda
+This package provides the CUDA driver libraries.
 
 %package kmodsrc
 Summary:         %{name} kernel module source code
@@ -345,6 +352,8 @@ fi || :
 
 %post libs -p /sbin/ldconfig
 
+%post cuda -p /sbin/ldconfig
+
 %posttrans
  [ -f %{_sysconfdir}/X11/xorg.conf ] || \
    cp -p %{_sysconfdir}/X11/nvidia-xorg.conf %{_sysconfdir}/X11/xorg.conf || :
@@ -390,6 +399,8 @@ fi
 %endif
 
 %postun libs -p /sbin/ldconfig
+
+%postun cuda -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root,-)
@@ -450,6 +461,7 @@ fi
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %{_nvidia_libdir}/alternate-install-present
 %{_nvidia_libdir}/*.so.*
+%exclude %{_nvidia_libdir}/libcuda.so*
 %ifarch x86_64 i686
 %dir %{_nvidia_libdir}/tls
 %{_nvidia_libdir}/tls/*.so.*
@@ -457,8 +469,11 @@ fi
 %exclude %{_libdir}/vdpau/libvdpau.*
 %{_libdir}/vdpau/libvdpau_nvidia.so.*
 %exclude %{_libdir}/vdpau/libvdpau_trace.so*
-%{_libdir}/libcuda.so.1
-%{_libdir}/libcuda.so
+
+%files cuda
+%defattr(-,root,root,-)
+%{_libdir}/libcuda.so*
+%{_nvidia_libdir}/libcuda.so*
 
 %files devel
 %defattr(-,root,root,-)
@@ -477,7 +492,6 @@ fi
 %{_nvidia_libdir}/libGLESv2.so
 %{_nvidia_libdir}/libnvidia-eglcore.so
 %{_nvidia_libdir}/libnvidia-glsi.so
-%{_nvidia_libdir}/libcuda.so
 %{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libnvidia-glcore.so
 %{_nvidia_libdir}/libnvidia-fbc.so
