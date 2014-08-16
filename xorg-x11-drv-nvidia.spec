@@ -25,6 +25,8 @@ Source7:         alternate-install-present
 Source8:         00-ignoreabi.conf
 Source9:         nvidia-settings.desktop
 
+ExclusiveArch: i686 x86_64 armv7hl
+
 BuildRequires:   desktop-file-utils
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
 Buildrequires:   systemd
@@ -33,16 +35,13 @@ Requires(preun): systemd
 Requires(postun): systemd
 %endif
 
-ExclusiveArch: i686 x86_64 armv7hl
+Requires(post):   ldconfig
+Requires(postun): ldconfig
+Requires(post):   grubby
+Requires:        which
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
-
-Requires:        which
 Requires:        %{name}-libs%{_isa} = %{?epoch}:%{version}-%{release}
-
-Requires(post):  ldconfig
-Requires(postun):  ldconfig
-
 
 Obsoletes:       %{_nvidia_serie}-kmod < %{?epoch}:%{version}
 Provides:        %{_nvidia_serie}-kmod-common = %{?epoch}:%{version}
