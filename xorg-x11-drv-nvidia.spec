@@ -497,8 +497,8 @@ fi ||:
 
 %changelog
 * Sat Aug 16 2014 Nicolas Chauvet <kwizart@gmail.com> - 1:343.13-2
-- Fix prelink and nvidia - rhbz#3258
-- Split cuda and opencl into a cuda subpackage
+- Fix prelink and nvidia - rfbz#3258
+- Split cuda and opencl into a cuda subpackage - rfbz#2973
 - Clean dependency filter script - Simone Caronni <negativo17@gmail.com>
 - Add support for outputclass with xorg-server >= 1.16
 - Exclude vendor provided OpenCL.so, use system one when available.
