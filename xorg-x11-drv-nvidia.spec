@@ -319,7 +319,11 @@ fi || :
 
 %post libs -p /sbin/ldconfig
 
-%post cuda -p /sbin/ldconfig
+%post cuda
+/sbin/ldconfig
+%if 0%{?rhel} > 6 || 0%{?fedora} >= 18
+%systemd_post nvidia-persistenced.service
+%endif
 
 %posttrans
  [ -f %{_sysconfdir}/X11/xorg.conf ] || \
@@ -351,9 +355,18 @@ if [ "$1" -eq "0" ]; then
     mv  %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.%{name}_uninstalled &>/dev/null
 fi ||:
 
+%if 0%{?rhel} > 6 || 0%{?fedora} >= 18
+%preun cuda
+%systemd_preun nvidia-persistenced.service
+%endif
+
 %postun libs -p /sbin/ldconfig
 
-%postun cuda -p /sbin/ldconfig
+%postun cuda
+/sbin/ldconfig
+%if 0%{?rhel} > 6 || 0%{?fedora} >= 18
+%systemd_postun_with_restart nvidia-persistenced.service
+%endif
 
 %files
 %defattr(-,root,root,-)
