@@ -35,15 +35,6 @@ Requires(postun): systemd
 
 ExclusiveArch: i686 x86_64 armv7hl
 
-#Obsoletes:  nvidia-xconfig < 1.0-30
-#Provides:  nvidia-xconfig = %{version}-%{release}
-#Obsoletes:  nvidia-settings < 1.0-34
-#Provides:  nvidia-settings = %{version}-%{release}
-#Obsoletes:  nvidia-settings-desktop < 1.0-34
-#Provides:  nvidia-settings-desktop = %{version}-%{release}
-Provides:  nvidia-modprobe = %{version}-%{release}
-Provides:  nvidia-persistenced = %{version}-%{release}
-
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 
 Requires:        which
@@ -108,6 +99,8 @@ such as OpenGL headers.
 Summary:         CUDA libraries for %{name}
 Group:           Development/Libraries
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
+Provides:        nvidia-modprobe = %{version}-%{release}
+Provides:        nvidia-persistenced = %{version}-%{release}
 
 #Don't put an epoch here
 Provides:        cuda-drivers = %{version}
@@ -321,34 +314,8 @@ if [ "$1" -eq "1" ]; then
          &>/dev/null
     done
   fi
-%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
-  /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-%endif
 fi || :
 
-%triggerpostun -- xorg-x11-drv-nvidia < 1:319.23-5
-if [ "$1" -eq "1" ]; then
-  ISGRUB1=""
-  if [[ -f /boot/grub/grub.conf && ! -f /boot/grub2/grub.cfg ]] ; then
-      ISGRUB1="--grub"
-      GFXPAYLOAD="vga=normal"
-  else
-      echo "GRUB_GFXPAYLOAD_LINUX=text" >> %{_sysconfdir}/default/grub
-      grub2-mkconfig -o /boot/grub2/grub.cfg
-  fi
-  if [ -x /sbin/grubby ] ; then
-    KERNELS=`/sbin/grubby --default-kernel`
-    DIST=`rpm -E %%{?dist}`
-    ARCH=`uname -m`
-    [ -z $KERNELS ] && KERNELS=`ls /boot/vmlinuz-*${DIST}.${ARCH}*`
-    for kernel in ${KERNELS} ; do
-      /sbin/grubby $ISGRUB1 \
-        --update-kernel=${kernel} \
-        --args="nouveau.modeset=0 rd.driver.blacklist=nouveau video=vesa:off $GFXPAYLOAD" \
-         &>/dev/null
-    done
-  fi
-fi || :
 
 %post libs -p /sbin/ldconfig
 
@@ -379,24 +346,10 @@ if [ "$1" -eq "0" ]; then
     done
   fi
 
-%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
-  /bin/systemctl --no-reload disable nvidia-persistenced.service > /dev/null 2>&1 || :
-  /bin/systemctl stop nvidia-persistenced.service > /dev/null 2>&1 || :
-%endif
-
   #Backup and disable previously used xorg.conf
   [ -f %{_sysconfdir}/X11/xorg.conf ] && \
     mv  %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.%{name}_uninstalled &>/dev/null
 fi ||:
-
-%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
-%postun
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    # Package upgrade, not uninstall
-    /bin/systemctl try-restart nvidia-persistenced.service >/dev/null 2>&1 || :
-fi
-%endif
 
 %postun libs -p /sbin/ldconfig
 
@@ -421,17 +374,8 @@ fi
 %config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
 %config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
-%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
-%{_unitdir}/nvidia-persistenced.service
-%endif
 %{_bindir}/nvidia-bug-report.sh
 %{_bindir}/nvidia-debugdump
-%{_bindir}/nvidia-smi
-%{_bindir}/nvidia-cuda-mps-control
-%{_bindir}/nvidia-cuda-mps-server
-%{_bindir}/nvidia-persistenced
-#nvidia-modprobe is setuid root to allow users to load the module in 
-%attr(4755, root, root) %{_bindir}/nvidia-modprobe
 %{_bindir}/nvidia-settings
 %{_bindir}/nvidia-xconfig
 # Xorg libs that do not need to be multilib
@@ -446,10 +390,6 @@ fi
 %{_datadir}/pixmaps/*.png
 %{_mandir}/man1/nvidia-settings.*
 %{_mandir}/man1/nvidia-xconfig.*
-%{_mandir}/man1/nvidia-smi.*
-%{_mandir}/man1/nvidia-cuda-mps-control.1.*
-%{_mandir}/man1/nvidia-persistenced.1.*
-%{_mandir}/man1/nvidia-modprobe.1.*
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
@@ -472,8 +412,21 @@ fi
 
 %files cuda
 %defattr(-,root,root,-)
+%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
+%{_unitdir}/nvidia-persistenced.service
+%endif
+%{_bindir}/nvidia-smi
+%{_bindir}/nvidia-cuda-mps-control
+%{_bindir}/nvidia-cuda-mps-server
+%{_bindir}/nvidia-persistenced
+#nvidia-modprobe is setuid root to allow users to load the module in 
+%attr(4755, root, root) %{_bindir}/nvidia-modprobe
 %{_libdir}/libcuda.so*
 %{_nvidia_libdir}/libcuda.so*
+%{_mandir}/man1/nvidia-smi.*
+%{_mandir}/man1/nvidia-cuda-mps-control.1.*
+%{_mandir}/man1/nvidia-persistenced.1.*
+%{_mandir}/man1/nvidia-modprobe.1.*
 
 %files devel
 %defattr(-,root,root,-)
