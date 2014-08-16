@@ -76,11 +76,11 @@ Conflicts:       xorg-x11-drv-catalyst
 
 %description
 This package provides the most recent NVIDIA display driver which allows for
-hardware accelerated rendering with NVIDIA chipsets GeForce8 series and newer.
-GeForce7 and below are NOT supported by this release.
+hardware accelerated rendering with current NVIDIA chipsets series.
+GF8x, GF9x, and GT2xx GPUs NOT supported by this release.
 
 For the full product support list, please consult the release notes
-for driver version %{version}.
+http://download.nvidia.com/XFree86/Linux-x86/%{version}/README/index.html
 
 Please use the following documentation:
 http://rpmfusion.org/Howto/nVidia
