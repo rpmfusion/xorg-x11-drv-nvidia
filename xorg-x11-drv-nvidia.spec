@@ -418,6 +418,8 @@ fi ||:
 %{_nvidia_libdir}/alternate-install-present
 %{_nvidia_libdir}/*.so.*
 %exclude %{_nvidia_libdir}/libcuda.so*
+%exclude %{_nvidia_libdir}/libnvcuvid.so*
+%exclude %{_nvidia_libdir}/libnvidia-encode.so*
 %ifarch x86_64 i686
 %if 0%{?fedora} > 18
 %exclude %{_nvidia_libdir}/libOpenCL.so.*
@@ -442,6 +444,8 @@ fi ||:
 %attr(4755, root, root) %{_bindir}/nvidia-modprobe
 %{_libdir}/libcuda.so*
 %{_nvidia_libdir}/libcuda.so*
+%{_nvidia_libdir}/libnvcuvid.so*
+%{_nvidia_libdir}/libnvidia-encode.so*
 %{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
 %{_mandir}/man1/nvidia-persistenced.1.*
@@ -461,7 +465,6 @@ fi ||:
 %{_nvidia_libdir}/tls/libnvidia-tls.so
 %endif
 %{_libdir}/vdpau/libvdpau_nvidia.so
-%{_nvidia_libdir}/libnvidia-encode.so
 %{_nvidia_libdir}/libnvidia-ifr.so
 %{_nvidia_libdir}/libEGL.so
 %{_nvidia_libdir}/libGLESv1_CM.so
@@ -471,7 +474,6 @@ fi ||:
 %{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libnvidia-glcore.so
 %{_nvidia_libdir}/libnvidia-fbc.so
-%{_nvidia_libdir}/libnvcuvid.so
 %{_nvidia_libdir}/libnvidia-ml.so
 
 %changelog
