@@ -419,6 +419,9 @@ fi ||:
 %{_nvidia_libdir}/*.so.*
 %exclude %{_nvidia_libdir}/libcuda.so*
 %ifarch x86_64 i686
+%if 0%{?fedora} > 18
+%exclude %{_nvidia_libdir}/libOpenCL.so.*
+%endif
 %dir %{_nvidia_libdir}/tls
 %{_nvidia_libdir}/tls/*.so.*
 %endif
@@ -448,7 +451,11 @@ fi ||:
 %defattr(-,root,root,-)
 %{_includedir}/nvidia/
 %ifarch x86_64 i686
+%if 0%{?fedora} > 18
+%exclude %{_nvidia_libdir}/libOpenCL.so
+%else
 %{_nvidia_libdir}/libOpenCL.so
+%endif
 %{_nvidia_libdir}/libnvidia-compiler.so
 %{_nvidia_libdir}/libnvidia-opencl.so
 %{_nvidia_libdir}/tls/libnvidia-tls.so
