@@ -382,11 +382,6 @@ fi ||:
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
-%ifarch x86_64 i686
-%dir %{_sysconfdir}/OpenCL
-%dir %{_sysconfdir}/OpenCL/vendors
-%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
-%endif
 %dir %{_sysconfdir}/nvidia
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
@@ -456,6 +451,9 @@ fi ||:
 %{_nvidia_libdir}/libnvcuvid.so*
 %{_nvidia_libdir}/libnvidia-encode.so*
 %ifarch x86_64 i686
+%dir %{_sysconfdir}/OpenCL
+%dir %{_sysconfdir}/OpenCL/vendors
+%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_nvidia_libdir}/libnvidia-compiler.so*
 %{_nvidia_libdir}/libnvidia-opencl.so*
 %endif
