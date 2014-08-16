@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         343.13
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -496,6 +496,13 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-ml.so
 
 %changelog
+* Sat Aug 16 2014 Nicolas Chauvet <kwizart@gmail.com> - 1:343.13-2
+- Fix prelink and nvidia - rhbz#3258
+- Split cuda and opencl into a cuda subpackage
+- Clean dependency filter script - Simone Caronni <negativo17@gmail.com>
+- Add support for outputclass with xorg-server >= 1.16
+- Exclude vendor provided OpenCL.so, use system one when available.
+
 * Thu Aug 07 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:343.13-1
 - Update to 343.13
 - removes support for the G8x, G9x, and GT2xx GPUs
