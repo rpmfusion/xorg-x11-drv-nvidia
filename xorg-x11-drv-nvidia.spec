@@ -103,6 +103,8 @@ Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Provides:        nvidia-modprobe = %{version}-%{release}
 Provides:        nvidia-persistenced = %{version}-%{release}
 
+Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
+
 #Don't put an epoch here
 Provides:        cuda-drivers = %{version}
 
