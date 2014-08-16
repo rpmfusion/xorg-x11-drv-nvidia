@@ -24,6 +24,7 @@ Source6:         blacklist-nouveau.conf
 Source7:         alternate-install-present
 Source8:         00-ignoreabi.conf
 Source9:         nvidia-settings.desktop
+Source10:        nvidia.conf
 
 ExclusiveArch: i686 x86_64 armv7hl
 
@@ -262,6 +263,12 @@ install -p -m 0644 %{SOURCE7}            $RPM_BUILD_ROOT%{_nvidia_libdir}
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/nvidia
 install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} $RPM_BUILD_ROOT%{_datadir}/nvidia
 
+#Install the output class configuration file - xorg-server >= 1.16
+%if 0%{?fedora} >= 21
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d
+install -pm 0644 %{SOURCE10} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
+%endif
+
 #Install the initscript
 tar jxf nvidia-persistenced-init.tar.bz2
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
@@ -323,9 +330,11 @@ fi || :
 %systemd_post nvidia-persistenced.service
 %endif
 
+%if 0%{?fedora} < 21
 %posttrans
  [ -f %{_sysconfdir}/X11/xorg.conf ] || \
    cp -p %{_sysconfdir}/X11/nvidia-xorg.conf %{_sysconfdir}/X11/xorg.conf || :
+%endif
 
 %preun
 if [ "$1" -eq "0" ]; then
@@ -395,6 +404,9 @@ fi ||:
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
 #/no_multilib
+%if 0%{?fedora} >= 21
+%{_datadir}/X11/xorg.conf.d/nvidia.conf
+%endif
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-%{version}-*
 %{_datadir}/applications/*nvidia-settings.desktop
