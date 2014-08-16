@@ -431,6 +431,8 @@ fi ||:
 %if 0%{?fedora} > 18
 %exclude %{_nvidia_libdir}/libOpenCL.so.*
 %endif
+%exclude %{_nvidia_libdir}/libnvidia-compiler.so*
+%exclude %{_nvidia_libdir}/libnvidia-opencl.so*
 %dir %{_nvidia_libdir}/tls
 %{_nvidia_libdir}/tls/*.so.*
 %endif
@@ -453,6 +455,10 @@ fi ||:
 %{_nvidia_libdir}/libcuda.so*
 %{_nvidia_libdir}/libnvcuvid.so*
 %{_nvidia_libdir}/libnvidia-encode.so*
+%ifarch x86_64 i686
+%{_nvidia_libdir}/libnvidia-compiler.so*
+%{_nvidia_libdir}/libnvidia-opencl.so*
+%endif
 %{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
 %{_mandir}/man1/nvidia-persistenced.1.*
@@ -467,8 +473,6 @@ fi ||:
 %else
 %{_nvidia_libdir}/libOpenCL.so
 %endif
-%{_nvidia_libdir}/libnvidia-compiler.so
-%{_nvidia_libdir}/libnvidia-opencl.so
 %{_nvidia_libdir}/tls/libnvidia-tls.so
 %endif
 %{_libdir}/vdpau/libvdpau_nvidia.so
