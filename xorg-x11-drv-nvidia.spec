@@ -55,23 +55,19 @@ Conflicts:       xorg-x11-drv-nvidia-340xx
 Conflicts:       xorg-x11-drv-fglrx
 Conflicts:       xorg-x11-drv-catalyst
 
+%if 0%{?fedora} || 0%{?rhel} >= 7
+%global         __provides_exclude ^(lib.*GL.*\\.so.*|libOpenCL\\.so.*)$
+%global         __requires_exclude ^(lib.*GL.*\\.so.*|libOpenCL\\.so.*)$
+%else
+
 %{?filter_setup:
-%filter_from_provides /^libnvidia/d;
-%filter_from_provides /^libEGL\.so/d;
-%filter_from_provides /^libGLcore\.so/d;
-%filter_from_provides /^libGL\.so/d;
-%filter_from_provides /^libGLES.*\.so/d;
-%filter_from_provides /^libvdpau_nvidia\.so\.1/d;
-%filter_from_provides /^libglx\.so/d;
-%filter_from_requires /^libnvidia/d;
-%filter_from_requires /^libEGL\.so/d;
-%filter_from_requires /^libGLcore\.so/d;
-%filter_from_requires /^libGL\.so/d;
-%filter_from_requires /^libGLES.*\.so/d;
-%filter_from_requires /^libvdpau_nvidia\.so\.1/d;
-%filter_from_requires /^libglx\.so/d;
+%filter_from_provides /^lib.*GL.*\.so/d;
+%filter_from_provides /^libOpenCL\.so/d;
+%filter_from_requires /^lib.*GL.*\.so/d;
+%filter_from_requires /^libOpenCL\.so/d;
 %filter_setup
 }
+%endif
 
 %description
 This package provides the most recent NVIDIA display driver which allows for
