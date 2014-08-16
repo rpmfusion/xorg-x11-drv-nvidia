@@ -271,7 +271,7 @@ install -pm 0644 %{SOURCE10} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.c
 
 #Avoid prelink to mess with nvidia libs - rfbz#3258
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/prelink.conf.d
-touch $RPM_BUILD_ROOT%{_sysconfdir}/prelink.conf.d/nvidia-%{lib}.conf
+touch $RPM_BUILD_ROOT%{_sysconfdir}/prelink.conf.d/nvidia-%{_lib}.conf
 
 #Install the initscript
 tar jxf nvidia-persistenced-init.tar.bz2
