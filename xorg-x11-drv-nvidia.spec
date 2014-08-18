@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         343.13
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -495,9 +495,11 @@ fi ||:
 %{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libnvidia-glcore.so
 %{_nvidia_libdir}/libnvidia-fbc.so
-%{_nvidia_libdir}/libnvidia-ml.so
 
 %changelog
+* Mon Aug 18 2014 Nicolas Chauvet <kwizart@gmail.com> - 1:343.13-3
+- Add libnvidia-ml.so to the -cuda subpackage
+
 * Sat Aug 16 2014 Nicolas Chauvet <kwizart@gmail.com> - 1:343.13-2
 - Fix prelink and nvidia - rfbz#3258
 - Split cuda and opencl into a cuda subpackage - rfbz#2973
