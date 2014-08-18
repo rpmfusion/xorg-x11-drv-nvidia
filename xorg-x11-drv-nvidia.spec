@@ -432,6 +432,7 @@ fi ||:
 %exclude %{_nvidia_libdir}/libcuda.so*
 %exclude %{_nvidia_libdir}/libnvcuvid.so*
 %exclude %{_nvidia_libdir}/libnvidia-encode.so*
+%exclude %{_nvidia_libdir}/libnvidia-ml.so*
 %ifarch x86_64 i686
 %if 0%{?fedora} > 18
 %exclude %{_nvidia_libdir}/libOpenCL.so.*
@@ -460,6 +461,7 @@ fi ||:
 %{_nvidia_libdir}/libcuda.so*
 %{_nvidia_libdir}/libnvcuvid.so*
 %{_nvidia_libdir}/libnvidia-encode.so*
+%{_nvidia_libdir}/libnvidia-ml.so*
 %ifarch x86_64 i686
 %dir %{_sysconfdir}/OpenCL
 %dir %{_sysconfdir}/OpenCL/vendors
