@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         343.13
-Release:         3%{?dist}
+Version:         343.22
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -235,7 +235,8 @@ rm $RPM_BUILD_ROOT%{_nvidia_libdir}/libnvidia-{cfg,tls}.so
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
-install -pm 0644 %{SOURCE8} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
+# Comment Xorg abi override
+#install -pm 0644 %{SOURCE8} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
@@ -394,7 +395,8 @@ fi ||:
 %dir %{_sysconfdir}/nvidia
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
-%config %{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
+# Comment Xorg abi override
+#config %{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
 %config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
 %config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
@@ -497,6 +499,10 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-fbc.so
 
 %changelog
+* Fri Sep 19 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:343.22-1
+- Update to 343.22
+- Remove IgnoreABI xorg override
+
 * Mon Aug 18 2014 Nicolas Chauvet <kwizart@gmail.com> - 1:343.13-3
 - Add libnvidia-ml.so to the -cuda subpackage
 
