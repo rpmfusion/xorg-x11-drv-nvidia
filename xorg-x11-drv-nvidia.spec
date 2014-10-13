@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         343.22
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -499,6 +499,9 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-fbc.so
 
 %changelog
+* Mon Oct 13 2014 kwizart <kwizart@gmail.com> - 1:343.22-2
+- Fix prelink hack - rfbz#3258#c13
+
 * Fri Sep 19 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:343.22-1
 - Update to 343.22
 - Remove IgnoreABI xorg override
