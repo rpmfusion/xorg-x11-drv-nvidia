@@ -304,7 +304,7 @@ fi
 
 %pre libs
 if [ -d %{_sysconfdir}/prelink.conf.d ]; then
-echo "-b %{_nvidia_libdir}" > %{_sysconfdir}/prelink.conf.d/nvidia-%{lib}.conf
+echo "-b %{_nvidia_libdir}" > %{_sysconfdir}/prelink.conf.d/nvidia-%{_lib}.conf
 fi
 
 %post
