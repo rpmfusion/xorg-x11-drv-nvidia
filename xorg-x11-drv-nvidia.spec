@@ -287,6 +287,9 @@ sed -i -e "s/__USER__/root/" $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.serv
 #Create the default nvidia config directory
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/nvidia
 
+#Ghost Xorg nvidia.conf file
+touch $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
+
 #Install the nvidia kernel modules sources archive
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/nvidia-kmod-%{version}
 tar Jcf $RPM_BUILD_ROOT%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_target_cpu}.tar.xz kernel
@@ -393,6 +396,7 @@ fi ||:
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
 %dir %{_sysconfdir}/nvidia
+%ghost  %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 # Comment Xorg abi override
@@ -440,6 +444,7 @@ fi ||:
 %endif
 %exclude %{_nvidia_libdir}/libnvidia-compiler.so*
 %exclude %{_nvidia_libdir}/libnvidia-opencl.so*
+%{_nvidia_libdir}/libnvidia-ml.so*
 %dir %{_nvidia_libdir}/tls
 %{_nvidia_libdir}/tls/*.so.*
 %endif
@@ -499,6 +504,7 @@ fi ||:
 %changelog
 * Mon Dec 08 2014 Nicolas Chauvet <kwizart@gmail.com> - 1:343.22-3
 - Switch libnvidia-ml back to multilibs
+- ghost /etc/X11/xorg.conf.d/nvidia.conf file
 
 * Mon Oct 13 2014 kwizart <kwizart@gmail.com> - 1:343.22-2
 - Fix prelink hack - rfbz#3258#c13
