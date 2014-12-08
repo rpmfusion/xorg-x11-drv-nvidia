@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         343.22
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -434,7 +434,6 @@ fi ||:
 %exclude %{_nvidia_libdir}/libcuda.so*
 %exclude %{_nvidia_libdir}/libnvcuvid.so*
 %exclude %{_nvidia_libdir}/libnvidia-encode.so*
-%exclude %{_nvidia_libdir}/libnvidia-ml.so*
 %ifarch x86_64 i686
 %if 0%{?fedora} > 18
 %exclude %{_nvidia_libdir}/libOpenCL.so.*
@@ -463,7 +462,6 @@ fi ||:
 %{_nvidia_libdir}/libcuda.so*
 %{_nvidia_libdir}/libnvcuvid.so*
 %{_nvidia_libdir}/libnvidia-encode.so*
-%{_nvidia_libdir}/libnvidia-ml.so*
 %ifarch x86_64 i686
 %dir %{_sysconfdir}/OpenCL
 %dir %{_sysconfdir}/OpenCL/vendors
@@ -499,6 +497,9 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-fbc.so
 
 %changelog
+* Mon Dec 08 2014 Nicolas Chauvet <kwizart@gmail.com> - 1:343.22-3
+- Switch libnvidia-ml back to multilibs
+
 * Mon Oct 13 2014 kwizart <kwizart@gmail.com> - 1:343.22-2
 - Fix prelink hack - rfbz#3258#c13
 
