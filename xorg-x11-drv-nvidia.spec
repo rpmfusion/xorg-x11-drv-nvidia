@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         343.22
-Release:         3%{?dist}
+Version:         343.36
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -502,6 +502,9 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-fbc.so
 
 %changelog
+* Tue Dec 16 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:343.36-1
+- Update to 343.36
+
 * Mon Dec 08 2014 Nicolas Chauvet <kwizart@gmail.com> - 1:343.22-3
 - Switch libnvidia-ml back to multilibs
 - ghost /etc/X11/xorg.conf.d/nvidia.conf file
