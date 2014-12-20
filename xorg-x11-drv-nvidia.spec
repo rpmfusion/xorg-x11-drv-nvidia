@@ -7,7 +7,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         331.104
+Version:         331.113
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -466,6 +466,9 @@ fi
 %{_nvidia_libdir}/libnvidia-ml.so
 
 %changelog
+* Sat Dec 20 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:331.113-1
+- Update to 331.113
+
 * Mon Nov 17 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:331.104-1
 - Update to 331.104
 
