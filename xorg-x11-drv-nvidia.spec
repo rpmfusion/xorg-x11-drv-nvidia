@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         343.36
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -405,7 +405,6 @@ fi ||:
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
 %config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
 %{_bindir}/nvidia-bug-report.sh
-%{_bindir}/nvidia-debugdump
 %{_bindir}/nvidia-settings
 %{_bindir}/nvidia-xconfig
 # Xorg libs that do not need to be multilib
@@ -444,7 +443,6 @@ fi ||:
 %endif
 %exclude %{_nvidia_libdir}/libnvidia-compiler.so*
 %exclude %{_nvidia_libdir}/libnvidia-opencl.so*
-%{_nvidia_libdir}/libnvidia-ml.so*
 %dir %{_nvidia_libdir}/tls
 %{_nvidia_libdir}/tls/*.so.*
 %endif
@@ -457,6 +455,7 @@ fi ||:
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
 %{_unitdir}/nvidia-persistenced.service
 %endif
+%{_bindir}/nvidia-debugdump
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-cuda-mps-control
 %{_bindir}/nvidia-cuda-mps-server
@@ -467,6 +466,7 @@ fi ||:
 %{_nvidia_libdir}/libcuda.so*
 %{_nvidia_libdir}/libnvcuvid.so*
 %{_nvidia_libdir}/libnvidia-encode.so*
+%{_nvidia_libdir}/libnvidia-ml.so*
 %ifarch x86_64 i686
 %dir %{_sysconfdir}/OpenCL
 %dir %{_sysconfdir}/OpenCL/vendors
@@ -502,6 +502,9 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-fbc.so
 
 %changelog
+* Sun Jan 11 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:343.36-2
+- Move libnvidia-ml back into -cuda along with nvidia-debugdump
+
 * Tue Dec 16 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:343.36-1
 - Update to 343.36
 
