@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         343.36
-Release:         2%{?dist}
+Version:         346.35
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -412,6 +412,9 @@ fi ||:
 %{_nvidia_xorgdir}/*.so*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
+# It's time that nvidia-settings used gtk3
+%exclude %{_nvidia_libdir}/libnvidia-gtk2.so
+%{_nvidia_libdir}/libnvidia-gtk3.so
 #/no_multilib
 %if 0%{?fedora} >= 21
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
@@ -502,6 +505,9 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-fbc.so
 
 %changelog
+* Fri Jan 16 2015 Leigh Scott <leigh123linux@googlemail.com> - 1:346.35-1
+- Update to 346.35
+
 * Sun Jan 11 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:343.36-2
 - Move libnvidia-ml back into -cuda along with nvidia-debugdump
 
