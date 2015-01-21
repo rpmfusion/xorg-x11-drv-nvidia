@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         346.35
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -413,8 +413,8 @@ fi ||:
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
 # It's time that nvidia-settings used gtk3
-%exclude %{_nvidia_libdir}/libnvidia-gtk2.so
-%{_nvidia_libdir}/libnvidia-gtk3.so
+%exclude %{_nvidia_libdir}/libnvidia-gtk2.so*
+%{_nvidia_libdir}/libnvidia-gtk3.so*
 #/no_multilib
 %if 0%{?fedora} >= 21
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
@@ -438,6 +438,7 @@ fi ||:
 %{_nvidia_libdir}/alternate-install-present
 %{_nvidia_libdir}/*.so.*
 %exclude %{_nvidia_libdir}/libcuda.so*
+%exclude %{_nvidia_libdir}/libnvidia-gtk*.so*
 %exclude %{_nvidia_libdir}/libnvcuvid.so*
 %exclude %{_nvidia_libdir}/libnvidia-encode.so*
 %ifarch x86_64 i686
@@ -505,6 +506,9 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-fbc.so
 
 %changelog
+* Wed Jan 21 2015 Leigh Scott <leigh123linux@googlemail.com> - 1:346.35-2
+- clean up gtk from libs sub-package
+
 * Fri Jan 16 2015 Leigh Scott <leigh123linux@googlemail.com> - 1:346.35-1
 - Update to 346.35
 
