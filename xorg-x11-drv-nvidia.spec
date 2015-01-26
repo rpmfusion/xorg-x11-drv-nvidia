@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         346.35
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -88,6 +88,10 @@ Group:           Development/Libraries
 Requires:        %{name}-libs%{_isa} = %{?epoch}:%{version}-%{release}
 Requires:        %{name}-cuda%{_isa} = %{?epoch}:%{version}-%{release}
 
+#Don't put an epoch here
+Provides:        cuda-drivers-devel = %{version}
+Provides:        cuda-drivers-devel%{_isa} = %{version}
+
 %description devel
 This package provides the development files of the %{name} package,
 such as OpenGL headers.
@@ -103,6 +107,7 @@ Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 
 #Don't put an epoch here
 Provides:        cuda-drivers = %{version}
+Provides:        cuda-drivers%{_isa} = %{version}
 
 %description cuda
 This package provides the CUDA driver libraries.
@@ -506,6 +511,9 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-fbc.so
 
 %changelog
+* Mon Jan 26 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:346.35-3
+- Add cuda-driver-devel and %%{_isa} virtual provides
+
 * Wed Jan 21 2015 Leigh Scott <leigh123linux@googlemail.com> - 1:346.35-2
 - clean up gtk from libs sub-package
 
