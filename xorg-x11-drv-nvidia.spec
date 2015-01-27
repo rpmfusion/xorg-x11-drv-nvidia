@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         331.113
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -60,6 +60,7 @@ Conflicts:       xorg-x11-drv-nvidia-71xx
 Conflicts:       xorg-x11-drv-nvidia-96xx
 Conflicts:       xorg-x11-drv-nvidia-173xx
 Conflicts:       xorg-x11-drv-nvidia-304xx
+Conflicts:       xorg-x11-drv-nvidia-340xx
 Conflicts:       xorg-x11-drv-fglrx
 Conflicts:       xorg-x11-drv-catalyst
 
@@ -466,6 +467,9 @@ fi
 %{_nvidia_libdir}/libnvidia-ml.so
 
 %changelog
+* Tue Jan 27 2015 Leigh Scott <leigh123linux@googlemail.com> - 1:331.113-2
+- add conflicts 340xx
+
 * Sat Dec 20 2014 Leigh Scott <leigh123linux@googlemail.com> - 1:331.113-1
 - Update to 331.113
 
