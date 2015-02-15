@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         346.35
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -418,8 +418,12 @@ fi ||:
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
 # It's time that nvidia-settings used gtk3
+%ifarch %{arm}
+%{_nvidia_libdir}/libnvidia-gtk2.so*
+%else
 %exclude %{_nvidia_libdir}/libnvidia-gtk2.so*
 %{_nvidia_libdir}/libnvidia-gtk3.so*
+%endif
 #/no_multilib
 %if 0%{?fedora} >= 21
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
@@ -511,6 +515,9 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-fbc.so
 
 %changelog
+* Sun Feb 15 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:346.35-4
+- Fix build for armhfp
+
 * Mon Jan 26 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:346.35-3
 - Add cuda-driver-devel and %%{_isa} virtual provides
 
