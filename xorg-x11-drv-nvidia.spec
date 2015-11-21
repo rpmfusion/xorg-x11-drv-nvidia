@@ -7,7 +7,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         355.11
+Version:         358.16
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -22,7 +22,6 @@ Source3:         nvidia-xorg.conf
 Source5:         00-avoid-glamor.conf
 Source6:         blacklist-nouveau.conf
 Source7:         alternate-install-present
-Source8:         00-ignoreabi.conf
 Source9:         nvidia-settings.desktop
 Source10:        nvidia.conf
 
@@ -248,8 +247,6 @@ rm $RPM_BUILD_ROOT%{_nvidia_libdir}/libnvidia-{cfg,tls}.so
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
-# Comment Xorg abi override
-#install -pm 0644 %{SOURCE8} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
@@ -356,11 +353,6 @@ fi || :
 %systemd_post nvidia-persistenced.service
 %endif
 
-%if 0%{?fedora} < 21
-%posttrans
- [ -f %{_sysconfdir}/X11/xorg.conf ] || \
-   cp -p %{_sysconfdir}/X11/nvidia-xorg.conf %{_sysconfdir}/X11/xorg.conf || :
-%endif
 
 %preun
 if [ "$1" -eq "0" ]; then
@@ -412,8 +404,6 @@ fi ||:
 %ghost  %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
-# Comment Xorg abi override
-#config %{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
 %config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
 %config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
@@ -524,6 +514,11 @@ fi ||:
 %{_nvidia_libdir}/libOpenGL.so
 
 %changelog
+* Sat Nov 21 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:358.16-1
+- Update to 358.16
+- Remove posttrans for fedora < 21
+- Remove ignoreabi config file as it rarely works
+
 * Mon Aug 31 2015 Leigh Scott <leigh123linux@googlemail.com> - 1:355.11-1
 - Update to 355.11
 
