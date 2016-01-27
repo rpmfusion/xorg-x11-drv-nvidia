@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         358.16
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -328,7 +328,12 @@ if [ "$1" -eq "1" ]; then
       GFXPAYLOAD="vga=normal"
   else
       echo "GRUB_GFXPAYLOAD_LINUX=text" >> %{_sysconfdir}/default/grub
-      grub2-mkconfig -o /boot/grub2/grub.cfg
+      if [ -f /boot/grub2/grub.cfg ]; then
+        /sbin/grub2-mkconfig -o /boot/grub2/grub.cfg
+      fi
+      if [ -f /boot/efi/EFI/fedora/grub.cfg ]; then
+        /sbin/grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
+      fi
   fi
   if [ -x /sbin/grubby ] ; then
     KERNELS=`/sbin/grubby --default-kernel`
@@ -361,6 +366,12 @@ if [ "$1" -eq "0" ]; then
       ISGRUB1="--grub"
   else
     sed -i -e 's|GRUB_GFXPAYLOAD_LINUX=text||g' /etc/default/grub
+      if [ -f /boot/grub2/grub.cfg ]; then
+        /sbin/grub2-mkconfig -o /boot/grub2/grub.cfg
+      fi
+      if [ -f /boot/efi/EFI/fedora/grub.cfg ]; then
+        /sbin/grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
+      fi
   fi
   if [ -x /sbin/grubby ] ; then
     DIST=`rpm -E %%{?dist}`
@@ -514,6 +525,13 @@ fi ||:
 %{_nvidia_libdir}/libOpenGL.so
 
 %changelog
+* Wed Jan 27 2016 Nicolas Chauvet <kwizart@gmail.com> - 1:358.16-2
+- Enforce GRUB_GFXPAYLOAD_LINUX=text even for EFI - prevent this message:
+  The NVIDIA Linux graphics driver requires the use of a text-mode VGA console
+  Use of other console drivers including, but not limited to, vesafb, may
+  result in corruption and stability problems, and is not supported.
+  To verify , check cat /proc/driver/nvidia/./warnings/fbdev
+
 * Sat Nov 21 2015 Nicolas Chauvet <kwizart@gmail.com> - 1:358.16-1
 - Update to 358.16
 - Remove posttrans for fedora < 21
