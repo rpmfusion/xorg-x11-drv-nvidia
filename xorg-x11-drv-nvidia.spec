@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         358.16
-Release:         2%{?dist}
+Version:         367.27
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -525,6 +525,9 @@ fi ||:
 %{_nvidia_libdir}/libOpenGL.so
 
 %changelog
+* Wed Jun 22 2016 Nicolas Chauvet <kwizart@gmail.com> - 1:367.27-1
+- Update to 367.27
+
 * Wed Jan 27 2016 Nicolas Chauvet <kwizart@gmail.com> - 1:358.16-2
 - Enforce GRUB_GFXPAYLOAD_LINUX=text even for EFI - prevent this message:
   The NVIDIA Linux graphics driver requires the use of a text-mode VGA console
