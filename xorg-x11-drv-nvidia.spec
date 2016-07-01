@@ -183,7 +183,7 @@ install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/
 # install stuff the wildcard missed
 install -p -m 0755 libEGL.so.1          $RPM_BUILD_ROOT%{_nvidia_libdir}/
 ln -s libEGL.so.1 $RPM_BUILD_ROOT%{_nvidia_libdir}/libEGL.so
-install -p -m 0755 libEGL_nvidia.so.0          $RPM_BUILD_ROOT%{_nvidia_libdir}/
+install -p -m 0755 libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/
 install -p -m 0755 libGLdispatch.so.0          $RPM_BUILD_ROOT%{_nvidia_libdir}/
 install -p -m 0755 libOpenGL.so.0              $RPM_BUILD_ROOT%{_nvidia_libdir}/
 ln -s libOpenGL.so.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenGL.so
@@ -515,16 +515,24 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.so
 %{_nvidia_libdir}/libnvidia-ifr.so
 %{_nvidia_libdir}/libEGL.so
-%{_nvidia_libdir}/libGLESv1_CM.so
-%{_nvidia_libdir}/libGLESv2.so
+%{_nvidia_libdir}/libEGL_nvidia.so
+%{_nvidia_libdir}/libGLESv1_CM_nvidia.so
+%{_nvidia_libdir}/libGLESv2_nvidia.so
 %{_nvidia_libdir}/libnvidia-eglcore.so
-%{_nvidia_libdir}/libnvidia-glsi.so
-%{_nvidia_libdir}/libGL.so
-%{_nvidia_libdir}/libnvidia-glcore.so
+%{_nvidia_libdir}/libnvidia-egl-wayland.so
+%{_nvidia_libdir}/libnvidia-fatbinaryloader.so
 %{_nvidia_libdir}/libnvidia-fbc.so
+%{_nvidia_libdir}/libnvidia-glcore.so
+%{_nvidia_libdir}/libnvidia-glsi.so
+%{_nvidia_libdir}/libnvidia-ptxjitcompiler.so
+%{_nvidia_libdir}/libGL.so
+%{_nvidia_libdir}/libGLX_nvidia.so
 %{_nvidia_libdir}/libOpenGL.so
 
 %changelog
+* Fri Jul 01 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.27-1
+- Update to 367.27
+
 * Wed Jun 22 2016 Nicolas Chauvet <kwizart@gmail.com> - 1:367.27-1
 - Update to 367.27
 
