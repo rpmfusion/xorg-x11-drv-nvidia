@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         358.16
-Release:         3%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -25,9 +25,7 @@ Source7:         alternate-install-present
 Source9:         nvidia-settings.desktop
 Source10:        nvidia.conf
 
-#ExclusiveArch: i686 x86_64 armv7hl
-# Issue with kernel module side
-ExclusiveArch: i686 x86_64
+ExclusiveArch: i686 x86_64 armv7hl
 
 BuildRequires:   desktop-file-utils
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
@@ -527,9 +525,6 @@ fi ||:
 %{_nvidia_libdir}/libOpenGL.so
 
 %changelog
-* Wed Jun 22 2016 Nicolas Chauvet <kwizart@gmail.com> - 1:358.16-3
-- Disable on armhfp for now
-
 * Wed Jan 27 2016 Nicolas Chauvet <kwizart@gmail.com> - 1:358.16-2
 - Enforce GRUB_GFXPAYLOAD_LINUX=text even for EFI - prevent this message:
   The NVIDIA Linux graphics driver requires the use of a text-mode VGA console
