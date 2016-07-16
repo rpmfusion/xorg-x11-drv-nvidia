@@ -195,11 +195,10 @@ install -p -m 0644 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
 install -p -m 0755 libOpenCL.so.1.0.0          $RPM_BUILD_ROOT%{_nvidia_libdir}/
 ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so.1
 ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so
-%endif
-
 # Vulkan config
 install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
 install -p -m 0644 nvidia_icd.json $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
+%endif
 
 #Vdpau
 install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/vdpau/
@@ -415,9 +414,11 @@ fi ||:
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
+%ifarch x86_64 i686
 %dir %{_sysconfdir}/vulkan
 %dir %{_sysconfdir}/vulkan/icd.d
 %config %{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
+%endif
 %dir %{_sysconfdir}/nvidia
 %ghost  %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
