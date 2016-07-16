@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         367.27
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -196,6 +196,10 @@ install -p -m 0755 libOpenCL.so.1.0.0          $RPM_BUILD_ROOT%{_nvidia_libdir}/
 ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so.1
 ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so
 %endif
+
+# Vulkan config
+install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
+install -p -m 0644 nvidia_icd.json $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
 
 #Vdpau
 install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/vdpau/
@@ -411,6 +415,9 @@ fi ||:
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
+%dir %{_sysconfdir}/vulkan
+%dir %{_sysconfdir}/vulkan/icd.d
+%config %{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
 %dir %{_sysconfdir}/nvidia
 %ghost  %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
@@ -468,9 +475,7 @@ fi ||:
 %dir %{_nvidia_libdir}/tls
 %{_nvidia_libdir}/tls/*.so.*
 %endif
-%exclude %{_libdir}/vdpau/libvdpau.*
 %{_libdir}/vdpau/libvdpau_nvidia.so.*
-%exclude %{_libdir}/vdpau/libvdpau_trace.so*
 
 %files cuda
 %defattr(-,root,root,-)
@@ -530,6 +535,9 @@ fi ||:
 %{_nvidia_libdir}/libOpenGL.so
 
 %changelog
+* Sat Jul 16 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.27-2
+- Add vulkan icd profile
+
 * Fri Jul 01 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.27-1
 - Update to 367.27
 
