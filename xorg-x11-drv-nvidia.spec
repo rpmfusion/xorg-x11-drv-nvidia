@@ -475,9 +475,7 @@ fi ||:
 %dir %{_nvidia_libdir}/tls
 %{_nvidia_libdir}/tls/*.so.*
 %endif
-%exclude %{_libdir}/vdpau/libvdpau.*
 %{_libdir}/vdpau/libvdpau_nvidia.so.*
-%exclude %{_libdir}/vdpau/libvdpau_trace.so*
 
 %files cuda
 %defattr(-,root,root,-)
