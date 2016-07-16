@@ -418,7 +418,7 @@ fi ||:
 %dir %{_sysconfdir}/vulkan
 %dir %{_sysconfdir}/vulkan/icd.d
 %config %{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
-%else
+%endif
 %dir %{_sysconfdir}/nvidia
 %ghost  %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
