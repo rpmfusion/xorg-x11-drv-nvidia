@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         367.27
-Release:         2%{?dist}
+Version:         367.35
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -536,6 +536,9 @@ fi ||:
 %{_nvidia_libdir}/libOpenGL.so
 
 %changelog
+* Sun Jul 17 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.35-1
+- Update to 367.35
+
 * Sat Jul 16 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.27-2
 - Add vulkan icd profile
 
