@@ -183,7 +183,6 @@ install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/
 # install stuff the wildcard missed
 install -p -m 0755 libEGL.so.1          $RPM_BUILD_ROOT%{_nvidia_libdir}/
 ln -s libEGL.so.1 $RPM_BUILD_ROOT%{_nvidia_libdir}/libEGL.so
-install -p -m 0755 libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/
 install -p -m 0755 libGLdispatch.so.0          $RPM_BUILD_ROOT%{_nvidia_libdir}/
 install -p -m 0755 libOpenGL.so.0              $RPM_BUILD_ROOT%{_nvidia_libdir}/
 ln -s libOpenGL.so.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenGL.so
