@@ -323,6 +323,7 @@ echo "-b %{_nvidia_libdir}" > %{_sysconfdir}/prelink.conf.d/nvidia-%{_lib}.conf
 fi
 
 %post
+/sbin/ldconfig
 if [ "$1" -eq "1" ]; then
   ISGRUB1=""
   if [[ -f /boot/grub/grub.conf && ! -f /boot/grub2/grub.cfg ]] ; then
@@ -397,6 +398,8 @@ fi ||:
 %preun cuda
 %systemd_preun nvidia-persistenced.service
 %endif
+
+%postun -p /sbin/ldconfig
 
 %postun libs -p /sbin/ldconfig
 
@@ -537,6 +540,7 @@ fi ||:
 %changelog
 * Wed Aug 10 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.35-3
 - Revert last commit
+- add ldconfig in %%post and %%postun for main package rfbz#3998
 
 * Wed Aug 10 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.35-2
 - Move setttings libs to libs sub-package rfbz#3998
