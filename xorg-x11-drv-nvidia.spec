@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         367.35
-Release:         1%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -535,6 +535,12 @@ fi ||:
 %{_nvidia_libdir}/libOpenGL.so
 
 %changelog
+* Wed Aug 10 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.35-3
+- Revert last commit
+
+* Wed Aug 10 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.35-2
+- Move setttings libs to libs sub-package rfbz#3998
+
 * Sun Jul 17 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.35-1
 - Update to 367.35
 
