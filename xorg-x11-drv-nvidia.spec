@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         367.35
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -433,13 +433,6 @@ fi ||:
 %{_nvidia_xorgdir}/*.so*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
-# It's time that nvidia-settings used gtk3
-%ifarch %{arm}
-%{_nvidia_libdir}/libnvidia-gtk2.so*
-%else
-%exclude %{_nvidia_libdir}/libnvidia-gtk2.so*
-%{_nvidia_libdir}/libnvidia-gtk3.so*
-%endif
 #/no_multilib
 %if 0%{?fedora} >= 21
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
@@ -466,6 +459,13 @@ fi ||:
 %exclude %{_nvidia_libdir}/libnvidia-gtk*.so*
 %exclude %{_nvidia_libdir}/libnvcuvid.so*
 %exclude %{_nvidia_libdir}/libnvidia-encode.so*
+# It's time that nvidia-settings used gtk3
+%ifarch %{arm}
+%{_nvidia_libdir}/libnvidia-gtk2.so*
+%else
+%exclude %{_nvidia_libdir}/libnvidia-gtk2.so*
+%{_nvidia_libdir}/libnvidia-gtk3.so*
+%endif
 %ifarch x86_64 i686
 %if 0%{?fedora} > 18
 %exclude %{_nvidia_libdir}/libOpenCL.so.*
@@ -535,6 +535,9 @@ fi ||:
 %{_nvidia_libdir}/libOpenGL.so
 
 %changelog
+* Wed Aug 10 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.35-2
+- Move setttings libs to libs sub-package rfbz#3998
+
 * Sun Jul 17 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.35-1
 - Update to 367.35
 
