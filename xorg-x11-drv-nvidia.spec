@@ -469,6 +469,9 @@ fi ||:
 %exclude %{_nvidia_libdir}/libnvidia-gtk*.so*
 %exclude %{_nvidia_libdir}/libnvcuvid.so*
 %exclude %{_nvidia_libdir}/libnvidia-encode.so*
+%exclude %{_nvidia_libdir}/libnvidia-fatbinaryloader.so*
+%exclude %{_nvidia_libdir}/libnvidia-ml.so*
+%exclude %{_nvidia_libdir}/libnvidia-ptxjitcompiler.so*
 %ifarch x86_64 i686
 %if 0%{?fedora} > 18
 %exclude %{_nvidia_libdir}/libOpenCL.so.*
@@ -496,7 +499,9 @@ fi ||:
 %{_nvidia_libdir}/libcuda.so*
 %{_nvidia_libdir}/libnvcuvid.so*
 %{_nvidia_libdir}/libnvidia-encode.so*
+%{_nvidia_libdir}/libnvidia-fatbinaryloader.so*
 %{_nvidia_libdir}/libnvidia-ml.so*
+%{_nvidia_libdir}/libnvidia-ptxjitcompiler.so*
 %ifarch x86_64 i686
 %dir %{_sysconfdir}/OpenCL
 %dir %{_sysconfdir}/OpenCL/vendors
@@ -528,11 +533,9 @@ fi ||:
 %{_nvidia_libdir}/libGLESv2_nvidia.so
 %{_nvidia_libdir}/libnvidia-eglcore.so
 %{_nvidia_libdir}/libnvidia-egl-wayland.so
-%{_nvidia_libdir}/libnvidia-fatbinaryloader.so
 %{_nvidia_libdir}/libnvidia-fbc.so
 %{_nvidia_libdir}/libnvidia-glcore.so
 %{_nvidia_libdir}/libnvidia-glsi.so
-%{_nvidia_libdir}/libnvidia-ptxjitcompiler.so
 %{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libGLX_nvidia.so
 %{_nvidia_libdir}/libOpenGL.so
