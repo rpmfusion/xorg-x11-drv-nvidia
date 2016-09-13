@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         370.28
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -189,9 +189,10 @@ install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/
 # install stuff the wildcard missed
 install -p -m 0755 libEGL.so.1          $RPM_BUILD_ROOT%{_nvidia_libdir}/
 ln -s libEGL.so.1 $RPM_BUILD_ROOT%{_nvidia_libdir}/libEGL.so
+install -p -m 0755 libGLdispatch.so.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/
 
 # GlVND
-#ln -s libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLX_indirect.so.0
+ln -s libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLX_indirect.so.0
 
 %ifarch x86_64 i686
 # OpenCL config
@@ -547,6 +548,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Tue Sep 13 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-2
+- readd libGLdispatch.so.0
+
 * Fri Sep 09 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-1
 - Update to 370.28
 - Remove surplus glvnd libs (not used)
