@@ -7,8 +7,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         367.44
-Release:         1%{?dist}
+Version:         370.28
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -124,6 +124,8 @@ Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{?epoch}:%{version}-%{release}
 Requires:        libvdpau%{_isa} >= 0.5
+# GlVND
+#Requires:        libglvnd
 
 %description libs
 This package provides the shared libraries for %{name}.
@@ -164,6 +166,7 @@ rm -f nvidia-installer*
 
 install -m 0755 -d $RPM_BUILD_ROOT%{_bindir}
 
+# GLVND note: If kwizart doesn't add a ld.so.conf.d file to glvnd we will need to add it here
 # ld.so.conf.d file
 install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
 echo "%{_nvidia_libdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
@@ -171,6 +174,9 @@ echo "%{_nvidia_libdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_
 #Blacklist nouveau (since F-11)
 install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
 install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
+
+# GLVND
+#rm libGL.so.%{version}
 
 # Simple wildcard install of libs
 install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}
@@ -183,9 +189,10 @@ install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/
 # install stuff the wildcard missed
 install -p -m 0755 libEGL.so.1          $RPM_BUILD_ROOT%{_nvidia_libdir}/
 ln -s libEGL.so.1 $RPM_BUILD_ROOT%{_nvidia_libdir}/libEGL.so
-install -p -m 0755 libGLdispatch.so.0          $RPM_BUILD_ROOT%{_nvidia_libdir}/
-install -p -m 0755 libOpenGL.so.0              $RPM_BUILD_ROOT%{_nvidia_libdir}/
-ln -s libOpenGL.so.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenGL.so
+install -p -m 0755 libGLdispatch.so.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/
+
+# GlVND
+ln -s libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLX_indirect.so.0
 
 %ifarch x86_64 i686
 # OpenCL config
@@ -536,13 +543,21 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-fbc.so
 %{_nvidia_libdir}/libnvidia-glcore.so
 %{_nvidia_libdir}/libnvidia-glsi.so
+# GlVND note: remove libGL.so 
 %{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libGLX_nvidia.so
-%{_nvidia_libdir}/libOpenGL.so
 
 %changelog
-* Wed Aug 24 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.44-1
-- Update to 367.44
+* Tue Sep 13 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-2
+- readd libGLdispatch.so.0
+
+* Fri Sep 09 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-1
+- Update to 370.28
+- Remove surplus glvnd libs (not used)
+- Prepare for fedora glvnd package
+
+* Fri Aug 19 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.23-1
+- Update to 370.23 beta
 
 * Wed Aug 10 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.35-3
 - Revert last commit
