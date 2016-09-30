@@ -554,7 +554,7 @@ config %{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
 
 %changelog
 * Fri Sep 30 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-3
-- rebuilt
+- add xorg abi override
 
 * Tue Sep 13 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-2
 - readd libGLdispatch.so.0
