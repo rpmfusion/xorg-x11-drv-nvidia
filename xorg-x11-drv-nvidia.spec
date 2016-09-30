@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         370.28
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -24,6 +24,7 @@ Source6:         blacklist-nouveau.conf
 Source7:         alternate-install-present
 Source9:         nvidia-settings.desktop
 Source10:        nvidia.conf
+Source11:         00-ignoreabi.conf
 
 ExclusiveArch: i686 x86_64 armv7hl
 
@@ -259,6 +260,8 @@ install -pm 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
+# Comment Xorg abi override
+install -pm 0644 %{SOURCE11} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 
 # Desktop entry for nvidia-settings
 desktop-file-install --vendor "" \
@@ -432,6 +435,8 @@ fi ||:
 %ghost  %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
+# Comment Xorg abi override
+config %{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
 %config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
 %config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
@@ -548,6 +553,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Fri Sep 30 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-3
+- add xorg abi override
+
 * Tue Sep 13 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-2
 - readd libGLdispatch.so.0
 
