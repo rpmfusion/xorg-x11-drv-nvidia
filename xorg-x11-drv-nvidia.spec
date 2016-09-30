@@ -24,7 +24,7 @@ Source6:         blacklist-nouveau.conf
 Source7:         alternate-install-present
 Source9:         nvidia-settings.desktop
 Source10:        nvidia.conf
-Source11:         00-ignoreabi.conf
+Source11:        00-ignoreabi.conf
 
 ExclusiveArch: i686 x86_64 armv7hl
 
@@ -436,7 +436,7 @@ fi ||:
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 # Comment Xorg abi override
-config %{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
+%config %{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
 %config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
 %config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
