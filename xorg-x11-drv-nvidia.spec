@@ -8,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         370.28
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -125,8 +125,7 @@ Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{?epoch}:%{version}-%{release}
 Requires:        libvdpau%{_isa} >= 0.5
-# GlVND
-#Requires:        libglvnd
+Requires:        libglvnd%{_isa}
 
 %description libs
 This package provides the shared libraries for %{name}.
@@ -167,8 +166,6 @@ rm -f nvidia-installer*
 
 install -m 0755 -d $RPM_BUILD_ROOT%{_bindir}
 
-# GLVND note: If kwizart doesn't add a ld.so.conf.d file to glvnd we will need to add it here
-# ld.so.conf.d file
 install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
 echo "%{_nvidia_libdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 
@@ -177,7 +174,7 @@ install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
 install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
 
 # GLVND
-#rm libGL.so.%{version}
+rm libGL.so.%{version}
 
 # Simple wildcard install of libs
 install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}
@@ -187,13 +184,13 @@ install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
 install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
 %endif
 
-# install stuff the wildcard missed
-install -p -m 0755 libEGL.so.1          $RPM_BUILD_ROOT%{_nvidia_libdir}/
-ln -s libEGL.so.1 $RPM_BUILD_ROOT%{_nvidia_libdir}/libEGL.so
-install -p -m 0755 libGLdispatch.so.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/
-
 # GlVND
 ln -s libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLX_indirect.so.0
+
+# Fix unowned lib links
+ln -s libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libEGL_nvidia.so.0
+ln -s libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLESv2_nvidia.so.2
+ln -s libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLX_nvidia.so.0
 
 %ifarch x86_64 i686
 # OpenCL config
@@ -539,7 +536,6 @@ fi ||:
 %endif
 %{_libdir}/vdpau/libvdpau_nvidia.so
 %{_nvidia_libdir}/libnvidia-ifr.so
-%{_nvidia_libdir}/libEGL.so
 %{_nvidia_libdir}/libEGL_nvidia.so
 %{_nvidia_libdir}/libGLESv1_CM_nvidia.so
 %{_nvidia_libdir}/libGLESv2_nvidia.so
@@ -548,11 +544,13 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-fbc.so
 %{_nvidia_libdir}/libnvidia-glcore.so
 %{_nvidia_libdir}/libnvidia-glsi.so
-# GlVND note: remove libGL.so 
-%{_nvidia_libdir}/libGL.so
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Tue Oct 11 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-4
+- Switch to system libglvnd
+- Fix unowned file links
+
 * Fri Sep 30 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-3
 - add xorg abi override
 
