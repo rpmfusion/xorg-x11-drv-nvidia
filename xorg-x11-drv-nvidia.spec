@@ -1,6 +1,7 @@
 %global        _nvidia_serie       nvidia
 %global        _nvidia_libdir      %{_libdir}/%{_nvidia_serie}
 %global        _nvidia_xorgdir     %{_nvidia_libdir}/xorg
+%global        _glvnd_libdir       %{_libdir}/libglvnd
 
 %global	       debug_package %{nil}
 %global	       __strip /bin/true
@@ -8,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         370.28
-Release:         4%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -167,7 +168,7 @@ rm -f nvidia-installer*
 install -m 0755 -d $RPM_BUILD_ROOT%{_bindir}
 
 install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
-echo "%{_nvidia_libdir}" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
+echo -e "%{_nvidia_libdir} \n%{_glvnd_libdir} \n" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 
 #Blacklist nouveau (since F-11)
 install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
@@ -547,6 +548,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Wed Oct 12 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-5
+- Add libglvnd path to ld.so.conf.d conf file
+
 * Tue Oct 11 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-4
 - Switch to system libglvnd
 - Fix unowned file links
