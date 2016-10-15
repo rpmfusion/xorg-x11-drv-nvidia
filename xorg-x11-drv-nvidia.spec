@@ -167,6 +167,7 @@ rm -f nvidia-installer*
 
 install -m 0755 -d $RPM_BUILD_ROOT%{_bindir}
 
+# ld.so.conf.d file
 install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
 echo -e "%{_nvidia_libdir} \n%{_glvnd_libdir} \n" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 
