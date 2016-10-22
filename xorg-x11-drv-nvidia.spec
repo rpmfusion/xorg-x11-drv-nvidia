@@ -8,8 +8,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         370.28
-Release:         5%{?dist}
+Version:         375.10
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -176,7 +176,8 @@ install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
 install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
 
 # GLVND
-rm libGL.so.%{version}
+rm libGL.so*
+rm libEGL.so*
 
 # Simple wildcard install of libs
 install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}
@@ -549,6 +550,10 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Fri Oct 21 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:375.10-1
+- Update to 375.10 beta release
+- Clean up more libglvnd provided libs
+
 * Wed Oct 12 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-5
 - Add libglvnd path to ld.so.conf.d conf file
 
