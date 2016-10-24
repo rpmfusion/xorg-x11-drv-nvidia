@@ -9,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         375.10
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -555,6 +555,10 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Mon Oct 24 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:375.10-2
+- Add glvnd/egl_vendor.d file
+- Add requires vulkan-filesystem
+
 * Fri Oct 21 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:375.10-1
 - Update to 375.10 beta release
 - Clean up more libglvnd provided libs
