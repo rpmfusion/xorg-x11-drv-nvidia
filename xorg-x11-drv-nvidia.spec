@@ -127,6 +127,9 @@ Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{?epoch}:%{version}-%{release}
 Requires:        libvdpau%{_isa} >= 0.5
 Requires:        libglvnd%{_isa}
+%ifarch x86_64 i686
+Requires:        vulkan-filesystem
+%endif
 
 %description libs
 This package provides the shared libraries for %{name}.
@@ -206,6 +209,9 @@ ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so
 install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
 install -p -m 0644 nvidia_icd.json $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
 %endif
+# EGL config
+install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/glvnd/egl_vendor.d/
+install -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_sysconfdir}/glvnd/egl_vendor.d/
 
 #Vdpau
 install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/vdpau/
@@ -427,10 +433,9 @@ fi ||:
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
 %ifarch x86_64 i686
-%dir %{_sysconfdir}/vulkan
-%dir %{_sysconfdir}/vulkan/icd.d
 %config %{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
 %endif
+%config %{_sysconfdir}/glvnd/egl_vendor.d/10_nvidia.json
 %dir %{_sysconfdir}/nvidia
 %ghost  %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
