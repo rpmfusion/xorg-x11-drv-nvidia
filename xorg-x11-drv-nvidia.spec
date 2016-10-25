@@ -174,14 +174,6 @@ echo -e "%{_nvidia_libdir} \n" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvid
 install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
 install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
 
-# GLVND
-rm libGL.so*
-#Workaround for EGL issue with some apps
-#https://github.com/NVIDIA/libglvnd/issues/103
-#https://bugzilla.rpmfusion.org/show_bug.cgi?id=4303
-#rm libEGL.so*
-ln -s ../libglvnd/libGL.so.1 $RPM_BUILD_ROOT%{_nvidia_libdir}/libGL.so.1
-
 # Simple wildcard install of libs
 install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}
 install -p -m 0755 lib*.so.%{version}          $RPM_BUILD_ROOT%{_nvidia_libdir}/
@@ -190,7 +182,14 @@ install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
 install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
 %endif
 
-# GlVND
+# GLVND
+rm libGL.so*
+#Workaround for EGL issue with some apps
+#https://github.com/NVIDIA/libglvnd/issues/103
+#https://bugzilla.rpmfusion.org/show_bug.cgi?id=4303
+#rm libEGL.so*
+ln -s ../libglvnd/libGL.so.1 $RPM_BUILD_ROOT%{_nvidia_libdir}/libGL.so.1
+
 ln -s libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLX_indirect.so.0
 
 # Fix unowned lib links
