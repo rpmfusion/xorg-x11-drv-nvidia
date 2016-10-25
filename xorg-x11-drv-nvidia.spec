@@ -168,7 +168,7 @@ install -m 0755 -d $RPM_BUILD_ROOT%{_bindir}
 
 # ld.so.conf.d file
 install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
-echo -e "%{_nvidia_libdir} \n%{_glvnd_libdir} \n" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
+echo -e "%{_nvidia_libdir} \n" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 
 #Blacklist nouveau (since F-11)
 install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
@@ -176,7 +176,11 @@ install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
 
 # GLVND
 rm libGL.so*
-rm libEGL.so*
+#Workaround for EGL issue with some apps
+#https://github.com/NVIDIA/libglvnd/issues/103
+#https://bugzilla.rpmfusion.org/show_bug.cgi?id=4303
+#rm libEGL.so*
+ln -s ../libglvnd/libGL.so.1 $RPM_BUILD_ROOT%{_nvidia_libdir}/libGL.so.1
 
 # Simple wildcard install of libs
 install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}
