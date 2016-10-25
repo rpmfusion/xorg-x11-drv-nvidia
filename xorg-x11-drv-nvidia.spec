@@ -183,7 +183,7 @@ install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/
 %endif
 
 # GLVND
-rm libGL.so*
+rm $RPM_BUILD_ROOT%{_nvidia_libdir}/libGL.so*
 #Workaround for EGL issue with some apps
 #https://github.com/NVIDIA/libglvnd/issues/103
 #https://bugzilla.rpmfusion.org/show_bug.cgi?id=4303
