@@ -9,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         367.57
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -549,6 +549,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Tue Oct 25 2016 Nicolas Chauvet <kwizart@gmail.com> - 1:367.57-3
+- Add workaround for EGL issue - rfbz#4303
+
 * Sat Oct 22 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.57-2
 - Clean up more libglvnd provided libs
 
