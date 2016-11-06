@@ -9,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         367.57
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -126,6 +126,8 @@ Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{?epoch}:%{version}-%{release}
 Requires:        libvdpau%{_isa} >= 0.5
 Requires:        libglvnd%{_isa}
+# Try to avoid a race when the symlink is created before the target is present
+Requires(post):  libglvnd%{_isa}
 
 %description libs
 This package provides the shared libraries for %{name}.
@@ -189,6 +191,7 @@ rm $RPM_BUILD_ROOT%{_nvidia_libdir}/libGL.so*
 #https://bugzilla.rpmfusion.org/show_bug.cgi?id=4303
 #rm libEGL.so*
 ln -s ../libglvnd/libGL.so.1 $RPM_BUILD_ROOT%{_nvidia_libdir}/libGL.so.1
+ln -s ../libglvnd/libGL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libGL.so.1.0.0
 
 ln -s libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLX_indirect.so.0
 
@@ -548,6 +551,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Sun Nov 06 2016 Nicolas Chauvet <kwizart@gmail.com> - 1:367.57-4
+- Improve previous workaround
+
 * Tue Oct 25 2016 Nicolas Chauvet <kwizart@gmail.com> - 1:367.57-3
 - Add workaround for EGL issue - rfbz#4303
 
