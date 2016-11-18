@@ -8,8 +8,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         375.10
-Release:         2%{?dist}
+Version:         375.20
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -267,7 +267,7 @@ sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.
 touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
 # Comment Xorg abi override
-install -pm 0644 %{SOURCE11} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
+#install -pm 0644 %{SOURCE11} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 
 # Desktop entry for nvidia-settings
 desktop-file-install --vendor "" \
@@ -441,7 +441,7 @@ fi ||:
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 # Comment Xorg abi override
-%config %{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
+#%%config %%{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
 %config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
 %config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
@@ -555,6 +555,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Fri Nov 18 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.20-1
+- Update to 375.20 release
+
 * Mon Oct 24 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:375.10-2
 - Add glvnd/egl_vendor.d file
 - Add requires vulkan-filesystem
