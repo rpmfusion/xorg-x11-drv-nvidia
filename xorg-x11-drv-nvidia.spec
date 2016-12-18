@@ -434,7 +434,6 @@ fi ||:
 %config %{_sysconfdir}/glvnd/egl_vendor.d/10_nvidia.json
 %dir %{_sysconfdir}/nvidia
 %ghost  %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
-%config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 # Comment Xorg abi override
 #%%config %%{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
