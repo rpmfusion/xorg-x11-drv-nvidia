@@ -8,7 +8,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         367.57
+Version:         375.26
 Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -23,8 +23,10 @@ Source3:         nvidia-xorg.conf
 Source5:         00-avoid-glamor.conf
 Source6:         blacklist-nouveau.conf
 Source7:         alternate-install-present
+Source8:         nvidia-old.conf
 Source9:         nvidia-settings.desktop
 Source10:        nvidia.conf
+Source11:        00-ignoreabi.conf
 
 ExclusiveArch: i686 x86_64 armv7hl
 
@@ -126,8 +128,9 @@ Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{?epoch}:%{version}-%{release}
 Requires:        libvdpau%{_isa} >= 0.5
 Requires:        libglvnd%{_isa}
-# Try to avoid a race when the symlink is created before the target is present
-Requires(post):  libglvnd%{_isa}
+%ifarch x86_64 i686
+Requires:        vulkan-filesystem
+%endif
 
 %description libs
 This package provides the shared libraries for %{name}.
@@ -170,11 +173,15 @@ install -m 0755 -d $RPM_BUILD_ROOT%{_bindir}
 
 # ld.so.conf.d file
 install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
-echo -e "%{_nvidia_libdir} \n" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
+echo -e "%{_nvidia_libdir} \n%{_glvnd_libdir} \n" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 
 #Blacklist nouveau (since F-11)
 install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
 install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
+
+# GLVND
+rm libGL.so*
+rm libEGL.so*
 
 # Simple wildcard install of libs
 install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}
@@ -184,15 +191,7 @@ install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
 install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
 %endif
 
-# GLVND
-rm $RPM_BUILD_ROOT%{_nvidia_libdir}/libGL.so*
-#Workaround for EGL issue with some apps
-#https://github.com/NVIDIA/libglvnd/issues/103
-#https://bugzilla.rpmfusion.org/show_bug.cgi?id=4303
-#rm libEGL.so*
-ln -s ../libglvnd/libGL.so.1 $RPM_BUILD_ROOT%{_nvidia_libdir}/libGL.so.1
-ln -s ../libglvnd/libGL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libGL.so.1.0.0
-
+# GlVND
 ln -s libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLX_indirect.so.0
 
 # Fix unowned lib links
@@ -211,6 +210,9 @@ ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so
 install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
 install -p -m 0644 nvidia_icd.json $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
 %endif
+# EGL config
+install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/glvnd/egl_vendor.d/
+install -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_sysconfdir}/glvnd/egl_vendor.d/
 
 #Vdpau
 install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/vdpau/
@@ -260,11 +262,15 @@ rm $RPM_BUILD_ROOT%{_nvidia_libdir}/libnvidia-{cfg,tls}.so
 
 #Install static driver dependant configuration files
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
-install -pm 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
+install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
+%if 0%{?fedora} <= 24
+install -pm 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
-install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
+%endif
+# Comment Xorg abi override
+#install -pm 0644 %{SOURCE11} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 
 # Desktop entry for nvidia-settings
 desktop-file-install --vendor "" \
@@ -290,9 +296,15 @@ mkdir -p $RPM_BUILD_ROOT%{_datadir}/nvidia
 install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} $RPM_BUILD_ROOT%{_datadir}/nvidia
 
 #Install the output class configuration file - xorg-server >= 1.16
-%if 0%{?fedora} >= 21
+%if 0%{?fedora} >= 25
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE10} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
+sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
+touch -r %{SOURCE10} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
+%endif
+%if 0%{?fedora} <= 24
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d
+install -pm 0644 %{SOURCE8} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
 %endif
 
 #Avoid prelink to mess with nvidia libs - rfbz#3258
@@ -430,14 +442,17 @@ fi ||:
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
 %ifarch x86_64 i686
-%dir %{_sysconfdir}/vulkan
-%dir %{_sysconfdir}/vulkan/icd.d
 %config %{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
 %endif
+%config %{_sysconfdir}/glvnd/egl_vendor.d/10_nvidia.json
 %dir %{_sysconfdir}/nvidia
 %ghost  %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
+%if 0%{?fedora} <= 24
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
+%endif
 %config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
+# Comment Xorg abi override
+#%%config %%{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
 %config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
 %config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
@@ -551,23 +566,49 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
-* Sun Nov 06 2016 Nicolas Chauvet <kwizart@gmail.com> - 1:367.57-4
-- Improve previous workaround
+* Mon Dec 19 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.26-4
+- Add conditionals for f24
 
-* Tue Oct 25 2016 Nicolas Chauvet <kwizart@gmail.com> - 1:367.57-3
-- Add workaround for EGL issue - rfbz#4303
+* Mon Dec 19 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.26-3
+- Fix nvidia.conf
 
-* Sat Oct 22 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.57-2
+* Sun Dec 18 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.26-2
+- Change conf files for Prime support
+
+* Wed Dec 14 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.26-1
+- Update to 375.26 release
+
+* Fri Nov 18 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.20-1
+- Update to 375.20 release
+
+* Mon Oct 24 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:375.10-2
+- Add glvnd/egl_vendor.d file
+- Add requires vulkan-filesystem
+
+* Fri Oct 21 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:375.10-1
+- Update to 375.10 beta release
 - Clean up more libglvnd provided libs
 
-* Sat Oct 15 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.57-1
-- Update to 367.57
+* Wed Oct 12 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-5
 - Add libglvnd path to ld.so.conf.d conf file
+
+* Tue Oct 11 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-4
 - Switch to system libglvnd
 - Fix unowned file links
 
-* Wed Aug 24 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.44-1
-- Update to 367.44
+* Fri Sep 30 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-3
+- add xorg abi override
+
+* Tue Sep 13 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-2
+- readd libGLdispatch.so.0
+
+* Fri Sep 09 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.28-1
+- Update to 370.28
+- Remove surplus glvnd libs (not used)
+- Prepare for fedora glvnd package
+
+* Fri Aug 19 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:370.23-1
+- Update to 370.23 beta
 
 * Wed Aug 10 2016 Leigh Scott <leigh123linux@googlemail.com> - 1:367.35-3
 - Revert last commit
