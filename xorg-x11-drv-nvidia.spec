@@ -9,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         375.26
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -292,6 +292,8 @@ install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation}
 %if 0%{?fedora} >= 21
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE10} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
+sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
+touch -r %{SOURCE10} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
 %endif
 
 #Avoid prelink to mess with nvidia libs - rfbz#3258
@@ -550,6 +552,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Mon Dec 19 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.26-3
+- Fix nvidia.conf
+
 * Sun Dec 18 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.26-2
 - Change conf files for Prime support
 
