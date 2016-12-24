@@ -9,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         375.26
-Release:         5%{?dist}
+Release:         6%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -569,6 +569,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Sat Dec 24 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.26-6
+- Fix error in nvidia.conf rfbz#4388
+
 * Sat Dec 24 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.26-5
 - Add xorg-x11-server-Xorg minimum version requires
 
