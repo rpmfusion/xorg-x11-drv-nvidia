@@ -9,7 +9,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         375.26
-Release:         4%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -45,6 +45,9 @@ Requires:        which
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{_isa} = %{?epoch}:%{version}-%{release}
+%if 0%{?fedora} >= 25
+Requires:        xorg-x11-server-Xorg%{_isa} >= 1.19.0-2
+%endif
 
 Obsoletes:       %{_nvidia_serie}-kmod < %{?epoch}:%{version}
 Provides:        %{_nvidia_serie}-kmod-common = %{?epoch}:%{version}
@@ -566,6 +569,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Sat Dec 24 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.26-5
+- Add xorg-x11-server-Xorg minimum version requires
+
 * Mon Dec 19 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.26-4
 - Add conditionals for f24
 
