@@ -3,7 +3,7 @@
 %global        _nvidia_xorgdir     %{_nvidia_libdir}/xorg
 %global        _glvnd_libdir       %{_libdir}/libglvnd
 
-#%global	       debug_package %{nil}
+%global	       debug_package %{nil}
 %global	       __strip /bin/true
 
 Name:            xorg-x11-drv-nvidia
