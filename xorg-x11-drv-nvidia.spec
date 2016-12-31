@@ -3,13 +3,13 @@
 %global        _nvidia_xorgdir     %{_nvidia_libdir}/xorg
 %global        _glvnd_libdir       %{_libdir}/libglvnd
 
-%global	       debug_package %{nil}
+#%global	       debug_package %{nil}
 %global	       __strip /bin/true
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         375.26
-Release:         6%{?dist}
+Release:         7%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -46,7 +46,7 @@ Requires:        which
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{_isa} = %{?epoch}:%{version}-%{release}
 %if 0%{?fedora} >= 25
-Requires:        xorg-x11-server-Xorg%{_isa} >= 1.19.0-2
+Requires:        xorg-x11-server-Xorg%{_isa} >= 1.19.0-3
 %endif
 
 Obsoletes:       %{_nvidia_serie}-kmod < %{?epoch}:%{version}
@@ -569,6 +569,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Sat Dec 31 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.26-7
+- Update nvidia.conf for latest Xorg changes
+
 * Sat Dec 24 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.26-6
 - Fix error in nvidia.conf rfbz#4388
 
