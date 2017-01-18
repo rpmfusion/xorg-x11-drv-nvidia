@@ -1,7 +1,6 @@
 %global        _nvidia_serie       nvidia
-%global        _nvidia_libdir      %{_libdir}/%{_nvidia_serie}
-%global        _nvidia_xorgdir     %{_nvidia_libdir}/xorg
-%global        _glvnd_libdir       %{_libdir}/libglvnd
+%global        _nvidia_libdir      %{_libdir}
+%global        _nvidia_xorgdir     %{_libdir}/%{_nvidia_serie}/xorg
 
 %global	       debug_package %{nil}
 %global	       __strip /bin/true
@@ -9,7 +8,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         375.26
-Release:         7%{?dist}
+Release:         8%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -27,26 +26,35 @@ Source8:         nvidia-old.conf
 Source9:         nvidia-settings.desktop
 Source10:        nvidia.conf
 Source11:        00-ignoreabi.conf
+Source12:        xorg-x11-drv-nvidia.metainfo.xml
+Source13:        parse-readme.py
 
 ExclusiveArch: i686 x86_64 armv7hl
 
-BuildRequires:   desktop-file-utils
+BuildRequires:    desktop-file-utils
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
-Buildrequires:   systemd
-Requires(post): systemd
-Requires(preun): systemd
+Buildrequires:    systemd
+Requires(post):   systemd
+Requires(preun):  systemd
 Requires(postun): systemd
+%endif
+%if 0%{?fedora} >= 25
+# AppStream metadata generation
+BuildRequires:    libappstream-glib%{?_isa} >= 0.6.3
 %endif
 
 Requires(post):   ldconfig
 Requires(postun): ldconfig
 Requires(post):   grubby
-Requires:        which
+Requires:         which
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
-Requires:        %{name}-libs%{_isa} = %{?epoch}:%{version}-%{release}
+Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 %if 0%{?fedora} >= 25
-Requires:        xorg-x11-server-Xorg%{_isa} >= 1.19.0-3
+Requires:        xorg-x11-server-Xorg%{?_isa} >= 1.19.0-3
+Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
+Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
+Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
 %endif
 
 Obsoletes:       %{_nvidia_serie}-kmod < %{?epoch}:%{version}
@@ -90,12 +98,12 @@ http://rpmfusion.org/Howto/nVidia
 %package devel
 Summary:         Development files for %{name}
 Group:           Development/Libraries
-Requires:        %{name}-libs%{_isa} = %{?epoch}:%{version}-%{release}
-Requires:        %{name}-cuda%{_isa} = %{?epoch}:%{version}-%{release}
+Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
+Requires:        %{name}-cuda%{?_isa} = %{?epoch}:%{version}-%{release}
 
 #Don't put an epoch here
 Provides:        cuda-drivers-devel = %{version}
-Provides:        cuda-drivers-devel%{_isa} = %{version}
+Provides:        cuda-drivers-devel%{?_isa} = %{version}
 
 %description devel
 This package provides the development files of the %{name} package,
@@ -112,7 +120,7 @@ Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 
 #Don't put an epoch here
 Provides:        cuda-drivers = %{version}
-Provides:        cuda-drivers%{_isa} = %{version}
+Provides:        cuda-drivers%{?_isa} = %{version}
 
 %description cuda
 This package provides the CUDA driver libraries.
@@ -129,8 +137,14 @@ which is generated during the build of main package.
 Summary:         Libraries for %{name}
 Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{?epoch}:%{version}-%{release}
-Requires:        libvdpau%{_isa} >= 0.5
-Requires:        libglvnd%{_isa}
+Requires:        libvdpau%{?_isa} >= 0.5
+Requires:        libglvnd%{?_isa} >= 0.2
+%if 0%{?fedora} >= 25
+Requires:        libglvnd-egl%{?_isa} >= 0.2
+Requires:        libglvnd-gles%{?_isa} >= 0.2
+Requires:        libglvnd-glx%{?_isa} >= 0.2
+Requires:        libglvnd-opengl%{?_isa} >= 0.2
+%endif
 %ifarch x86_64 i686
 Requires:        vulkan-filesystem
 %endif
@@ -173,10 +187,6 @@ cd nvidiapkg
 rm -f nvidia-installer*
 
 install -m 0755 -d $RPM_BUILD_ROOT%{_bindir}
-
-# ld.so.conf.d file
-install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
-echo -e "%{_nvidia_libdir} \n%{_glvnd_libdir} \n" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 
 #Blacklist nouveau (since F-11)
 install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
@@ -265,7 +275,9 @@ rm $RPM_BUILD_ROOT%{_nvidia_libdir}/libnvidia-{cfg,tls}.so
 
 #Install static driver dependant configuration files
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
+%if 0%{?fedora} <= 24
 install -pm 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
+%endif
 install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
 %if 0%{?fedora} <= 24
 install -pm 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
@@ -286,10 +298,6 @@ desktop-file-install --vendor "" \
 
 #Workaround for self made xorg.conf using a Files section.
 ln -fs ../../%{_nvidia_serie}/xorg $RPM_BUILD_ROOT%{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
-
-#Workaround for cuda availability - rfbz#2916
-ln -fs %{_nvidia_libdir}/libcuda.so.1 $RPM_BUILD_ROOT%{_libdir}/libcuda.so.1
-ln -fs %{_nvidia_libdir}/libcuda.so $RPM_BUILD_ROOT%{_libdir}/libcuda.so
 
 #Alternate-install-present is checked by the nvidia .run
 install -p -m 0644 %{SOURCE7}            $RPM_BUILD_ROOT%{_nvidia_libdir}
@@ -336,6 +344,17 @@ tar Jcf $RPM_BUILD_ROOT%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}
 
 #Add autostart file for nvidia-settings to load user config
 install -D -p -m 0644 %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
+
+%if 0%{?fedora} >= 25
+# install AppData and add modalias provides
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/appdata/
+install -pm 0644 %{SOURCE12} %{buildroot}%{_datadir}/appdata/
+fn=$RPM_BUILD_ROOT%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
+%{SOURCE13} README.txt "NVIDIA GEFORCE GPUS" | xargs appstream-util add-provide ${fn} modalias
+%{SOURCE13} README.txt "NVIDIA QUADRO GPUS" | xargs appstream-util add-provide ${fn} modalias
+%{SOURCE13} README.txt "NVIDIA NVS GPUS" | xargs appstream-util add-provide ${fn} modalias
+%{SOURCE13} README.txt "NVIDIA TESLA GPUS" | xargs appstream-util add-provide ${fn} modalias
+%endif
 
 
 %pre
@@ -452,8 +471,8 @@ fi ||:
 %ghost  %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %if 0%{?fedora} <= 24
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
-%endif
 %config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
+%endif
 # Comment Xorg abi override
 #%%config %%{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
 %config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
@@ -478,6 +497,9 @@ fi ||:
 %if 0%{?fedora} >= 21
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
 %endif
+%if 0%{?fedora} >= 25
+%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
+%endif
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-%{version}-*
 %{_datadir}/applications/*nvidia-settings.desktop
@@ -492,7 +514,6 @@ fi ||:
 %files libs
 %defattr(-,root,root,-)
 %dir %{_nvidia_libdir}
-%config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %ghost %{_sysconfdir}/prelink.conf.d/nvidia-%{_lib}.conf
 %{_nvidia_libdir}/alternate-install-present
 %{_nvidia_libdir}/*.so.*
@@ -526,7 +547,6 @@ fi ||:
 %{_bindir}/nvidia-persistenced
 #nvidia-modprobe is setuid root to allow users to load the module in 
 %attr(4755, root, root) %{_bindir}/nvidia-modprobe
-%{_libdir}/libcuda.so*
 %{_nvidia_libdir}/libcuda.so*
 %{_nvidia_libdir}/libnvcuvid.so*
 %{_nvidia_libdir}/libnvidia-encode.so*
@@ -569,6 +589,11 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Tue Jan 17 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:375.26-8
+- Changes for mesa glvnd
+- Move nvidia libs to lib directoy and remove ldconfig config file
+- Add appdata info
+
 * Sat Dec 31 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.26-7
 - Update nvidia.conf for latest Xorg changes
 
