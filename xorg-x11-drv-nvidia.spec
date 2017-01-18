@@ -513,7 +513,7 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-gtk3.so*
 %endif
 #/no_multilib
-%if 0%{?fedora} >= 21
+%if 0%{?rhel} > 6 || 0%{?fedora} >= 21
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
 %endif
 %if 0%{?fedora} >= 25
