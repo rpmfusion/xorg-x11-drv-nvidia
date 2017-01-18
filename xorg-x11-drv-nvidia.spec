@@ -612,6 +612,8 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-eglcore.so
 %if 0%{?fedora}
 %{_nvidia_libdir}/libnvidia-egl-wayland.so
+%else
+%exclude %{_nvidia_libdir}/libnvidia-egl-wayland.so
 %endif
 %{_nvidia_libdir}/libnvidia-fbc.so
 %{_nvidia_libdir}/libnvidia-glcore.so
