@@ -1,6 +1,12 @@
 %global        _nvidia_serie       nvidia
+%if 0%{?fedora} >= 25
 %global        _nvidia_libdir      %{_libdir}
 %global        _nvidia_xorgdir     %{_libdir}/%{_nvidia_serie}/xorg
+%else
+%global        _nvidia_libdir      %{_libdir}/%{_nvidia_serie}
+%global        _nvidia_xorgdir     %{_nvidia_libdir}/xorg
+%global        _glvnd_libdir       %{_libdir}/libglvnd
+%endif
 
 %global	       debug_package %{nil}
 %global	       __strip /bin/true
@@ -8,7 +14,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         375.26
-Release:         8%{?dist}
+Release:         9%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -189,6 +195,12 @@ rm -f nvidia-installer*
 
 install -m 0755 -d $RPM_BUILD_ROOT%{_bindir}
 
+%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
+# ld.so.conf.d file
+install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
+echo -e "%{_nvidia_libdir} \n%{_glvnd_libdir} \n" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
+%endif
+
 #Blacklist nouveau (since F-11)
 install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
 install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
@@ -276,7 +288,7 @@ rm $RPM_BUILD_ROOT%{_nvidia_libdir}/libnvidia-{cfg,tls}.so
 
 #Install static driver dependant configuration files
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
-%if 0%{?fedora} <= 24
+%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
 install -pm 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 %endif
 install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
@@ -299,6 +311,12 @@ desktop-file-install --vendor "" \
 
 #Workaround for self made xorg.conf using a Files section.
 ln -fs ../../%{_nvidia_serie}/xorg $RPM_BUILD_ROOT%{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
+
+%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
+#Workaround for cuda availability - rfbz#2916
+ln -fs %{_nvidia_libdir}/libcuda.so.1 $RPM_BUILD_ROOT%{_libdir}/libcuda.so.1
+ln -fs %{_nvidia_libdir}/libcuda.so $RPM_BUILD_ROOT%{_libdir}/libcuda.so
+%endif
 
 #Alternate-install-present is checked by the nvidia .run
 install -p -m 0644 %{SOURCE7}            $RPM_BUILD_ROOT%{_nvidia_libdir}
@@ -470,7 +488,7 @@ fi ||:
 %config %{_sysconfdir}/glvnd/egl_vendor.d/10_nvidia.json
 %dir %{_sysconfdir}/nvidia
 %ghost  %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
-%if 0%{?fedora} <= 24
+%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
 %config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 %endif
@@ -515,6 +533,9 @@ fi ||:
 %files libs
 %defattr(-,root,root,-)
 %dir %{_nvidia_libdir}
+%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
+%config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
+%endif
 %ghost %{_sysconfdir}/prelink.conf.d/nvidia-%{_lib}.conf
 %{_nvidia_libdir}/alternate-install-present
 %{_nvidia_libdir}/*.so.*
@@ -548,6 +569,9 @@ fi ||:
 %{_bindir}/nvidia-persistenced
 #nvidia-modprobe is setuid root to allow users to load the module in 
 %attr(4755, root, root) %{_bindir}/nvidia-modprobe
+%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
+%{_libdir}/libcuda.so*
+%endif
 %{_nvidia_libdir}/libcuda.so*
 %{_nvidia_libdir}/libnvcuvid.so*
 %{_nvidia_libdir}/libnvidia-encode.so*
@@ -590,6 +614,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Wed Jan 18 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:375.26-9
+- Add conditions for f24 and el7
+
 * Tue Jan 17 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:375.26-8
 - Changes for mesa glvnd
 - Move nvidia libs to lib directoy and remove ldconfig config file
