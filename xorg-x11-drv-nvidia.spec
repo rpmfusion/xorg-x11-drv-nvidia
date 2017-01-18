@@ -14,7 +14,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         375.26
-Release:         9%{?dist}
+Release:         10%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -539,6 +539,9 @@ fi ||:
 %ghost %{_sysconfdir}/prelink.conf.d/nvidia-%{_lib}.conf
 %{_nvidia_libdir}/alternate-install-present
 %{_nvidia_libdir}/*.so.*
+%if 0%{?rhel}
+%exclude %{_nvidia_libdir}/libnvidia-egl-wayland.so.*
+%endif
 %exclude %{_nvidia_libdir}/libcuda.so*
 %exclude %{_nvidia_libdir}/libnvidia-gtk*.so*
 %exclude %{_nvidia_libdir}/libnvcuvid.so*
@@ -607,13 +610,18 @@ fi ||:
 %{_nvidia_libdir}/libGLESv1_CM_nvidia.so
 %{_nvidia_libdir}/libGLESv2_nvidia.so
 %{_nvidia_libdir}/libnvidia-eglcore.so
+%if 0%{?fedora}
 %{_nvidia_libdir}/libnvidia-egl-wayland.so
+%endif
 %{_nvidia_libdir}/libnvidia-fbc.so
 %{_nvidia_libdir}/libnvidia-glcore.so
 %{_nvidia_libdir}/libnvidia-glsi.so
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Wed Jan 18 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:375.26-10
+- Add conditions for el7 as there is no wayland
+
 * Wed Jan 18 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:375.26-9
 - Add conditions for f24 and el7
 
