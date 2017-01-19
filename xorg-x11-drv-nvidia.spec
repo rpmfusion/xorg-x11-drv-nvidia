@@ -14,7 +14,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         375.26
-Release:         10%{?dist}
+Release:         11%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -58,6 +58,8 @@ Requires:         which
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 %if 0%{?fedora} >= 25
+# filesystem is needed as we don't own %%{_libdir} or %%{_libdir}/tls
+Requires:        filesystem
 Requires:        xorg-x11-server-Xorg%{?_isa} >= 1.19.0-3
 Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
@@ -532,9 +534,10 @@ fi ||:
 
 %files libs
 %defattr(-,root,root,-)
-%dir %{_nvidia_libdir}
 %if 0%{?rhel} > 6 || 0%{?fedora} <= 24
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
+%dir %{_nvidia_libdir}
+%dir %{_nvidia_libdir}/tls
 %endif
 %ghost %{_sysconfdir}/prelink.conf.d/nvidia-%{_lib}.conf
 %{_nvidia_libdir}/alternate-install-present
@@ -555,7 +558,6 @@ fi ||:
 %endif
 %exclude %{_nvidia_libdir}/libnvidia-compiler.so*
 %exclude %{_nvidia_libdir}/libnvidia-opencl.so*
-%dir %{_nvidia_libdir}/tls
 %{_nvidia_libdir}/tls/*.so.*
 %endif
 %{_libdir}/vdpau/libvdpau_nvidia.so.*
@@ -621,6 +623,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Thu Jan 19 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:375.26-11
+- Fix file conflict with filesystem
+
 * Wed Jan 18 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:375.26-10
 - Add conditions for el7 as there is no wayland
 
