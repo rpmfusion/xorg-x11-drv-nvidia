@@ -153,6 +153,9 @@ Requires:        libglvnd-opengl%{?_isa} >= 0.2
 Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
+%ifarch x86_64
+Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
+%endif
 %endif
 %ifarch x86_64 i686
 Requires:        vulkan-filesystem
