@@ -61,9 +61,6 @@ Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 # filesystem is needed as we don't own %%{_libdir} or %%{_libdir}/tls
 Requires:        filesystem
 Requires:        xorg-x11-server-Xorg%{?_isa} >= 1.19.0-3
-Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
-Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
-Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
 %endif
 
 Obsoletes:       %{_nvidia_serie}-kmod < %{?epoch}:%{version}
@@ -153,6 +150,9 @@ Requires:        libglvnd-egl%{?_isa} >= 0.2
 Requires:        libglvnd-gles%{?_isa} >= 0.2
 Requires:        libglvnd-glx%{?_isa} >= 0.2
 Requires:        libglvnd-opengl%{?_isa} >= 0.2
+Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
+Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
+Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
 %endif
 %ifarch x86_64 i686
 Requires:        vulkan-filesystem
