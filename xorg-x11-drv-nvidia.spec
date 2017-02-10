@@ -108,8 +108,8 @@ Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        %{name}-cuda%{?_isa} = %{?epoch}:%{version}-%{release}
 
 #Don't put an epoch here
-Provides:        cuda-drivers-devel = %{version}
-Provides:        cuda-drivers-devel%{?_isa} = %{version}
+Provides:        cuda-drivers-devel = %{version}-100
+Provides:        cuda-drivers-devel%{?_isa} = %{version}-100
 
 %description devel
 This package provides the development files of the %{name} package,
@@ -125,8 +125,8 @@ Provides:        nvidia-persistenced = %{version}-%{release}
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 
 #Don't put an epoch here
-Provides:        cuda-drivers = %{version}
-Provides:        cuda-drivers%{?_isa} = %{version}
+Provides:        cuda-drivers = %{version}-100
+Provides:        cuda-drivers%{?_isa} = %{version}-100
 
 %description cuda
 This package provides the CUDA driver libraries.
