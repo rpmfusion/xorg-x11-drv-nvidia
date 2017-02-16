@@ -414,7 +414,7 @@ if [ "$1" -eq "1" ]; then
       ISGRUB1="--grub"
       GFXPAYLOAD="vga=normal"
   else
-      echo "GRUB_GFXPAYLOAD_LINUX=text" >> %{_sysconfdir}/default/grub
+      #echo "GRUB_GFXPAYLOAD_LINUX=text" >> %{_sysconfdir}/default/grub
       if [ -f /boot/grub2/grub.cfg ]; then
         /sbin/grub2-mkconfig -o /boot/grub2/grub.cfg
       fi
@@ -430,7 +430,7 @@ if [ "$1" -eq "1" ]; then
     for kernel in ${KERNELS} ; do
       /sbin/grubby $ISGRUB1 \
         --update-kernel=${kernel} \
-        --args="nouveau.modeset=0 rd.driver.blacklist=nouveau video=vesa:off $GFXPAYLOAD" \
+        --args="nouveau.modeset=0 rd.driver.blacklist=nouveau $GFXPAYLOAD" \
          &>/dev/null
     done
   fi
