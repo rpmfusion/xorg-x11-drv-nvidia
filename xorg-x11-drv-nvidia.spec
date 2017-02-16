@@ -14,7 +14,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         375.39
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -649,6 +649,11 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Thu Feb 16 2017 Nicolas Chauvet <kwizart@gmail.com> - 1:375.39-2
+- Avoid xorg dir symlink on fedora 25+
+- Drop GFXPAYLOAD and video=vesa:off
+- Implement cuda-libs (for steam)
+
 * Tue Feb 14 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:375.39-1
 - Update to 375.39 release
 
