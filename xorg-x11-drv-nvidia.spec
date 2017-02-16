@@ -105,7 +105,8 @@ http://rpmfusion.org/Howto/nVidia
 Summary:         Development files for %{name}
 Group:           Development/Libraries
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
-Requires:        %{name}-cuda%{?_isa} = %{?epoch}:%{version}-%{release}
+Requires:        %{name}-cuda = %{?epoch}:%{version}-%{release}
+Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 
 #Don't put an epoch here
 Provides:        cuda-drivers-devel = %{version}-100
@@ -116,9 +117,10 @@ This package provides the development files of the %{name} package,
 such as OpenGL headers.
 
 %package cuda
-Summary:         CUDA libraries for %{name}
+Summary:         CUDA driver for %{name}
 Group:           Development/Libraries
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
+Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Provides:        nvidia-modprobe = %{version}-%{release}
 Provides:        nvidia-persistenced = %{version}-%{release}
 
@@ -129,6 +131,14 @@ Provides:        cuda-drivers = %{version}-100
 Provides:        cuda-drivers%{?_isa} = %{version}-100
 
 %description cuda
+This package provides the CUDA driver.
+
+%package cuda-libs
+Summary:         CUDA libraries for %{name}
+Group:           Development/Libraries
+Requires:        %{name}-cuda = %{?epoch}:%{version}-%{release}
+
+%description cuda-libs
 This package provides the CUDA driver libraries.
 
 %package kmodsrc
@@ -153,8 +163,11 @@ Requires:        libglvnd-opengl%{?_isa} >= 0.2
 Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
+# Boolean dependencies are now yet allowed in fedora, only for testing
+%if 0%{?fedora} >= 26
 %ifarch x86_64
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
+%endif
 %endif
 %endif
 %ifarch x86_64 i686
@@ -432,6 +445,8 @@ fi || :
 %systemd_post nvidia-persistenced.service
 %endif
 
+%post cuda-libs -p /sbin/ldconfig
+
 
 %preun
 if [ "$1" -eq "0" ]; then
@@ -479,6 +494,8 @@ fi ||:
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 18
 %systemd_postun_with_restart nvidia-persistenced.service
 %endif
+
+%postun cuda-libs -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root,-)
@@ -580,9 +597,6 @@ fi ||:
 %if 0%{?rhel} > 6 || 0%{?fedora} <= 24
 %{_libdir}/libcuda.so*
 %endif
-%{_nvidia_libdir}/libcuda.so*
-%{_nvidia_libdir}/libnvcuvid.so*
-%{_nvidia_libdir}/libnvidia-encode.so*
 %{_nvidia_libdir}/libnvidia-fatbinaryloader.so*
 %{_nvidia_libdir}/libnvidia-ml.so*
 %{_nvidia_libdir}/libnvidia-ptxjitcompiler.so*
@@ -597,6 +611,11 @@ fi ||:
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
 %{_mandir}/man1/nvidia-persistenced.1.*
 %{_mandir}/man1/nvidia-modprobe.1.*
+
+%files cuda-libs
+%{_nvidia_libdir}/libcuda.so*
+%{_nvidia_libdir}/libnvcuvid.so*
+%{_nvidia_libdir}/libnvidia-encode.so*
 
 %files devel
 %defattr(-,root,root,-)
