@@ -327,8 +327,10 @@ desktop-file-install --vendor "" \
 %endif
     nvidia-settings.desktop
 
+%if 0%{?rhel} < 8 || 0%{?fedora} <= 24
 #Workaround for self made xorg.conf using a Files section.
 ln -fs ../../%{_nvidia_serie}/xorg $RPM_BUILD_ROOT%{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
+%endif
 
 %if 0%{?rhel} > 6 || 0%{?fedora} <= 24
 #Workaround for cuda availability - rfbz#2916
@@ -526,7 +528,9 @@ fi ||:
 %dir %{_nvidia_xorgdir}
 %{_nvidia_xorgdir}/*.so*
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
+%if 0%{?rhel} < 8 || 0%{?fedora} <= 24
 %{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
+%endif
 # It's time that nvidia-settings used gtk3
 %ifarch %{arm}
 %{_nvidia_libdir}/libnvidia-gtk2.so*
