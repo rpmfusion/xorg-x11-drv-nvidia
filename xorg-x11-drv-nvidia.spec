@@ -232,6 +232,12 @@ ln -s libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libEGL_nvidia
 ln -s libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLESv2_nvidia.so.2
 ln -s libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLX_nvidia.so.0
 
+%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
+#Workaround for cuda availability - rfbz#2916
+ln -fs %{_nvidia_libdir}/libcuda.so.1 $RPM_BUILD_ROOT%{_libdir}/libcuda.so.1
+ln -fs %{_nvidia_libdir}/libcuda.so $RPM_BUILD_ROOT%{_libdir}/libcuda.so
+%endif
+
 %ifarch x86_64 i686
 # OpenCL config
 install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
@@ -330,12 +336,6 @@ desktop-file-install --vendor "" \
 %if 0%{?rhel} < 8 || 0%{?fedora} <= 24
 #Workaround for self made xorg.conf using a Files section.
 ln -fs ../../%{_nvidia_serie}/xorg $RPM_BUILD_ROOT%{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
-%endif
-
-%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
-#Workaround for cuda availability - rfbz#2916
-ln -fs %{_nvidia_libdir}/libcuda.so.1 $RPM_BUILD_ROOT%{_libdir}/libcuda.so.1
-ln -fs %{_nvidia_libdir}/libcuda.so $RPM_BUILD_ROOT%{_libdir}/libcuda.so
 %endif
 
 #Alternate-install-present is checked by the nvidia .run
