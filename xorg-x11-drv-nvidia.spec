@@ -388,7 +388,7 @@ install -D -p -m 0644 %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/xdg/autostart/nvi
 %if 0%{?fedora} >= 25
 # install AppData and add modalias provides
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/appdata/
-install -pm 0644 %{SOURCE12} %{buildroot}%{_datadir}/appdata/
+install -pm 0644 %{SOURCE12} $RPM_BUILD_ROOT%{_datadir}/appdata/
 fn=$RPM_BUILD_ROOT%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
 %{SOURCE13} README.txt "NVIDIA GEFORCE GPUS" | xargs appstream-util add-provide ${fn} modalias
 %{SOURCE13} README.txt "NVIDIA QUADRO GPUS" | xargs appstream-util add-provide ${fn} modalias
