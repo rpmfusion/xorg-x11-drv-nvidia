@@ -212,18 +212,6 @@ cd nvidiapkg
 
 rm -f nvidia-installer*
 
-install -m 0755 -d $RPM_BUILD_ROOT%{_bindir}
-
-%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
-# ld.so.conf.d file
-install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
-echo -e "%{_nvidia_libdir} \n%{_glvnd_libdir} \n" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
-%endif
-
-#Blacklist nouveau (since F-11)
-install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
-install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
-
 # GLVND
 rm libGL.so*
 rm libEGL.so*
@@ -279,7 +267,18 @@ install -p -m 0755 libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_nvidia_xorgdir}
 install -p -m 0755 libglx.so.%{version}        $RPM_BUILD_ROOT%{_nvidia_xorgdir}
 install -p -m 0755 nvidia_drv.so               $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
 
+# ld.so.conf.d file
+%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
+install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
+echo -e "%{_nvidia_libdir} \n%{_glvnd_libdir} \n" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
+%endif
+
+#Blacklist nouveau (since F-11)
+install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
+install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
+
 # Install binaries
+install -m 0755 -d $RPM_BUILD_ROOT%{_bindir}
 install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,xconfig,settings,persistenced,modprobe} \
   $RPM_BUILD_ROOT%{_bindir}
 
