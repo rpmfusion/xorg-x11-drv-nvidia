@@ -361,10 +361,6 @@ mkdir -p $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE8} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
 %endif
 
-#Avoid prelink to mess with nvidia libs - rfbz#3258
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/prelink.conf.d
-touch $RPM_BUILD_ROOT%{_sysconfdir}/prelink.conf.d/nvidia-%{_lib}.conf
-
 #Install the initscript
 tar jxf nvidia-persistenced-init.tar.bz2
 %if 0%{?rhel} > 6 || 0%{?fedora} >= 15
@@ -405,11 +401,6 @@ if [ "$1" -eq "1" ]; then
   if [ -x %{_bindir}/nvidia-uninstall ]; then
     %{_bindir}/nvidia-uninstall -s && rm -f %{_bindir}/nvidia-uninstall &>/dev/null || :
   fi
-fi
-
-%pre libs
-if [ -d %{_sysconfdir}/prelink.conf.d ]; then
-echo "-b %{_nvidia_libdir}" > %{_sysconfdir}/prelink.conf.d/nvidia-%{_lib}.conf
 fi
 
 %post
@@ -569,7 +560,6 @@ fi ||:
 %dir %{_nvidia_libdir}
 %dir %{_nvidia_libdir}/tls
 %endif
-%ghost %{_sysconfdir}/prelink.conf.d/nvidia-%{_lib}.conf
 %{_nvidia_libdir}/alternate-install-present
 %{_nvidia_libdir}/*.so.*
 %if 0%{?rhel}
