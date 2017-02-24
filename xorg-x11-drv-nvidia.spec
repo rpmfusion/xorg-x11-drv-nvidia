@@ -11,6 +11,8 @@
 
 %if 0%{?rhel} == 6
 %global        _modprobe_d          %{_sysconfdir}/modprobe.d/
+# RHEL 6 does not have _udevrulesdir defined
+%global        _udevrulesdir        %{_prefix}/lib/udev/rules.d/
 %else
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
 %endif
@@ -41,6 +43,8 @@ Source10:        nvidia.conf
 Source11:        00-ignoreabi.conf
 Source12:        xorg-x11-drv-nvidia.metainfo.xml
 Source13:        parse-readme.py
+Source14:        60-nvidia-uvm.rules
+Source15:        nvidia-uvm.conf
 
 ExclusiveArch: i686 x86_64 armv7hl
 
@@ -128,7 +132,6 @@ Summary:         CUDA driver for %{name}
 Group:           Development/Libraries
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
-Provides:        nvidia-modprobe = %{version}-%{release}
 Provides:        nvidia-persistenced = %{version}-%{release}
 
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
@@ -285,13 +288,17 @@ install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
 echo -e "%{_nvidia_libdir} \n%{_glvnd_libdir} \n" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %endif
 
-#Blacklist nouveau (since F-11)
-install    -m 0755 -d         $RPM_BUILD_ROOT%{_modprobe_d}/
-install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_modprobe_d}/
+# Blacklist nouveau, autoload nvidia-uvm module after nvidia module
+install    -m 0755 -d                     $RPM_BUILD_ROOT%{_modprobe_d}/
+install -p -m 0644 %{SOURCE6} %{SOURCE15} $RPM_BUILD_ROOT%{_modprobe_d}/
+
+# UDev rules for nvidia-uvm
+install    -m 0755 -d          $RPM_BUILD_ROOT%{_udevrulesdir}
+install -p -m 0644 %{SOURCE14} $RPM_BUILD_ROOT%{_udevrulesdir}
 
 # Install binaries
 install -m 0755 -d $RPM_BUILD_ROOT%{_bindir}
-install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,xconfig,settings,persistenced,modprobe} \
+install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,xconfig,settings,persistenced} \
   $RPM_BUILD_ROOT%{_bindir}
 
 # Install headers
@@ -300,7 +307,8 @@ install -p -m 0644 {gl.h,glext.h,glx.h,glxext.h} $RPM_BUILD_ROOT%{_includedir}/n
 
 # Install man pages
 install    -m 0755 -d   $RPM_BUILD_ROOT%{_mandir}/man1/
-install -p -m 0644 *.gz $RPM_BUILD_ROOT%{_mandir}/man1/
+install -p -m 0644 nvidia-{cuda-mps-control,persistenced,settings,smi,xconfig}.1.gz \
+  $RPM_BUILD_ROOT%{_mandir}/man1/
 
 # Make unversioned links to dynamic libs
 for lib in $( find $RPM_BUILD_ROOT%{_libdir} -name lib\*.%{version} ) ; do
@@ -592,8 +600,6 @@ fi ||:
 %{_bindir}/nvidia-cuda-mps-control
 %{_bindir}/nvidia-cuda-mps-server
 %{_bindir}/nvidia-persistenced
-#nvidia-modprobe is setuid root to allow users to load the module in 
-%attr(4755, root, root) %{_bindir}/nvidia-modprobe
 %if 0%{?rhel} > 6 || 0%{?fedora} <= 24
 %{_libdir}/libcuda.so*
 %endif
@@ -610,7 +616,8 @@ fi ||:
 %{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
 %{_mandir}/man1/nvidia-persistenced.1.*
-%{_mandir}/man1/nvidia-modprobe.1.*
+%{_modprobe_d}/nvidia-uvm.conf
+%{_udevrulesdir}/60-nvidia-uvm.rules
 
 %files cuda-libs
 %{_nvidia_libdir}/libcuda.so*
