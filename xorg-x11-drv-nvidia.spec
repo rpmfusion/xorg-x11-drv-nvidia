@@ -9,6 +9,12 @@
 %global        _glvnd_libdir        %{_libdir}/libglvnd
 %endif
 
+%if 0%{?rhel} == 6
+%global        _modprobe_d          %{_sysconfdir}/modprobe.d/
+%else
+%global        _modprobe_d          %{_prefix}/lib/modprobe.d/
+%endif
+
 %global	       debug_package %{nil}
 %global	       __strip /bin/true
 
@@ -280,8 +286,8 @@ echo -e "%{_nvidia_libdir} \n%{_glvnd_libdir} \n" > $RPM_BUILD_ROOT%{_sysconfdir
 %endif
 
 #Blacklist nouveau (since F-11)
-install    -m 0755 -d         $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
-install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_prefix}/lib/modprobe.d/
+install    -m 0755 -d         $RPM_BUILD_ROOT%{_modprobe_d}/
+install -p -m 0644 %{SOURCE6} $RPM_BUILD_ROOT%{_modprobe_d}/
 
 # Install binaries
 install -m 0755 -d $RPM_BUILD_ROOT%{_bindir}
@@ -518,7 +524,7 @@ fi ||:
 %endif
 # Comment Xorg abi override
 #%%config %%{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
-%config(noreplace) %{_prefix}/lib/modprobe.d/blacklist-nouveau.conf
+%config(noreplace) %{_modprobe_d}/blacklist-nouveau.conf
 %config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
 %config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
 %{_bindir}/nvidia-bug-report.sh
