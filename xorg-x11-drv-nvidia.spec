@@ -330,13 +330,11 @@ touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 # Comment Xorg abi override
 #install -pm 0644 %{SOURCE11} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 
-# Desktop entry for nvidia-settings
+# Fix desktop file and validate
+sed -i -e 's|__UTILS_PATH__/||g' -e 's|__PIXMAP_PATH__/||g' nvidia-settings.desktop
+sed -i -e 's|nvidia-settings.png|nvidia-settings|g' nvidia-settings.desktop
 desktop-file-install --vendor "" \
     --dir $RPM_BUILD_ROOT%{_datadir}/applications/ \
-%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
-    --set-icon=nvidia-settings \
-    --set-key=Exec --set-value=nvidia-settings \
-%endif
     nvidia-settings.desktop
 
 %if 0%{?rhel} < 8 || 0%{?fedora} <= 24
