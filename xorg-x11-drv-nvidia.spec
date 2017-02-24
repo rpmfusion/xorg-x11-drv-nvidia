@@ -54,7 +54,7 @@ Requires(postun): systemd
 %if 0%{?fedora} >= 25
 # AppStream metadata generation
 BuildRequires:    python2
-BuildRequires:    libappstream-glib%{?_isa} >= 0.6.3
+BuildRequires:    libappstream-glib >= 0.6.3
 %endif
 
 Requires(post):   ldconfig
