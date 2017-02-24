@@ -1,11 +1,12 @@
-%global        _nvidia_serie       nvidia
+%global        _nvidia_serie        nvidia
 %if 0%{?fedora} >= 25
-%global        _nvidia_libdir      %{_libdir}
-%global        _nvidia_xorgdir     %{_libdir}/%{_nvidia_serie}/xorg
+%global        _nvidia_libdir       %{_libdir}
+%global        _nvidia_serie_libdir %{_libdir}/%{_nvidia_serie}
+%global        _nvidia_xorgdir      %{_libdir}/%{_nvidia_serie}/xorg
 %else
-%global        _nvidia_libdir      %{_libdir}/%{_nvidia_serie}
-%global        _nvidia_xorgdir     %{_nvidia_libdir}/xorg
-%global        _glvnd_libdir       %{_libdir}/libglvnd
+%global        _nvidia_libdir       %{_libdir}/%{_nvidia_serie}
+%global        _nvidia_xorgdir      %{_nvidia_libdir}/xorg
+%global        _glvnd_libdir        %{_libdir}/libglvnd
 %endif
 
 %global	       debug_package %{nil}
@@ -525,8 +526,10 @@ fi ||:
 %{_bindir}/nvidia-settings
 %{_bindir}/nvidia-xconfig
 # Xorg libs that do not need to be multilib
-%dir %{_nvidia_xorgdir}
-%{_nvidia_xorgdir}/*.so*
+%if 0%{?fedora} >= 25
+%{_nvidia_serie_libdir}
+%endif
+%{_nvidia_xorgdir}
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %if 0%{?rhel} < 8 || 0%{?fedora} <= 24
 %{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
