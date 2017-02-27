@@ -364,7 +364,7 @@ install -pm 0644 %{SOURCE10} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.c
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
 touch -r %{SOURCE10} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
 %endif
-%if 0%{?fedora} <= 24
+%if 0%{?rhel} == 7 || 0%{?fedora} == 24
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE8} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
 %endif
