@@ -26,7 +26,6 @@ Version:         375.39
 Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
-Group:           User Interface/X Hardware Support
 License:         Redistributable, no modification permitted
 URL:             http://www.nvidia.com/
 Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
@@ -49,7 +48,7 @@ Source15:        nvidia-uvm.conf
 ExclusiveArch: i686 x86_64 armv7hl
 
 BuildRequires:    desktop-file-utils
-%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
+%if 0%{?rhel} > 6 || 0%{?fedora}
 Buildrequires:    systemd
 Requires(post):   systemd
 Requires(preun):  systemd
@@ -114,7 +113,6 @@ http://rpmfusion.org/Howto/nVidia
 
 %package devel
 Summary:         Development files for %{name}
-Group:           Development/Libraries
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        %{name}-cuda = %{?epoch}:%{version}-%{release}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
@@ -129,7 +127,6 @@ such as OpenGL headers.
 
 %package cuda
 Summary:         CUDA driver for %{name}
-Group:           Development/Libraries
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Provides:        nvidia-persistenced = %{version}-%{release}
@@ -145,7 +142,6 @@ This package provides the CUDA driver.
 
 %package cuda-libs
 Summary:         CUDA libraries for %{name}
-Group:           Development/Libraries
 Requires:        %{name}-cuda = %{?epoch}:%{version}-%{release}
 
 %description cuda-libs
@@ -153,7 +149,6 @@ This package provides the CUDA driver libraries.
 
 %package kmodsrc
 Summary:         %{name} kernel module source code
-Group:           System Environment/Kernel
 
 %description kmodsrc
 Source tree used for building kernel module packages (%{name}-kmod)
@@ -161,7 +156,6 @@ which is generated during the build of main package.
 
 %package libs
 Summary:         Libraries for %{name}
-Group:           User Interface/X Hardware Support
 Requires:        %{name} = %{?epoch}:%{version}-%{release}
 Requires:        libvdpau%{?_isa} >= 0.5
 Requires:        libglvnd%{?_isa} >= 0.2
@@ -276,9 +270,6 @@ install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_xorgdir}
 rm -f $RPM_BUILD_ROOT%{_nvidia_libdir}/lib{nvidia-wfb,glx,vdpau*}.so.%{version}
 
 # Finish up the special case libs
-%if 0%{?rhel} == 5
-install -p -m 0755 libnvidia-wfb.so.%{version} $RPM_BUILD_ROOT%{_nvidia_xorgdir}
-%endif
 install -p -m 0755 libglx.so.%{version}        $RPM_BUILD_ROOT%{_nvidia_xorgdir}
 install -p -m 0755 nvidia_drv.so               $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
 
@@ -371,7 +362,7 @@ install -pm 0644 %{SOURCE8} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.co
 
 #Install the initscript
 tar jxf nvidia-persistenced-init.tar.bz2
-%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
+%if 0%{?rhel} > 6 || 0%{?fedora}
 mkdir -p $RPM_BUILD_ROOT%{_unitdir}
 install -pm 0644 nvidia-persistenced-init/systemd/nvidia-persistenced.service.template \
   $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.service
@@ -446,7 +437,7 @@ fi || :
 
 %post cuda
 /sbin/ldconfig
-%if 0%{?rhel} > 6 || 0%{?fedora} >= 18
+%if 0%{?rhel} > 6 || 0%{?fedora}
 %systemd_post nvidia-persistenced.service
 %endif
 
@@ -485,7 +476,7 @@ if [ "$1" -eq "0" ]; then
     mv  %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.%{name}_uninstalled &>/dev/null
 fi ||:
 
-%if 0%{?rhel} > 6 || 0%{?fedora} >= 18
+%if 0%{?rhel} > 6 || 0%{?fedora}
 %preun cuda
 %systemd_preun nvidia-persistenced.service
 %endif
@@ -496,14 +487,13 @@ fi ||:
 
 %postun cuda
 /sbin/ldconfig
-%if 0%{?rhel} > 6 || 0%{?fedora} >= 18
+%if 0%{?rhel} > 6 || 0%{?fedora}
 %systemd_postun_with_restart nvidia-persistenced.service
 %endif
 
 %postun cuda-libs -p /sbin/ldconfig
 
 %files
-%defattr(-,root,root,-)
 %doc nvidiapkg/LICENSE
 %doc nvidiapkg/NVIDIA_Changelog
 %doc nvidiapkg/README.txt
@@ -544,7 +534,7 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-gtk3.so*
 %endif
 #/no_multilib
-%if 0%{?rhel} > 6 || 0%{?fedora} >= 21
+%if 0%{?rhel} > 6 || 0%{?fedora}
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
 %endif
 %if 0%{?fedora} >= 25
@@ -562,7 +552,6 @@ fi ||:
 %{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_target_cpu}.tar.xz
 
 %files libs
-%defattr(-,root,root,-)
 %if 0%{?rhel} > 6 || 0%{?fedora} <= 24
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %dir %{_nvidia_libdir}
@@ -581,7 +570,7 @@ fi ||:
 %exclude %{_nvidia_libdir}/libnvidia-ml.so*
 %exclude %{_nvidia_libdir}/libnvidia-ptxjitcompiler.so*
 %ifarch x86_64 i686
-%if 0%{?fedora} > 18
+%if 0%{?fedora}
 %exclude %{_nvidia_libdir}/libOpenCL.so.*
 %endif
 %exclude %{_nvidia_libdir}/libnvidia-compiler.so*
@@ -591,8 +580,7 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.so.*
 
 %files cuda
-%defattr(-,root,root,-)
-%if 0%{?rhel} > 6 || 0%{?fedora} >= 15
+%if 0%{?rhel} > 6 || 0%{?fedora}
 %{_unitdir}/nvidia-persistenced.service
 %endif
 %{_bindir}/nvidia-debugdump
@@ -625,10 +613,9 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-encode.so*
 
 %files devel
-%defattr(-,root,root,-)
 %{_includedir}/nvidia/
 %ifarch x86_64 i686
-%if 0%{?fedora} > 18
+%if 0%{?fedora}
 %exclude %{_nvidia_libdir}/libOpenCL.so
 %else
 %{_nvidia_libdir}/libOpenCL.so
