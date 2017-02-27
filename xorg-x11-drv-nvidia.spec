@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         375.39
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -86,15 +86,13 @@ Conflicts:       xorg-x11-drv-fglrx
 Conflicts:       xorg-x11-drv-catalyst
 
 %if 0%{?fedora} || 0%{?rhel} >= 7
-%global         __provides_exclude ^(lib.*GL.*\\.so.*|libOpenCL\\.so.*)$
-%global         __requires_exclude ^(lib.*GL.*\\.so.*|libOpenCL\\.so.*)$
+%global         __provides_exclude ^(lib.*GL.*\\.so.*)$
+%global         __requires_exclude ^(lib.*GL.*\\.so.*)$
 %else
 
 %{?filter_setup:
 %filter_from_provides /^lib.*GL.*\.so/d;
-%filter_from_provides /^libOpenCL\.so/d;
 %filter_from_requires /^lib.*GL.*\.so/d;
-%filter_from_requires /^libOpenCL\.so/d;
 %filter_setup
 }
 %endif
@@ -130,6 +128,8 @@ Summary:         CUDA driver for %{name}
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Provides:        nvidia-persistenced = %{version}-%{release}
+Requires:        ocl-icd%{?_isa}
+Requires:        opencl-filesystem
 
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 
@@ -245,9 +245,6 @@ ln -fs %{_nvidia_libdir}/libcuda.so $RPM_BUILD_ROOT%{_libdir}/libcuda.so
 # OpenCL config
 install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
 install -p -m 0644 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
-install -p -m 0755 libOpenCL.so.1.0.0          $RPM_BUILD_ROOT%{_nvidia_libdir}/
-ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so.1
-ln -s libOpenCL.so.1.0.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libOpenCL.so
 # Vulkan config
 install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
 install -p -m 0644 nvidia_icd.json $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
@@ -570,9 +567,6 @@ fi ||:
 %exclude %{_nvidia_libdir}/libnvidia-ml.so*
 %exclude %{_nvidia_libdir}/libnvidia-ptxjitcompiler.so*
 %ifarch x86_64 i686
-%if 0%{?fedora}
-%exclude %{_nvidia_libdir}/libOpenCL.so.*
-%endif
 %exclude %{_nvidia_libdir}/libnvidia-compiler.so*
 %exclude %{_nvidia_libdir}/libnvidia-opencl.so*
 %{_nvidia_libdir}/tls/*.so.*
@@ -596,11 +590,9 @@ fi ||:
 %{_nvidia_libdir}/libnvidia-ml.so*
 %{_nvidia_libdir}/libnvidia-ptxjitcompiler.so*
 %ifarch x86_64 i686
-%dir %{_sysconfdir}/OpenCL
-%dir %{_sysconfdir}/OpenCL/vendors
-%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_nvidia_libdir}/libnvidia-compiler.so*
 %{_nvidia_libdir}/libnvidia-opencl.so*
+%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %endif
 %{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
@@ -616,11 +608,6 @@ fi ||:
 %files devel
 %{_includedir}/nvidia/
 %ifarch x86_64 i686
-%if 0%{?fedora}
-%exclude %{_nvidia_libdir}/libOpenCL.so
-%else
-%{_nvidia_libdir}/libOpenCL.so
-%endif
 %{_nvidia_libdir}/tls/libnvidia-tls.so
 %endif
 %{_libdir}/vdpau/libvdpau_nvidia.so
@@ -640,6 +627,10 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Thu Mar 02 2017 Simone Caronni <negativo17@gmail.com> - 1:375.39-4
+- Remove OpenCL loader, RPM filters and ownership of loader configuration.
+- Require OpenCL filesystem and loader library.
+
 * Thu Mar 02 2017 Simone Caronni <negativo17@gmail.com> - 1:375.39-3
 - Replace SUID nvidia-modprobe binary with configuration. Make sure the
   nvidia-uvm module is loaded when the CUDA subpackage is installed and that
