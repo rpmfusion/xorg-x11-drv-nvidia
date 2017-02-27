@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         375.39
-Release:         4%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -68,7 +68,7 @@ Requires:         which
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 %if 0%{?fedora} >= 25
-# filesystem is needed as we don't own %%{_libdir} or %%{_libdir}/tls
+# filesystem is needed as we don't own %%{_libdir}
 Requires:        filesystem
 Requires:        xorg-x11-server-Xorg%{?_isa} >= 1.19.0-3
 %endif
@@ -223,8 +223,8 @@ rm libEGL.so*
 install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}
 install -p -m 0755 lib*.so.%{version}          $RPM_BUILD_ROOT%{_nvidia_libdir}/
 %ifarch x86_64 i686
-install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
-install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/tls/
+# Use only newer ELF TLS implementation
+install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/
 %endif
 
 # GlVND
@@ -552,7 +552,6 @@ fi ||:
 %if 0%{?rhel} > 6 || 0%{?fedora} <= 24
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %dir %{_nvidia_libdir}
-%dir %{_nvidia_libdir}/tls
 %endif
 %{_nvidia_libdir}/alternate-install-present
 %{_nvidia_libdir}/*.so.*
@@ -569,7 +568,6 @@ fi ||:
 %ifarch x86_64 i686
 %exclude %{_nvidia_libdir}/libnvidia-compiler.so*
 %exclude %{_nvidia_libdir}/libnvidia-opencl.so*
-%{_nvidia_libdir}/tls/*.so.*
 %endif
 %{_libdir}/vdpau/libvdpau_nvidia.so.*
 
@@ -607,9 +605,6 @@ fi ||:
 
 %files devel
 %{_includedir}/nvidia/
-%ifarch x86_64 i686
-%{_nvidia_libdir}/tls/libnvidia-tls.so
-%endif
 %{_libdir}/vdpau/libvdpau_nvidia.so
 %{_nvidia_libdir}/libnvidia-ifr.so
 %{_nvidia_libdir}/libEGL_nvidia.so
@@ -627,6 +622,10 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Thu Mar 02 2017 Simone Caronni <negativo17@gmail.com> - 1:375.39-5
+- Use only newer ELF TLS implementation, supported since kernel 2.3.99 (pre RHEL
+  4).
+
 * Thu Mar 02 2017 Simone Caronni <negativo17@gmail.com> - 1:375.39-4
 - Remove OpenCL loader, RPM filters and ownership of loader configuration.
 - Require OpenCL filesystem and loader library.
