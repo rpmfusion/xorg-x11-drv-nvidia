@@ -494,7 +494,7 @@ fi ||:
 %postun cuda-libs -p /sbin/ldconfig
 
 %files
-%doc nvidiapkg/LICENSE
+%license nvidiapkg/LICENSE
 %doc nvidiapkg/NVIDIA_Changelog
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
@@ -580,6 +580,7 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.so.*
 
 %files cuda
+%license nvidiapkg/LICENSE
 %if 0%{?rhel} > 6 || 0%{?fedora}
 %{_unitdir}/nvidia-persistenced.service
 %endif
