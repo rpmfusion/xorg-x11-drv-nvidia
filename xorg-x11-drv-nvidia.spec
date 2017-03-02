@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         375.39
-Release:         5%{?dist}
+Release:         6%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -160,6 +160,7 @@ Requires:        %{name} = %{?epoch}:%{version}-%{release}
 Requires:        libvdpau%{?_isa} >= 0.5
 Requires:        libglvnd%{?_isa} >= 0.2
 %if 0%{?fedora} >= 25
+Requires:        egl-wayland%{?_isa} >= 1.0.0
 Requires:        libglvnd-egl%{?_isa} >= 0.2
 Requires:        libglvnd-gles%{?_isa} >= 0.2
 Requires:        libglvnd-glx%{?_isa} >= 0.2
@@ -218,6 +219,9 @@ rm -f nvidia-installer*
 # GLVND
 rm libGL.so*
 rm libEGL.so*
+
+# Built from source
+rm -f libnvidia-egl-wayland.so*
 
 # Simple wildcard install of libs
 install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}
@@ -555,9 +559,6 @@ fi ||:
 %endif
 %{_nvidia_libdir}/alternate-install-present
 %{_nvidia_libdir}/*.so.*
-%if 0%{?rhel}
-%exclude %{_nvidia_libdir}/libnvidia-egl-wayland.so.*
-%endif
 %exclude %{_nvidia_libdir}/libcuda.so*
 %exclude %{_nvidia_libdir}/libnvidia-gtk*.so*
 %exclude %{_nvidia_libdir}/libnvcuvid.so*
@@ -611,17 +612,15 @@ fi ||:
 %{_nvidia_libdir}/libGLESv1_CM_nvidia.so
 %{_nvidia_libdir}/libGLESv2_nvidia.so
 %{_nvidia_libdir}/libnvidia-eglcore.so
-%if 0%{?fedora}
-%{_nvidia_libdir}/libnvidia-egl-wayland.so
-%else
-%exclude %{_nvidia_libdir}/libnvidia-egl-wayland.so
-%endif
 %{_nvidia_libdir}/libnvidia-fbc.so
 %{_nvidia_libdir}/libnvidia-glcore.so
 %{_nvidia_libdir}/libnvidia-glsi.so
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Thu Mar 02 2017 Simone Caronni <negativo17@gmail.com> - 1:375.39-6
+- Require source built libnvidia-egl-wayland library.
+
 * Thu Mar 02 2017 Simone Caronni <negativo17@gmail.com> - 1:375.39-5
 - Use only newer ELF TLS implementation, supported since kernel 2.3.99 (pre RHEL
   4).
