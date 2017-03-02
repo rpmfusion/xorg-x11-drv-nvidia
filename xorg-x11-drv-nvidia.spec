@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         375.39
-Release:         6%{?dist}
+Release:         7%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -527,12 +527,17 @@ fi ||:
 %if 0%{?rhel} < 8 || 0%{?fedora} <= 24
 %{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
 %endif
-# It's time that nvidia-settings used gtk3
 %ifarch %{arm}
+%{_nvidia_libdir}/libnvidia-gtk2.so*
+%endif
+%ifarch x86_64 i686
+%if 0%{?rhel} == 6
+%exclude %{_nvidia_libdir}/libnvidia-gtk3.so*
 %{_nvidia_libdir}/libnvidia-gtk2.so*
 %else
 %exclude %{_nvidia_libdir}/libnvidia-gtk2.so*
 %{_nvidia_libdir}/libnvidia-gtk3.so*
+%endif
 %endif
 #/no_multilib
 %if 0%{?rhel} > 6 || 0%{?fedora}
@@ -618,6 +623,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Thu Mar 02 2017 Simone Caronni <negativo17@gmail.com> - 1:375.39-7
+- Use gtk 2 nvidia-settings library only on RHEL 6 and Fedora ARM.
+
 * Thu Mar 02 2017 Simone Caronni <negativo17@gmail.com> - 1:375.39-6
 - Require source built libnvidia-egl-wayland library.
 
