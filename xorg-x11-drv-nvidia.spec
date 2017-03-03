@@ -22,8 +22,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         375.39
-Release:         7%{?dist}
+Version:         378.13
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -623,6 +623,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Fri Mar 03 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:378.13-1
+- Update to 378.13 release
+
 * Thu Mar 02 2017 Simone Caronni <negativo17@gmail.com> - 1:375.39-7
 - Use gtk 2 nvidia-settings library only on RHEL 6 and Fedora ARM.
 
