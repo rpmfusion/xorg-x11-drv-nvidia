@@ -75,11 +75,6 @@ Requires:        xorg-x11-server-Xorg%{?_isa} >= 1.19.0-3
 
 Obsoletes:       %{_nvidia_serie}-kmod < %{?epoch}:%{version}
 Provides:        %{_nvidia_serie}-kmod-common = %{?epoch}:%{version}
-Conflicts:       xorg-x11-drv-nvidia-beta
-Conflicts:       xorg-x11-drv-nvidia-legacy
-Conflicts:       xorg-x11-drv-nvidia-71xx
-Conflicts:       xorg-x11-drv-nvidia-96xx
-Conflicts:       xorg-x11-drv-nvidia-173xx
 Conflicts:       xorg-x11-drv-nvidia-304xx
 Conflicts:       xorg-x11-drv-nvidia-340xx
 Conflicts:       xorg-x11-drv-fglrx
