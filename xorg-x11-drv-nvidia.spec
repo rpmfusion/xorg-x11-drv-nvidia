@@ -232,7 +232,7 @@ install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/
 %endif
 
 # GlVND
-ln -s libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLX_indirect.so.0
+ln -s %{_libdir}/libGLX_mesa.so.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLX_indirect.so.0
 
 # Fix unowned lib links
 ln -s libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libEGL_nvidia.so.0
