@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         378.13
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -623,6 +623,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Tue Mar 14 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:378.13-2
+- Link libGLX_indirect.so.0 to libGLX_mesa.so.0
+
 * Fri Mar 03 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:378.13-1
 - Update to 378.13 release
 
