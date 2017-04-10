@@ -324,11 +324,6 @@ desktop-file-install --vendor "" \
     --dir %{buildroot}%{_datadir}/applications/ \
     nvidia-settings.desktop
 
-%if 0%{?rhel} < 8 || 0%{?fedora} <= 24
-#Workaround for self made xorg.conf using a Files section.
-ln -fs ../../%{_nvidia_serie}/xorg $RPM_BUILD_ROOT%{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
-%endif
-
 #Alternate-install-present is checked by the nvidia .run
 install -p -m 0644 %{SOURCE7}            %{buildroot}%{_nvidia_libdir}
 
@@ -473,9 +468,6 @@ fi ||:
 %{_nvidia_xorgdir}/libglx.so
 %{_nvidia_xorgdir}/libglx.so.%{version}
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
-%if 0%{?rhel} < 8 || 0%{?fedora} <= 24
-%{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
-%endif
 %ifarch %{arm}
 %{_libdir}/libnvidia-gtk2.so.%{version}
 %endif
