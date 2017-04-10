@@ -1,11 +1,8 @@
 %global        _nvidia_serie        nvidia
-%if 0%{?fedora} >= 25
-%global        _nvidia_libdir       %{_libdir}
-%global        _nvidia_serie_libdir %{_libdir}/%{_nvidia_serie}
-%global        _nvidia_xorgdir      %{_libdir}/%{_nvidia_serie}/xorg
-%else
 %global        _nvidia_libdir       %{_libdir}/%{_nvidia_serie}
 %global        _nvidia_xorgdir      %{_nvidia_libdir}/xorg
+
+%if 0%{?rhel} || 0%{?fedora} == 24
 %global        _glvnd_libdir        %{_libdir}/libglvnd
 %endif
 
@@ -107,7 +104,6 @@ http://rpmfusion.org/Howto/nVidia
 %package devel
 Summary:         Development files for %{name}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
-Requires:        %{name}-cuda = %{?epoch}:%{version}-%{release}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 
 #Don't put an epoch here
@@ -137,7 +133,6 @@ This package provides the CUDA driver.
 
 %package cuda-libs
 Summary:         CUDA libraries for %{name}
-Requires:        %{name}-cuda = %{?epoch}:%{version}-%{release}
 
 %description cuda-libs
 This package provides the CUDA driver libraries.
@@ -151,7 +146,6 @@ which is generated during the build of main package.
 
 %package libs
 Summary:         Libraries for %{name}
-Requires:        %{name} = %{?epoch}:%{version}-%{release}
 Requires:        libvdpau%{?_isa} >= 0.5
 Requires:        libglvnd%{?_isa} >= 0.2
 %if 0%{?fedora} >= 25
@@ -200,136 +194,127 @@ echo "Nothing to build"
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
-
 cd nvidiapkg
 
-# The new 256.x version supplies all the files in a relatively flat structure
-# .. so explicitly deal out the files to the correct places
-# .. nvidia-installer looks too closely at the current machine, so it's hard
-# .. to generate rpm's unless a NVIDIA card is in the machine.
+# Install only required libraries
+mkdir -p %{buildroot}%{_libdir}
+cp -a \
+    libcuda.so.%{version} \
+    libEGL_nvidia.so.%{version} \
+    libGLESv1_CM_nvidia.so.%{version} \
+    libGLESv2_nvidia.so.%{version} \
+    libGLX_nvidia.so.%{version} \
+    libnvcuvid.so.%{version} \
+    libnvidia-cfg.so.%{version} \
+    libnvidia-eglcore.so.%{version} \
+    libnvidia-encode.so.%{version} \
+    libnvidia-fatbinaryloader.so.%{version} \
+    libnvidia-fbc.so.%{version} \
+    libnvidia-glcore.so.%{version} \
+    libnvidia-glsi.so.%{version} \
+    libnvidia-gtk*.so.%{version} \
+    libnvidia-ifr.so.%{version} \
+    libnvidia-ml.so.%{version} \
+    libnvidia-ptxjitcompiler.so.%{version} \
+    %{buildroot}%{_libdir}/
 
-rm -f nvidia-installer*
-
-# GLVND
-rm libGL.so*
-rm libEGL.so*
-
-# Built from source
-rm -f libnvidia-egl-wayland.so*
-
-# Simple wildcard install of libs
-install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_libdir}
-install -p -m 0755 lib*.so.%{version}          $RPM_BUILD_ROOT%{_nvidia_libdir}/
+# Use the correct TLS implementation for x86_64/i686, already ok on ARM
+# OpenCL is only available on x86_64/i686.
 %ifarch x86_64 i686
-# Use only newer ELF TLS implementation
-install -p -m 0755 tls/lib*.so.%{version}      $RPM_BUILD_ROOT%{_nvidia_libdir}/
+cp -af \
+    tls/libnvidia-tls.so* \
+    libnvidia-compiler.so.%{version} \
+    libnvidia-opencl.so.%{version} \
+    %{buildroot}%{_libdir}/
+%else
+cp -af libnvidia-tls.so* %{buildroot}%{_libdir}/
 %endif
 
+# Use ldconfig for libraries with a mismatching SONAME/filename
+ldconfig -vn %{buildroot}%{_libdir}/
+
+# Libraries you can link against
+for lib in libcuda libnvcuvid libnvidia-encode; do
+    ln -sf $lib.so.%{version} %{buildroot}%{_libdir}/$lib.so
+done
+
+# Vdpau driver
+install -D -p -m 0755 libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
+ln -sf libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau/libvdpau_nvidia.so.1
+
+%if 0%{?rhel} == 7 || 0%{?rhel} == 6 || 0%{?fedora} == 24
 # GlVND
-ln -s %{_libdir}/libGLX_mesa.so.0 $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLX_indirect.so.0
-
-# Fix unowned lib links
-ln -s libEGL_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libEGL_nvidia.so.0
-ln -s libGLESv2_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLESv2_nvidia.so.2
-ln -s libGLX_nvidia.so.%{version} $RPM_BUILD_ROOT%{_nvidia_libdir}/libGLX_nvidia.so.0
-
-%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
-#Workaround for cuda availability - rfbz#2916
-ln -fs %{_nvidia_libdir}/libcuda.so.1 $RPM_BUILD_ROOT%{_libdir}/libcuda.so.1
-ln -fs %{_nvidia_libdir}/libcuda.so $RPM_BUILD_ROOT%{_libdir}/libcuda.so
+ln -s %{_libdir}/libGLX_mesa.so.0 %{buildroot}%{_libdir}/libGLX_indirect.so.0
 %endif
+
+# X DDX driver and GLX extension
+install -p -D -m 0755 libglx.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglx.so.%{version}
+ln -sf libglx.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglx.so
+install -D -p -m 0755 nvidia_drv.so %{buildroot}%{_libdir}/xorg/modules/drivers/nvidia_drv.so
 
 %ifarch x86_64 i686
 # OpenCL config
-install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
-install -p -m 0644 nvidia.icd $RPM_BUILD_ROOT%{_sysconfdir}/OpenCL/vendors/
+install    -m 0755         -d %{buildroot}%{_sysconfdir}/OpenCL/vendors/
+install -p -m 0644 nvidia.icd %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 # Vulkan config
-install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
-install -p -m 0644 nvidia_icd.json $RPM_BUILD_ROOT%{_sysconfdir}/vulkan/icd.d/
+install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/icd.d/
+install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/
 %endif
 # EGL config
-install    -m 0755         -d $RPM_BUILD_ROOT%{_sysconfdir}/glvnd/egl_vendor.d/
-install -p -m 0644 10_nvidia.json $RPM_BUILD_ROOT%{_sysconfdir}/glvnd/egl_vendor.d/
-
-#Vdpau
-install -m 0755 -d $RPM_BUILD_ROOT%{_libdir}/vdpau/
-install -p -m 0755 libvdpau*.so.%{version}     $RPM_BUILD_ROOT%{_libdir}/vdpau
-
-#
-mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
-mkdir -p $RPM_BUILD_ROOT%{_nvidia_xorgdir}
-
-# .. but some in a different place
-install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_xorgdir}
-install -m 0755 -d $RPM_BUILD_ROOT%{_nvidia_xorgdir}
-rm -f $RPM_BUILD_ROOT%{_nvidia_libdir}/lib{nvidia-wfb,glx,vdpau*}.so.%{version}
-
-# Finish up the special case libs
-install -p -m 0755 libglx.so.%{version}        $RPM_BUILD_ROOT%{_nvidia_xorgdir}
-install -p -m 0755 nvidia_drv.so               $RPM_BUILD_ROOT%{_libdir}/xorg/modules/drivers/
+install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
+install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
 
 # ld.so.conf.d file
 %if 0%{?rhel} > 6 || 0%{?fedora} <= 24
-install -m 0755 -d       $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/
-echo -e "%{_nvidia_libdir} \n%{_glvnd_libdir} \n" > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
+install -m 0755 -d       %{buildroot}%{_sysconfdir}/ld.so.conf.d/
+echo -e "%{_glvnd_libdir} \n" > %{buildroot}%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %endif
 
 # Blacklist nouveau, autoload nvidia-uvm module after nvidia module
-install    -m 0755 -d                     $RPM_BUILD_ROOT%{_modprobe_d}/
-install -p -m 0644 %{SOURCE6} %{SOURCE15} $RPM_BUILD_ROOT%{_modprobe_d}/
+install    -m 0755 -d                     %{buildroot}%{_modprobe_d}/
+install -p -m 0644 %{SOURCE6} %{SOURCE15} %{buildroot}%{_modprobe_d}/
 
 # UDev rules for nvidia-uvm
-install    -m 0755 -d          $RPM_BUILD_ROOT%{_udevrulesdir}
-install -p -m 0644 %{SOURCE14} $RPM_BUILD_ROOT%{_udevrulesdir}
+install    -m 0755 -d          %{buildroot}%{_udevrulesdir}
+install -p -m 0644 %{SOURCE14} %{buildroot}%{_udevrulesdir}
 
 # Install binaries
-install -m 0755 -d $RPM_BUILD_ROOT%{_bindir}
+install -m 0755 -d %{buildroot}%{_bindir}
 install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,xconfig,settings,persistenced} \
-  $RPM_BUILD_ROOT%{_bindir}
+  %{buildroot}%{_bindir}
 
 # Install headers
-install -m 0755 -d $RPM_BUILD_ROOT%{_includedir}/nvidia/GL/
-install -p -m 0644 {gl.h,glext.h,glx.h,glxext.h} $RPM_BUILD_ROOT%{_includedir}/nvidia/GL/
+install -m 0755 -d %{buildroot}%{_includedir}/nvidia/GL/
+install -p -m 0644 {gl.h,glext.h,glx.h,glxext.h} %{buildroot}%{_includedir}/nvidia/GL/
 
 # Install man pages
-install    -m 0755 -d   $RPM_BUILD_ROOT%{_mandir}/man1/
+install    -m 0755 -d   %{buildroot}%{_mandir}/man1/
 install -p -m 0644 nvidia-{cuda-mps-control,persistenced,settings,smi,xconfig}.1.gz \
-  $RPM_BUILD_ROOT%{_mandir}/man1/
-
-# Make unversioned links to dynamic libs
-for lib in $( find $RPM_BUILD_ROOT%{_libdir} -name lib\*.%{version} ) ; do
-  ln -s ${lib##*/} ${lib%.%{version}}
-  ln -s ${lib##*/} ${lib%.%{version}}.1
-done
-
+  %{buildroot}%{_mandir}/man1/
 
 # Install nvidia icon
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/pixmaps
-install -pm 0644 nvidia-settings.png $RPM_BUILD_ROOT%{_datadir}/pixmaps
-
-# Remove duplicate install
-rm $RPM_BUILD_ROOT%{_nvidia_libdir}/libnvidia-{cfg,tls}.so
+mkdir -p %{buildroot}%{_datadir}/pixmaps
+install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps
 
 #Install static driver dependant configuration files
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
+mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 %if 0%{?rhel} > 6 || 0%{?fedora} <= 24
-install -pm 0644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
+install -pm 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 %endif
-install -pm 0644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/X11/
+install -pm 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/X11/
 %if 0%{?fedora} <= 24
-install -pm 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
-sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
-touch -r %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
+install -pm 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
+sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
+touch -r %{SOURCE2} %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %endif
 # Comment Xorg abi override
-#install -pm 0644 %{SOURCE11} $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
+#install -pm 0644 %{SOURCE11} %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 
 # Fix desktop file and validate
 sed -i -e 's|__UTILS_PATH__/||g' -e 's|__PIXMAP_PATH__/||g' nvidia-settings.desktop
 sed -i -e 's|nvidia-settings.png|nvidia-settings|g' nvidia-settings.desktop
 desktop-file-install --vendor "" \
-    --dir $RPM_BUILD_ROOT%{_datadir}/applications/ \
+    --dir %{buildroot}%{_datadir}/applications/ \
     nvidia-settings.desktop
 
 %if 0%{?rhel} < 8 || 0%{?fedora} <= 24
@@ -338,52 +323,52 @@ ln -fs ../../%{_nvidia_serie}/xorg $RPM_BUILD_ROOT%{_libdir}/xorg/modules/%{_nvi
 %endif
 
 #Alternate-install-present is checked by the nvidia .run
-install -p -m 0644 %{SOURCE7}            $RPM_BUILD_ROOT%{_nvidia_libdir}
+install -p -m 0644 %{SOURCE7}            %{buildroot}%{_nvidia_libdir}
 
 #install the NVIDIA supplied application profiles
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/nvidia
-install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} $RPM_BUILD_ROOT%{_datadir}/nvidia
+mkdir -p %{buildroot}%{_datadir}/nvidia
+install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} %{buildroot}%{_datadir}/nvidia
 
 #Install the output class configuration file - xorg-server >= 1.16
 %if 0%{?fedora} >= 25
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d
-install -pm 0644 %{SOURCE10} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
-sed -i -e 's|@LIBDIR@|%{_libdir}|g' $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
-touch -r %{SOURCE10} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
+mkdir -p %{buildroot}%{_datadir}/X11/xorg.conf.d
+install -pm 0644 %{SOURCE10} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
+sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
+touch -r %{SOURCE10} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 %endif
 %if 0%{?rhel} == 7 || 0%{?fedora} == 24
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d
-install -pm 0644 %{SOURCE8} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d/nvidia.conf
+mkdir -p %{buildroot}%{_datadir}/X11/xorg.conf.d
+install -pm 0644 %{SOURCE8} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 %endif
 
 #Install the initscript
 tar jxf nvidia-persistenced-init.tar.bz2
 %if 0%{?rhel} > 6 || 0%{?fedora}
-mkdir -p $RPM_BUILD_ROOT%{_unitdir}
+mkdir -p %{buildroot}%{_unitdir}
 install -pm 0644 nvidia-persistenced-init/systemd/nvidia-persistenced.service.template \
-  $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.service
+  %{buildroot}%{_unitdir}/nvidia-persistenced.service
 #Change the daemon running owner
-sed -i -e "s/__USER__/root/" $RPM_BUILD_ROOT%{_unitdir}/nvidia-persistenced.service
+sed -i -e "s/__USER__/root/" %{buildroot}%{_unitdir}/nvidia-persistenced.service
 %endif
 
 #Create the default nvidia config directory
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/nvidia
+mkdir -p %{buildroot}%{_sysconfdir}/nvidia
 
 #Ghost Xorg nvidia.conf file
-touch $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
+touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 
 #Install the nvidia kernel modules sources archive
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/nvidia-kmod-%{version}
-tar Jcf $RPM_BUILD_ROOT%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_target_cpu}.tar.xz kernel
+mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
+tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_target_cpu}.tar.xz kernel
 
 #Add autostart file for nvidia-settings to load user config
-install -D -p -m 0644 %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
+install -D -p -m 0644 %{SOURCE9} %{buildroot}%{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
 
 %if 0%{?fedora} >= 25
 # install AppData and add modalias provides
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/appdata/
-install -pm 0644 %{SOURCE12} $RPM_BUILD_ROOT%{_datadir}/appdata/
-fn=$RPM_BUILD_ROOT%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
+mkdir -p %{buildroot}%{_datadir}/appdata/
+install -pm 0644 %{SOURCE12} %{buildroot}%{_datadir}/appdata/
+fn=%{buildroot}%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
 %{SOURCE13} README.txt "NVIDIA GEFORCE GPUS" | xargs appstream-util add-provide ${fn} modalias
 %{SOURCE13} README.txt "NVIDIA QUADRO GPUS" | xargs appstream-util add-provide ${fn} modalias
 %{SOURCE13} README.txt "NVIDIA NVS GPUS" | xargs appstream-util add-provide ${fn} modalias
@@ -432,7 +417,6 @@ fi || :
 %post libs -p /sbin/ldconfig
 
 %post cuda
-/sbin/ldconfig
 %if 0%{?rhel} > 6 || 0%{?fedora}
 %systemd_post nvidia-persistenced.service
 %endif
@@ -482,7 +466,6 @@ fi ||:
 %postun libs -p /sbin/ldconfig
 
 %postun cuda
-/sbin/ldconfig
 %if 0%{?rhel} > 6 || 0%{?fedora}
 %systemd_postun_with_restart nvidia-persistenced.service
 %endif
@@ -496,9 +479,9 @@ fi ||:
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
 %ifarch x86_64 i686
-%config %{_sysconfdir}/vulkan/icd.d/nvidia_icd.json
+%{_datadir}/vulkan/icd.d/nvidia_icd.json
 %endif
-%config %{_sysconfdir}/glvnd/egl_vendor.d/10_nvidia.json
+%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 %dir %{_sysconfdir}/nvidia
 %ghost  %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %if 0%{?rhel} > 6 || 0%{?fedora} <= 24
@@ -514,24 +497,23 @@ fi ||:
 %{_bindir}/nvidia-settings
 %{_bindir}/nvidia-xconfig
 # Xorg libs that do not need to be multilib
-%if 0%{?fedora} >= 25
-%{_nvidia_serie_libdir}
-%endif
-%{_nvidia_xorgdir}
+%dir %{_nvidia_xorgdir}
+%{_nvidia_xorgdir}/libglx.so
+%{_nvidia_xorgdir}/libglx.so.%{version}
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 %if 0%{?rhel} < 8 || 0%{?fedora} <= 24
 %{_libdir}/xorg/modules/%{_nvidia_serie}-%{version}
 %endif
 %ifarch %{arm}
-%{_nvidia_libdir}/libnvidia-gtk2.so*
+%{_libdir}/libnvidia-gtk2.so.%{version}
 %endif
 %ifarch x86_64 i686
 %if 0%{?rhel} == 6
-%exclude %{_nvidia_libdir}/libnvidia-gtk3.so*
-%{_nvidia_libdir}/libnvidia-gtk2.so*
+%exclude %{_libdir}/libnvidia-gtk3.so.%{version}
+%{_libdir}/libnvidia-gtk2.so.%{version}
 %else
-%exclude %{_nvidia_libdir}/libnvidia-gtk2.so*
-%{_nvidia_libdir}/libnvidia-gtk3.so*
+%exclude %{_libdir}/libnvidia-gtk2.so.%{version}
+%{_libdir}/libnvidia-gtk3.so.%{version}
 %endif
 %endif
 #/no_multilib
@@ -555,22 +537,33 @@ fi ||:
 %files libs
 %if 0%{?rhel} > 6 || 0%{?fedora} <= 24
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
+%dir %{_libdir}
+%endif
 %dir %{_nvidia_libdir}
-%endif
 %{_nvidia_libdir}/alternate-install-present
-%{_nvidia_libdir}/*.so.*
-%exclude %{_nvidia_libdir}/libcuda.so*
-%exclude %{_nvidia_libdir}/libnvidia-gtk*.so*
-%exclude %{_nvidia_libdir}/libnvcuvid.so*
-%exclude %{_nvidia_libdir}/libnvidia-encode.so*
-%exclude %{_nvidia_libdir}/libnvidia-fatbinaryloader.so*
-%exclude %{_nvidia_libdir}/libnvidia-ml.so*
-%exclude %{_nvidia_libdir}/libnvidia-ptxjitcompiler.so*
-%ifarch x86_64 i686
-%exclude %{_nvidia_libdir}/libnvidia-compiler.so*
-%exclude %{_nvidia_libdir}/libnvidia-opencl.so*
+%{_libdir}/libEGL_nvidia.so.0
+%{_libdir}/libEGL_nvidia.so.%{version}
+%{_libdir}/libGLESv1_CM_nvidia.so.1
+%{_libdir}/libGLESv1_CM_nvidia.so.%{version}
+%{_libdir}/libGLESv2_nvidia.so.2
+%{_libdir}/libGLESv2_nvidia.so.%{version}
+%if 0%{?rhel} == 7 || 0%{?rhel} == 6 || 0%{?fedora} == 24
+%{_libdir}/libGLX_indirect.so.0
 %endif
-%{_libdir}/vdpau/libvdpau_nvidia.so.*
+%{_libdir}/libGLX_nvidia.so.0
+%{_libdir}/libGLX_nvidia.so.%{version}
+%{_libdir}/libnvidia-cfg.so.1
+%{_libdir}/libnvidia-cfg.so.%{version}
+%{_libdir}/libnvidia-eglcore.so.%{version}
+%{_libdir}/libnvidia-fbc.so.1
+%{_libdir}/libnvidia-fbc.so.%{version}
+%{_libdir}/libnvidia-glcore.so.%{version}
+%{_libdir}/libnvidia-glsi.so.%{version}
+%{_libdir}/libnvidia-ifr.so.1
+%{_libdir}/libnvidia-ifr.so.%{version}
+%{_libdir}/libnvidia-tls.so.%{version}
+%{_libdir}/vdpau/libvdpau_nvidia.so.1
+%{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
 
 %files cuda
 %license nvidiapkg/LICENSE
@@ -582,15 +575,7 @@ fi ||:
 %{_bindir}/nvidia-cuda-mps-control
 %{_bindir}/nvidia-cuda-mps-server
 %{_bindir}/nvidia-persistenced
-%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
-%{_libdir}/libcuda.so*
-%endif
-%{_nvidia_libdir}/libnvidia-fatbinaryloader.so*
-%{_nvidia_libdir}/libnvidia-ml.so*
-%{_nvidia_libdir}/libnvidia-ptxjitcompiler.so*
 %ifarch x86_64 i686
-%{_nvidia_libdir}/libnvidia-compiler.so*
-%{_nvidia_libdir}/libnvidia-opencl.so*
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %endif
 %{_mandir}/man1/nvidia-smi.*
@@ -600,22 +585,27 @@ fi ||:
 %{_udevrulesdir}/60-nvidia-uvm.rules
 
 %files cuda-libs
-%{_nvidia_libdir}/libcuda.so*
-%{_nvidia_libdir}/libnvcuvid.so*
-%{_nvidia_libdir}/libnvidia-encode.so*
+%{_libdir}/libcuda.so
+%{_libdir}/libcuda.so.1
+%{_libdir}/libcuda.so.%{version}
+%{_libdir}/libnvcuvid.so.1
+%{_libdir}/libnvcuvid.so.%{version}
+%{_libdir}/libnvidia-encode.so.1
+%{_libdir}/libnvidia-encode.so.%{version}
+%{_libdir}/libnvidia-fatbinaryloader.so.%{version}
+%{_libdir}/libnvidia-ml.so.1
+%{_libdir}/libnvidia-ml.so.%{version}
+%{_libdir}/libnvidia-ptxjitcompiler.so.%{version}
+%ifarch x86_64 i686
+%{_libdir}/libnvidia-compiler.so.%{version}
+%{_libdir}/libnvidia-opencl.so.1
+%{_libdir}/libnvidia-opencl.so.%{version}
+%endif
 
 %files devel
 %{_includedir}/nvidia/
-%{_libdir}/vdpau/libvdpau_nvidia.so
-%{_nvidia_libdir}/libnvidia-ifr.so
-%{_nvidia_libdir}/libEGL_nvidia.so
-%{_nvidia_libdir}/libGLESv1_CM_nvidia.so
-%{_nvidia_libdir}/libGLESv2_nvidia.so
-%{_nvidia_libdir}/libnvidia-eglcore.so
-%{_nvidia_libdir}/libnvidia-fbc.so
-%{_nvidia_libdir}/libnvidia-glcore.so
-%{_nvidia_libdir}/libnvidia-glsi.so
-%{_nvidia_libdir}/libGLX_nvidia.so
+%{_libdir}/libnvcuvid.so
+%{_libdir}/libnvidia-encode.so
 
 %changelog
 * Fri Apr 07 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:381.09-1
