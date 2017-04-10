@@ -1,6 +1,10 @@
 %global        _nvidia_serie        nvidia
 %global        _nvidia_libdir       %{_libdir}/%{_nvidia_serie}
 %global        _nvidia_xorgdir      %{_nvidia_libdir}/xorg
+# Unfortunately this is always hardcoded regardless of architecture:
+# https://github.com/NVIDIA/nvidia-installer/blob/master/misc.c#L2443
+# https://github.com/NVIDIA/nvidia-installer/blob/master/misc.c#L2556-L2558
+%global        _alternate_dir       %{_prefix}/lib/nvidia
 
 %if 0%{?rhel} || 0%{?fedora} == 24
 %global        _glvnd_libdir        %{_libdir}/libglvnd
@@ -324,7 +328,8 @@ desktop-file-install --vendor "" \
     nvidia-settings.desktop
 
 #Alternate-install-present is checked by the nvidia .run
-install -p -m 0644 %{SOURCE7}            %{buildroot}%{_nvidia_libdir}
+mkdir -p %{buildroot}%{_alternate_dir}
+install -p -m 0644 %{SOURCE7} %{buildroot}%{_alternate_dir}
 
 #install the NVIDIA supplied application profiles
 mkdir -p %{buildroot}%{_datadir}/nvidia
@@ -442,6 +447,8 @@ fi ||:
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
+%dir %{_alternate_dir}
+%{_alternate_dir}/alternate-install-present
 %ifarch x86_64 i686
 %{_datadir}/vulkan/icd.d/nvidia_icd.json
 %endif
@@ -503,7 +510,6 @@ fi ||:
 %dir %{_libdir}
 %endif
 %dir %{_nvidia_libdir}
-%{_nvidia_libdir}/alternate-install-present
 %{_libdir}/libEGL_nvidia.so.0
 %{_libdir}/libEGL_nvidia.so.%{version}
 %{_libdir}/libGLESv1_CM_nvidia.so.1
