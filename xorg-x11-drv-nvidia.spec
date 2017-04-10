@@ -25,7 +25,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         381.09
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -152,13 +152,12 @@ which is generated during the build of main package.
 %package libs
 Summary:         Libraries for %{name}
 Requires:        libvdpau%{?_isa} >= 0.5
-Requires:        libglvnd%{?_isa} >= 0.2
-%if 0%{?fedora} >= 25
-Requires:        egl-wayland%{?_isa} >= 1.0.0
 Requires:        libglvnd-egl%{?_isa} >= 0.2
 Requires:        libglvnd-gles%{?_isa} >= 0.2
 Requires:        libglvnd-glx%{?_isa} >= 0.2
 Requires:        libglvnd-opengl%{?_isa} >= 0.2
+%if 0%{?fedora} >= 25
+Requires:        egl-wayland%{?_isa} >= 1.0.0
 Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
@@ -572,6 +571,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Mon Apr 10 2017 Simone Caronni <negativo17@gmail.com> - 1:381.09-3
+- Also use split libglvnd packages for Fedora 24 and RHEL 6/7.
+
 * Mon Apr 10 2017 Simone Caronni <negativo17@gmail.com> - 1:381.09-2
 - Simplify GRUB installation for Grub 1 (RHEL 6) and Grub 2 (RHEL 7+/Fedora), do
   not use obsolete kernel parameters.
