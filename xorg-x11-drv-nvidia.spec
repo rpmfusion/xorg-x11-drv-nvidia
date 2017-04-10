@@ -25,7 +25,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         381.09
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -572,6 +572,33 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Mon Apr 10 2017 Simone Caronni <negativo17@gmail.com> - 1:381.09-2
+- Simplify GRUB installation for Grub 1 (RHEL 6) and Grub 2 (RHEL 7+/Fedora), do
+  not use obsolete kernel parameters.
+- Add kernel parameters to default grub file on Fedora/RHEL 7+.
+- Bring default RHEL 6 X.org configuration on par with Fedora/RHEL 7+ and make
+  sure it is installed by default.
+- Install RHEL 6 X.org configuration template only on RHEL 6, make sure it does
+  not end in .conf to avoid confusion.
+- Package only required symlinks for libraries.
+- Add only the libraries that program can link to in the devel subpackage.
+- Make CUDA subpackages multilib compliant (no more CUDA i686 binaries on
+  x86_64).
+- Do not require main packages for libraries subpackages, this makes possible to
+  build things that link to Nvidia drivers using only libraries and not pulling
+  all the graphic driver components.
+- Fix files listed twice during build.
+- Install non conflicting libraries in standard locations, remove all redundant
+  directory overrides for the various distributions. This also removes the link
+  libGLX_indirect.so.0.
+- Explicitly list all libraries included in the packages, avoid too many
+  if/exclude directives.
+- Various fixups from Nicolas Chauvet:
+  * buildroot
+  * glvnd vulkan to use _datadir
+  * Use nvidia_libdir for alternate install file
+  * arm and opencl
+
 * Fri Apr 07 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:381.09-1
 - Update to 381.09 beta
 
