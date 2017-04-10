@@ -10,8 +10,13 @@
 %global        _modprobe_d          %{_sysconfdir}/modprobe.d/
 # RHEL 6 does not have _udevrulesdir defined
 %global        _udevrulesdir        %{_prefix}/lib/udev/rules.d/
+%global        _modprobe_d          %{_sysconfdir}/modprobe.d/
+%global        _dracutopts          nouveau.modeset=0 rdblacklist=nouveau
+%global        _grubby              /sbin/grubby --grub --update-kernel=ALL
 %else
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
+%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau
+%global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %endif
 
 %global	       debug_package %{nil}
@@ -29,7 +34,7 @@ Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-L
 Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source4:         ftp://download.nvidia.com/XFree86/Linux-32bit-ARM/%{version}/NVIDIA-Linux-armv7l-gnueabihf-%{version}.run
 Source2:         99-nvidia.conf
-Source3:         nvidia-xorg.conf
+Source3:         xorg.conf.nvidia
 Source5:         00-avoid-glamor.conf
 Source6:         blacklist-nouveau.conf
 Source7:         alternate-install-present
@@ -301,7 +306,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 %if 0%{?rhel} > 6 || 0%{?fedora} <= 24
 install -pm 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 %endif
-install -pm 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/X11/
+%if 0%{?rhel} == 6
+install -pm 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/X11/xorg.conf.nvidia
+%endif
 %if 0%{?fedora} <= 24
 install -pm 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
@@ -386,31 +393,10 @@ fi
 %post
 /sbin/ldconfig
 if [ "$1" -eq "1" ]; then
-  ISGRUB1=""
-  if [[ -f /boot/grub/grub.conf && ! -f /boot/grub2/grub.cfg ]] ; then
-      ISGRUB1="--grub"
-      GFXPAYLOAD="vga=normal"
-  else
-      #echo "GRUB_GFXPAYLOAD_LINUX=text" >> %{_sysconfdir}/default/grub
-      if [ -f /boot/grub2/grub.cfg ]; then
-        /sbin/grub2-mkconfig -o /boot/grub2/grub.cfg
-      fi
-      if [ -f /boot/efi/EFI/fedora/grub.cfg ]; then
-        /sbin/grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
-      fi
-  fi
-  if [ -x /sbin/grubby ] ; then
-    KERNELS=`/sbin/grubby --default-kernel`
-    DIST=`rpm -E %%{?dist}`
-    ARCH=`uname -m`
-    [ -z $KERNELS ] && KERNELS=`ls /boot/vmlinuz-*${DIST}.${ARCH}*`
-    for kernel in ${KERNELS} ; do
-      /sbin/grubby $ISGRUB1 \
-        --update-kernel=${kernel} \
-        --args="nouveau.modeset=0 rd.driver.blacklist=nouveau $GFXPAYLOAD" \
-         &>/dev/null
-    done
-  fi
+  %{_grubby} --args='%{_dracutopts}' &>/dev/null
+%if 0%{?fedora} || 0%{?rhel} >= 7
+  sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
+%endif
 fi || :
 
 
@@ -423,37 +409,21 @@ fi || :
 
 %post cuda-libs -p /sbin/ldconfig
 
+%if 0%{?rhel} == 6
+%posttrans
+[ -f %{_sysconfdir}/X11/xorg.conf ] || cp -p %{_sysconfdir}/X11/xorg.conf.nvidia %{_sysconfdir}/X11/xorg.conf || :
+%endif
 
 %preun
 if [ "$1" -eq "0" ]; then
-  ISGRUB1=""
-  if [[ -f /boot/grub/grub.conf && ! -f /boot/grub2/grub.cfg ]] ; then
-      ISGRUB1="--grub"
-  else
-    sed -i -e 's|GRUB_GFXPAYLOAD_LINUX=text||g' /etc/default/grub
-      if [ -f /boot/grub2/grub.cfg ]; then
-        /sbin/grub2-mkconfig -o /boot/grub2/grub.cfg
-      fi
-      if [ -f /boot/efi/EFI/fedora/grub.cfg ]; then
-        /sbin/grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
-      fi
-  fi
-  if [ -x /sbin/grubby ] ; then
-    DIST=`rpm -E %%{?dist}`
-    ARCH=`uname -m`
-    KERNELS=`ls /boot/vmlinuz-*${DIST}.${ARCH}*`
-    for kernel in ${KERNELS} ; do
-      /sbin/grubby $ISGRUB1 \
-        --update-kernel=${kernel} \
-        --remove-args="nouveau.modeset=0 rdblacklist=nouveau \
-            rd.driver.blacklist=nouveau nomodeset video=vesa:off \
-            gfxpayload=vga=normal vga=normal" &>/dev/null
-    done
-  fi
-
-  #Backup and disable previously used xorg.conf
-  [ -f %{_sysconfdir}/X11/xorg.conf ] && \
-    mv  %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.%{name}_uninstalled &>/dev/null
+  %{_grubby} --remove-args='%{_dracutopts}' &>/dev/null
+%if 0%{?fedora} || 0%{?rhel} >= 7
+  sed -i -e 's/%{_dracutopts} //g' /etc/default/grub
+%endif
+%if 0%{?rhel} == 6
+  # Backup and disable previously used xorg.conf
+  [ -f %{_sysconfdir}/X11/xorg.conf ] && mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.nvidia_uninstalled &>/dev/null
+%endif
 fi ||:
 
 %if 0%{?rhel} > 6 || 0%{?fedora}
@@ -491,7 +461,9 @@ fi ||:
 # Comment Xorg abi override
 #%%config %%{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
 %config(noreplace) %{_modprobe_d}/blacklist-nouveau.conf
-%config(noreplace) %{_sysconfdir}/X11/nvidia-xorg.conf
+%if 0%{?rhel} == 6
+%config(noreplace) %{_sysconfdir}/X11/xorg.conf.nvidia
+%endif
 %config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
 %{_bindir}/nvidia-bug-report.sh
 %{_bindir}/nvidia-settings
