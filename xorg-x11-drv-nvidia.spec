@@ -391,6 +391,10 @@ if [ "$1" -eq "1" ]; then
 %endif
 fi || :
 
+%if 0%{?fedora} || 0%{?rhel} >= 7
+%triggerin -- xorg-x11-drv-nvidia < 381.09-5
+%{_grubby} --args='%{_dracutopts}' &>/dev/null || :
+%endif
 
 %post libs -p /sbin/ldconfig
 
