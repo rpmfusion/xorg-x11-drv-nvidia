@@ -274,7 +274,7 @@ install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/
 %endif
 # EGL config
 install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
-install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
+install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/90_nvidia_json
 
 # ld.so.conf.d file
 %if ! 0%{?fedora} >= 25
@@ -448,7 +448,7 @@ fi ||:
 %ifarch x86_64 i686
 %{_datadir}/vulkan/icd.d/nvidia_icd.json
 %endif
-%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
+%{_datadir}/glvnd/egl_vendor.d/90_nvidia.json
 %dir %{_sysconfdir}/nvidia
 %ghost %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 %ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
