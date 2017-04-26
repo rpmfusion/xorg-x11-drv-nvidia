@@ -253,7 +253,8 @@ ln -sf libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau/libvdpau_nvidi
 
 # GlVND
 %if 0%{?fedora} >= 25
-ln -s libGLX_mesa.so.0 %{buildroot}%{_libdir}/libGLX_indirect.so.0
+# We keep the same symlink than mesa-libGL to avoid conflict
+ln -s %{_libdir}/libGLX_mesa.so.0 %{buildroot}%{_libdir}/libGLX_indirect.so.0
 %else
 ln -s libGLX_nvidia.so.%{version} %{buildroot}%{_libdir}/libGLX_indirect.so.0
 %endif
