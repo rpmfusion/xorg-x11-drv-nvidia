@@ -31,7 +31,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
 Version:         381.09
-Release:         3%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -569,6 +569,13 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Wed Apr 26 2017 Nicolas Chauvet <kwizart@gmail.com> - 1:381.09-5
+- Use modprobe.blacklist cmdline instead of blacklist file on fedora.
+- Use triggerin to install the new cmdline
+- Re-org Xorg config files installation
+- Switch to http instead of ftp for download URL
+- Point libGLX_indirect to Mesa on f25+ or to nvidia
+
 * Mon Apr 10 2017 Simone Caronni <negativo17@gmail.com> - 1:381.09-3
 - Also use split libglvnd packages for Fedora 24 and RHEL 6/7.
 
