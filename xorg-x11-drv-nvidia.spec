@@ -5,10 +5,7 @@
 # https://github.com/NVIDIA/nvidia-installer/blob/master/misc.c#L2443
 # https://github.com/NVIDIA/nvidia-installer/blob/master/misc.c#L2556-L2558
 %global        _alternate_dir       %{_prefix}/lib/nvidia
-
-%if 0%{?rhel} || 0%{?fedora} == 24
 %global        _glvnd_libdir        %{_libdir}/libglvnd
-%endif
 
 %if 0%{?rhel} == 6
 %global        _modprobe_d          %{_sysconfdir}/modprobe.d/
@@ -17,14 +14,19 @@
 %global        _modprobe_d          %{_sysconfdir}/modprobe.d/
 %global        _dracutopts          nouveau.modeset=0 rdblacklist=nouveau
 %global        _grubby              /sbin/grubby --grub --update-kernel=ALL
-%else
+%else #rhel > 6 or fedora
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
-%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
+%if 0%{?rhel} == 7
+%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau
+%else #fedora
+%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
+%endif
 %endif
 
 %global	       debug_package %{nil}
 %global	       __strip /bin/true
+
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
@@ -34,18 +36,17 @@ Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
 URL:             http://www.nvidia.com/
-Source0:         ftp://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
-Source1:         ftp://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-Source4:         ftp://download.nvidia.com/XFree86/Linux-32bit-ARM/%{version}/NVIDIA-Linux-armv7l-gnueabihf-%{version}.run
-Source2:         99-nvidia.conf
+Source0:         http://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
+Source1:         http://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source2:         http://download.nvidia.com/XFree86/Linux-32bit-ARM/%{version}/NVIDIA-Linux-armv7l-gnueabihf-%{version}.run
+
 Source3:         xorg.conf.nvidia
+Source4:         99-nvidia.conf
 Source5:         00-avoid-glamor.conf
 Source6:         blacklist-nouveau.conf
 Source7:         alternate-install-present
-Source8:         nvidia-old.conf
 Source9:         nvidia-settings.desktop
 Source10:        nvidia.conf
-Source11:        00-ignoreabi.conf
 Source12:        xorg-x11-drv-nvidia.metainfo.xml
 Source13:        parse-readme.py
 Source14:        60-nvidia-uvm.rules
@@ -64,6 +65,11 @@ Requires(postun): systemd
 # AppStream metadata generation
 BuildRequires:    python2
 BuildRequires:    libappstream-glib >= 0.6.3
+# Xorg with PrimaryGPU
+Requires:         Xorg >= 1.19.0-3
+%else
+# Xorg with OutputClass
+Requires:         Xorg >= 1.16.0-1
 %endif
 
 Requires(post):   ldconfig
@@ -73,11 +79,6 @@ Requires:         which
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
-%if 0%{?fedora} >= 25
-# filesystem is needed as we don't own %%{_libdir}
-Requires:        filesystem
-Requires:        xorg-x11-server-Xorg%{?_isa} >= 1.19.0-3
-%endif
 
 Obsoletes:       %{_nvidia_serie}-kmod < %{?epoch}:%{version}
 Provides:        %{_nvidia_serie}-kmod-common = %{?epoch}:%{version}
@@ -190,7 +191,7 @@ sh %{SOURCE0} \
 sh %{SOURCE1} \
 %endif
 %ifarch armv7hl
-sh %{SOURCE4} \
+sh %{SOURCE2} \
 %endif
   --extract-only --target nvidiapkg-%{_target_cpu}
 ln -s nvidiapkg-%{_target_cpu} nvidiapkg
@@ -250,9 +251,11 @@ done
 install -D -p -m 0755 libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
 ln -sf libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau/libvdpau_nvidia.so.1
 
-%if 0%{?rhel} == 7 || 0%{?rhel} == 6 || 0%{?fedora} == 24
 # GlVND
-ln -s %{_libdir}/libGLX_mesa.so.0 %{buildroot}%{_libdir}/libGLX_indirect.so.0
+%if 0%{?fedora} >= 25
+ln -s libGLX_mesa.so.0 %{buildroot}%{_libdir}/libGLX_indirect.so.0
+%else
+ln -s libGLX_nvidia.so.%{version} %{buildroot}%{_libdir}/libGLX_indirect.so.0
 %endif
 
 # X DDX driver and GLX extension
@@ -273,14 +276,17 @@ install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
 install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
 
 # ld.so.conf.d file
-%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
+%if ! 0%{?fedora} >= 25
 install -m 0755 -d       %{buildroot}%{_sysconfdir}/ld.so.conf.d/
 echo -e "%{_glvnd_libdir} \n" > %{buildroot}%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %endif
 
 # Blacklist nouveau, autoload nvidia-uvm module after nvidia module
-install    -m 0755 -d                     %{buildroot}%{_modprobe_d}/
-install -p -m 0644 %{SOURCE6} %{SOURCE15} %{buildroot}%{_modprobe_d}/
+mkdir -p %{buildroot}%{_modprobe_d}
+install -p -m 0644 %{SOURCE15} %{buildroot}%{_modprobe_d}
+%if ! 0%{?fedora} >= 25
+install -p -m 0644 %{SOURCE6} %{buildroot}%{_modprobe_d}
+%endif
 
 # UDev rules for nvidia-uvm
 install    -m 0755 -d          %{buildroot}%{_udevrulesdir}
@@ -304,22 +310,6 @@ install -p -m 0644 nvidia-{cuda-mps-control,persistenced,settings,smi,xconfig}.1
 mkdir -p %{buildroot}%{_datadir}/pixmaps
 install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps
 
-#Install static driver dependant configuration files
-mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
-%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
-install -pm 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
-%endif
-%if 0%{?rhel} == 6
-install -pm 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/X11/xorg.conf.nvidia
-%endif
-%if 0%{?fedora} <= 24
-install -pm 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
-sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
-touch -r %{SOURCE2} %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
-%endif
-# Comment Xorg abi override
-#install -pm 0644 %{SOURCE11} %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
-
 # Fix desktop file and validate
 sed -i -e 's|__UTILS_PATH__/||g' -e 's|__PIXMAP_PATH__/||g' nvidia-settings.desktop
 sed -i -e 's|nvidia-settings.png|nvidia-settings|g' nvidia-settings.desktop
@@ -335,17 +325,23 @@ install -p -m 0644 %{SOURCE7} %{buildroot}%{_alternate_dir}
 mkdir -p %{buildroot}%{_datadir}/nvidia
 install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} %{buildroot}%{_datadir}/nvidia
 
-#Install the output class configuration file - xorg-server >= 1.16
-%if 0%{?fedora} >= 25
+#Install the Xorg configuration files
+mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 mkdir -p %{buildroot}%{_datadir}/X11/xorg.conf.d
+%if 0%{?fedora} >= 25
 install -pm 0644 %{SOURCE10} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 touch -r %{SOURCE10} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
+%else
+install -pm 0644 nvidia-drm-outputclass.conf %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
+install -pm 0644 %{SOURCE4} %{buildroot}%{_datadir}/X11/xorg.conf.d
+sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
+touch -r %{SOURCE4} %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %endif
-%if 0%{?rhel} == 7 || 0%{?fedora} == 24
-mkdir -p %{buildroot}%{_datadir}/X11/xorg.conf.d
-install -pm 0644 %{SOURCE8} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
-%endif
+#Ghost Xorg nvidia.conf files
+touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
+touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
+touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 
 #Install the initscript
 tar jxf nvidia-persistenced-init.tar.bz2
@@ -359,9 +355,6 @@ sed -i -e "s/__USER__/root/" %{buildroot}%{_unitdir}/nvidia-persistenced.service
 
 #Create the default nvidia config directory
 mkdir -p %{buildroot}%{_sysconfdir}/nvidia
-
-#Ghost Xorg nvidia.conf file
-touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 
 #Install the nvidia kernel modules sources archive
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
@@ -419,10 +412,8 @@ if [ "$1" -eq "0" ]; then
 %if 0%{?fedora} || 0%{?rhel} >= 7
   sed -i -e 's/%{_dracutopts} //g' /etc/default/grub
 %endif
-%if 0%{?rhel} == 6
   # Backup and disable previously used xorg.conf
   [ -f %{_sysconfdir}/X11/xorg.conf ] && mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.nvidia_uninstalled &>/dev/null
-%endif
 fi ||:
 
 %if 0%{?rhel} > 6 || 0%{?fedora}
@@ -454,16 +445,21 @@ fi ||:
 %endif
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 %dir %{_sysconfdir}/nvidia
-%ghost  %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
-%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
-%config %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
-%config %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
-%endif
-# Comment Xorg abi override
-#%%config %%{_sysconfdir}/X11/xorg.conf.d/00-ignoreabi.conf
-%config(noreplace) %{_modprobe_d}/blacklist-nouveau.conf
+%ghost %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
+%ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
+%ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
+%if 0%{?fedora} >= 25
+%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
+%{_datadir}/X11/xorg.conf.d/nvidia.conf
+%else
+%{_datadir}/X11/xorg.conf.d/00-avoid-glamor.conf
+%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
+# RHEL6 uses /etc
 %if 0%{?rhel} == 6
-%config(noreplace) %{_sysconfdir}/X11/xorg.conf.nvidia
+%config(noreplace) %{_modprobe_d}/blacklist-nouveau.conf
+%else
+%{_modprobe_d}/blacklist-nouveau.conf
+%endif
 %endif
 %config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
 %{_bindir}/nvidia-bug-report.sh
@@ -487,12 +483,6 @@ fi ||:
 %endif
 %endif
 #/no_multilib
-%if 0%{?rhel} > 6 || 0%{?fedora}
-%{_datadir}/X11/xorg.conf.d/nvidia.conf
-%endif
-%if 0%{?fedora} >= 25
-%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
-%endif
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-%{version}-*
 %{_datadir}/applications/*nvidia-settings.desktop
@@ -505,7 +495,7 @@ fi ||:
 %{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_target_cpu}.tar.xz
 
 %files libs
-%if 0%{?rhel} > 6 || 0%{?fedora} <= 24
+%if 0%{?rhel} || 0%{?fedora} == 24
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %dir %{_libdir}
 %endif
@@ -516,9 +506,7 @@ fi ||:
 %{_libdir}/libGLESv1_CM_nvidia.so.%{version}
 %{_libdir}/libGLESv2_nvidia.so.2
 %{_libdir}/libGLESv2_nvidia.so.%{version}
-%if 0%{?rhel} == 7 || 0%{?rhel} == 6 || 0%{?fedora} == 24
 %{_libdir}/libGLX_indirect.so.0
-%endif
 %{_libdir}/libGLX_nvidia.so.0
 %{_libdir}/libGLX_nvidia.so.%{version}
 %{_libdir}/libnvidia-cfg.so.1
