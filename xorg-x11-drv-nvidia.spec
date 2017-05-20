@@ -8,8 +8,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           1
-Version:         375.39
-Release:         2%{?dist}
+Version:         375.66
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 Group:           User Interface/X Hardware Support
@@ -573,6 +573,9 @@ fi ||:
 %{_nvidia_libdir}/libGLX_nvidia.so
 
 %changelog
+* Sat May 20 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:375.66-1
+- Update to 375.66 release
+
 * Sun Apr 09 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:375.39-2
 - F24 libglvnd now has sub-packages
 
