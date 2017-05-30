@@ -31,7 +31,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
 Version:         375.66
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -274,7 +274,7 @@ install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/
 %endif
 # EGL config
 install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
-install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/90_nvidia.json
+install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 
 # ld.so.conf.d file
 %if ! 0%{?fedora} >= 25
@@ -448,7 +448,7 @@ fi ||:
 %ifarch x86_64 i686
 %{_datadir}/vulkan/icd.d/nvidia_icd.json
 %endif
-%{_datadir}/glvnd/egl_vendor.d/90_nvidia.json
+%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 %dir %{_sysconfdir}/nvidia
 %ghost %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 %ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
@@ -570,6 +570,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Tue May 30 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:375.66-3
+- Revert 10_nvidia.json rename
+
 * Fri May 12 2017 Nicolas Chauvet <kwizart@gmail.com> - 2:375.66-2
 - Add epoch for triggerin
 
