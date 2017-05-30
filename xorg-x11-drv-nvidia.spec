@@ -13,8 +13,10 @@
 %global        _udevrulesdir        %{_prefix}/lib/udev/rules.d/
 %global        _modprobe_d          %{_sysconfdir}/modprobe.d/
 %global        _dracutopts          nouveau.modeset=0 rdblacklist=nouveau
+%global        _dracut_conf_d	    %{_sysconfdir}/dracut.conf.d
 %global        _grubby              /sbin/grubby --grub --update-kernel=ALL
 %else #rhel > 6 or fedora
+%global        _dracut_conf_d	    %{_prefix}/lib/dracut.conf.d
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %if 0%{?rhel} == 7
@@ -31,7 +33,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
 Version:         375.66
-Release:         4%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -51,6 +53,7 @@ Source12:        xorg-x11-drv-nvidia.metainfo.xml
 Source13:        parse-readme.py
 Source14:        60-nvidia-uvm.rules
 Source15:        nvidia-uvm.conf
+Source16:        99-nvidia-dracut.conf
 
 ExclusiveArch: i686 x86_64 armv7hl
 
@@ -293,6 +296,10 @@ install -p -m 0644 %{SOURCE6} %{buildroot}%{_modprobe_d}
 install    -m 0755 -d          %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE14} %{buildroot}%{_udevrulesdir}
 
+# dracut.conf.d file, nvidia modules must never be in the initrd
+install -p -m 0755 -d          %{buildroot}%{_dracut_conf_d}/
+install -p -m 0644 %{SOURCE16} %{buildroot}%{_dracut_conf_d}/
+
 # Install binaries
 install -m 0755 -d %{buildroot}%{_bindir}
 install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,xconfig,settings,persistenced} \
@@ -476,8 +483,10 @@ fi ||:
 # RHEL6 uses /etc
 %if 0%{?rhel} == 6
 %config(noreplace) %{_modprobe_d}/blacklist-nouveau.conf
+%config(noreplace) %{_dracut_conf_d}/99-nvidia-dracut.conf
 %else
 %{_modprobe_d}/blacklist-nouveau.conf
+%{_dracut_conf_d}/99-nvidia-dracut.conf
 %endif
 %endif
 %config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
@@ -584,8 +593,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
-* Tue May 30 2017 Nicolas Chauvet <kwizart@gmail.com> - 2:375.66-4
+* Tue May 30 2017 Nicolas Chauvet <kwizart@gmail.com> - 2:375.66-5
 - Update the triggerin to insert the new cmdline
+- Avoid the nvidia modules to get added to the initramfs - patch by hansg
 
 * Tue May 30 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:375.66-3
 - Revert 10_nvidia.json rename
