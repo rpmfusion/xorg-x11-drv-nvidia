@@ -476,6 +476,7 @@ fi ||:
 %ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %if 0%{?fedora} >= 25
 %{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
+%{_dracut_conf_d}/99-nvidia-dracut.conf
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
 %else
 %{_datadir}/X11/xorg.conf.d/00-avoid-glamor.conf
