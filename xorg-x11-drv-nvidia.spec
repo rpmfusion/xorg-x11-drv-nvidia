@@ -33,7 +33,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
 Version:         375.66
-Release:         5%{?dist}
+Release:         6%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -400,8 +400,9 @@ if [ "$1" -eq "1" ]; then
 fi || :
 
 %if 0%{?fedora} || 0%{?rhel} >= 7
-%triggerin -- xorg-x11-drv-nvidia < 2:375.66-4
+%triggerun -- xorg-x11-drv-nvidia < 2:375.66-6
 if [ -f %{_sysconfdir}/default/grub ] ; then
+  sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
   . %{_sysconfdir}/default/grub
   if [ -z "${GRUB_CMDLINE_LINUX+x}" ]; then
     echo -e GRUB_CMDLINE_LINUX=\"%{_dracutopts}\" >> %{_sysconfdir}/default/grub
@@ -594,6 +595,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Fri Jun 02 2017 Nicolas Chauvet <kwizart@gmail.com> - 2:375.66-6
+- Remove GRUB_GFXPAYLOAD_LINUX from default/grub
+
 * Tue May 30 2017 Nicolas Chauvet <kwizart@gmail.com> - 2:375.66-5
 - Update the triggerin to insert the new cmdline
 - Avoid the nvidia modules to get added to the initramfs - patch by hansg
