@@ -33,7 +33,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
 Version:         375.66
-Release:         6%{?dist}
+Release:         7%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -400,7 +400,7 @@ if [ "$1" -eq "1" ]; then
 fi || :
 
 %if 0%{?fedora} || 0%{?rhel} >= 7
-%triggerun -- xorg-x11-drv-nvidia < 2:375.66-6
+%triggerun -- xorg-x11-drv-nvidia < 2:375.66-7
 if [ -f %{_sysconfdir}/default/grub ] ; then
   sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
   . %{_sysconfdir}/default/grub
@@ -413,7 +413,7 @@ if [ -f %{_sysconfdir}/default/grub ] ; then
         GRUB_CMDLINE_LINUX="${GRUB_CMDLINE_LINUX} ${i}"
       fi
     done
-    sed -i -e "s/^GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"${GRUB_CMDLINE_LINUX}\"/g" %{_sysconfdir}/default/grub
+    sed -i -e "s|^GRUB_CMDLINE_LINUX=.*|GRUB_CMDLINE_LINUX=\"${GRUB_CMDLINE_LINUX}\"|g" %{_sysconfdir}/default/grub
   fi
 fi
 %{_grubby} --args='%{_dracutopts}' &>/dev/null || :
@@ -595,6 +595,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Tue Jun 13 2017 Nicolas Chauvet <kwizart@gmail.com> - 2:375.66-7
+- Use | instead of / for sed GRUB_CMDLINE_LINUX
+
 * Fri Jun 02 2017 Nicolas Chauvet <kwizart@gmail.com> - 2:375.66-6
 - Remove GRUB_GFXPAYLOAD_LINUX from default/grub
 
