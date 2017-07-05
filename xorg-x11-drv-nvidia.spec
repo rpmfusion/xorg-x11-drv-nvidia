@@ -169,11 +169,9 @@ Requires:        egl-wayland%{?_isa} >= 1.0.0
 Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
-# Boolean dependencies are not yet allowed in fedora, only for testing
-%if 0%{?fedora} >= 26
+# Boolean dependencies are only fedora
 %ifarch x86_64
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
-%endif
 %endif
 %endif
 %ifarch x86_64 i686
