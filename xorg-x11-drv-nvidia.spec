@@ -160,11 +160,11 @@ which is generated during the build of main package.
 %package libs
 Summary:         Libraries for %{name}
 Requires:        libvdpau%{?_isa} >= 0.5
+%if 0%{?fedora} >= 25
 Requires:        libglvnd-egl%{?_isa} >= 0.2
 Requires:        libglvnd-gles%{?_isa} >= 0.2
 Requires:        libglvnd-glx%{?_isa} >= 0.2
 Requires:        libglvnd-opengl%{?_isa} >= 0.2
-%if 0%{?fedora} >= 25
 Requires:        egl-wayland%{?_isa} >= 1.0.0
 Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
@@ -258,6 +258,9 @@ ln -sf libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau/libvdpau_nvidi
 ln -s %{_libdir}/libGLX_mesa.so.0 %{buildroot}%{_libdir}/libGLX_indirect.so.0
 %else
 ln -s libGLX_nvidia.so.%{version} %{buildroot}%{_libdir}/libGLX_indirect.so.0
+# ld.so.conf.d file
+install -m 0755 -d       %{buildroot}%{_sysconfdir}/ld.so.conf.d/
+echo -e "%{_nvidia_libdir} \n" > %{buildroot}%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %endif
 
 # X DDX driver and GLX extension
@@ -273,15 +276,10 @@ install -p -m 0644 nvidia.icd %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/icd.d/
 install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/
 %endif
-# EGL config
+
+# EGL config for libglvnd
 install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
 install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
-
-# ld.so.conf.d file
-%if ! 0%{?fedora} >= 25
-install -m 0755 -d       %{buildroot}%{_sysconfdir}/ld.so.conf.d/
-echo -e "%{_glvnd_libdir} \n" > %{buildroot}%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
-%endif
 
 # Blacklist nouveau, autoload nvidia-uvm module after nvidia module
 mkdir -p %{buildroot}%{_modprobe_d}
@@ -478,6 +476,9 @@ fi ||:
 %{_dracut_conf_d}/99-nvidia-dracut.conf
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
 %else
+# Owns the directory since libglvnd is optional here
+%dir %{_datadir}/glvnd
+%dir %{_datadir}/glvnd/egl_vendor.d
 %{_datadir}/X11/xorg.conf.d/00-avoid-glamor.conf
 %{_datadir}/X11/xorg.conf.d/99-nvidia.conf
 # RHEL6 uses /etc
@@ -525,7 +526,6 @@ fi ||:
 %files libs
 %if 0%{?rhel} || 0%{?fedora} == 24
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
-%dir %{_libdir}
 %endif
 %dir %{_nvidia_libdir}
 %{_libdir}/libEGL_nvidia.so.0
