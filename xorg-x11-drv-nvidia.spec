@@ -42,7 +42,6 @@ Source0:         http://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-
 Source1:         http://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source2:         http://download.nvidia.com/XFree86/Linux-32bit-ARM/%{version}/NVIDIA-Linux-armv7l-gnueabihf-%{version}.run
 
-Source3:         xorg.conf.nvidia
 Source4:         99-nvidia.conf
 Source5:         00-avoid-glamor.conf
 Source6:         blacklist-nouveau.conf
@@ -284,7 +283,7 @@ install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_
 # Blacklist nouveau, autoload nvidia-uvm module after nvidia module
 mkdir -p %{buildroot}%{_modprobe_d}
 install -p -m 0644 %{SOURCE15} %{buildroot}%{_modprobe_d}
-%if ! 0%{?fedora} >= 25
+%if 0%{?rhel} && 0%{?rhel} < 8
 install -p -m 0644 %{SOURCE6} %{buildroot}%{_modprobe_d}
 %endif
 
@@ -339,8 +338,9 @@ touch -r %{SOURCE10} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 %else
 install -pm 0644 nvidia-drm-outputclass.conf %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 install -pm 0644 %{SOURCE4} %{buildroot}%{_datadir}/X11/xorg.conf.d
-sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
-touch -r %{SOURCE4} %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
+install -pm 0644 %{SOURCE5} %{buildroot}%{_datadir}/X11/xorg.conf.d
+sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
+touch -r %{SOURCE4} %{buildroot}%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
 %endif
 #Ghost Xorg nvidia.conf files
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
@@ -471,10 +471,10 @@ fi ||:
 %ghost %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 %ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
+%{_datadir}/X11/xorg.conf.d/nvidia.conf
 %if 0%{?fedora} >= 25
 %{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
 %{_dracut_conf_d}/99-nvidia-dracut.conf
-%{_datadir}/X11/xorg.conf.d/nvidia.conf
 %else
 # Owns the directory since libglvnd is optional here
 %dir %{_datadir}/glvnd
