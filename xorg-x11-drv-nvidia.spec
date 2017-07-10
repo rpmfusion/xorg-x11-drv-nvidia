@@ -273,7 +273,7 @@ install    -m 0755         -d %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 install -p -m 0644 nvidia.icd %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 # Vulkan config
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/icd.d/
-install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{__target_cpu}.json
+install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 %endif
 
 # EGL config for libglvnd
@@ -342,8 +342,8 @@ install -pm 0644 %{SOURCE5} %{buildroot}%{_datadir}/X11/xorg.conf.d
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
 touch -r %{SOURCE4} %{buildroot}%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
 # back to non-glvnd version for vulkan
-sed -i -e 's|libGLX_nvidia.so.0|libGL.so.1|' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{__target_cpu}.json
-touch -r nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{__target_cpu}.json
+sed -i -e 's|libGLX_nvidia.so.0|libGL.so.1|' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+touch -r nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 %endif
 #Ghost Xorg nvidia.conf files
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
