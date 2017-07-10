@@ -33,7 +33,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
 Version:         375.66
-Release:         8%{?dist}
+Release:         9%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -596,6 +596,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Mon Jul 10 2017 Nicolas Chauvet <kwizart@gmail.com> - 2:375.66-9
+- Fixup for non-glvnd vulkan loader
+
 * Wed Jul 05 2017 Nicolas Chauvet <kwizart@gmail.com> - 2:375.66-8
 - Make libglvnd optional on rhel
 - Use boolean dependency on fedora 25 also
