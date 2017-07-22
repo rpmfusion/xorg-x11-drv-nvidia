@@ -159,11 +159,11 @@ which is generated during the build of main package.
 %package libs
 Summary:         Libraries for %{name}
 Requires:        libvdpau%{?_isa} >= 0.5
-%if 0%{?fedora} >= 25
 Requires:        libglvnd-egl%{?_isa} >= 0.2
 Requires:        libglvnd-gles%{?_isa} >= 0.2
 Requires:        libglvnd-glx%{?_isa} >= 0.2
 Requires:        libglvnd-opengl%{?_isa} >= 0.2
+%if 0%{?fedora} >= 25
 Requires:        egl-wayland%{?_isa} >= 1.0.0
 Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
@@ -259,7 +259,7 @@ ln -s %{_libdir}/libGLX_mesa.so.0 %{buildroot}%{_libdir}/libGLX_indirect.so.0
 ln -s libGLX_nvidia.so.%{version} %{buildroot}%{_libdir}/libGLX_indirect.so.0
 # ld.so.conf.d file
 install -m 0755 -d       %{buildroot}%{_sysconfdir}/ld.so.conf.d/
-echo -e "%{_nvidia_libdir} \n" > %{buildroot}%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
+echo -e "%{_nvidia_libdir} \n%{_glvnd_libdir} \n" >  %{buildroot}%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %endif
 
 # X DDX driver and GLX extension
