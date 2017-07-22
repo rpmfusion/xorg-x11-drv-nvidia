@@ -342,7 +342,7 @@ install -pm 0644 %{SOURCE5} %{buildroot}%{_datadir}/X11/xorg.conf.d
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
 touch -r %{SOURCE4} %{buildroot}%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
 # back to non-glvnd version for vulkan
-sed -i -e 's|libGLX_nvidia.so.0|libGL.so.1|' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+#sed -i -e 's|libGLX_nvidia.so.0|libGL.so.1|' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 touch -r nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 %endif
 #Ghost Xorg nvidia.conf files
