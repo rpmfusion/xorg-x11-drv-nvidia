@@ -32,8 +32,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
-Version:         375.66
-Release:         9%{?dist}
+Version:         375.82
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -611,6 +611,10 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Mon Jul 24 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:375.82-1
+- Update to 375.82 release
+- Fix non-glvnd build
+
 * Mon Jul 10 2017 Nicolas Chauvet <kwizart@gmail.com> - 2:375.66-9
 - Fixup for non-glvnd vulkan loader
 
