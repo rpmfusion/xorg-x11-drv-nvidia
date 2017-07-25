@@ -53,6 +53,8 @@ Source13:        parse-readme.py
 Source14:        60-nvidia-uvm.rules
 Source15:        nvidia-uvm.conf
 Source16:        99-nvidia-dracut.conf
+Source20:        10-nvidia.rules
+Source21:        nvidia-fallback.service
 
 ExclusiveArch: i686 x86_64 armv7hl
 
@@ -392,6 +394,12 @@ fn=%{buildroot}%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
 %{SOURCE13} README.txt "NVIDIA TESLA GPUS" | xargs appstream-util add-provide ${fn} modalias
 %endif
 
+# Install nvidia-fallback
+%if 0%{?rhel} >= 6 || 0%{?fedora}
+install -p -m 0644 %{SOURCE20} %{buildroot}%{_udevrulesdir}
+install -p -m 0644 %{SOURCE21} %{buildroot}%{_unitdir}
+%endif
+
 
 %pre
 if [ "$1" -eq "1" ]; then
@@ -483,6 +491,10 @@ fi ||:
 %ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
+%if 0%{?rhel} > 6 || 0%{?fedora}
+%{_udevrulesdir}/10-nvidia.rules
+%{_unitdir}/nvidia-fallback.service
+%endif
 %if 0%{?fedora} >= 25
 %{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
 %{_dracut_conf_d}/99-nvidia-dracut.conf
