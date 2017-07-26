@@ -32,7 +32,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
-Version:         375.82
+Version:         384.59
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -282,8 +282,9 @@ install -D -p -m 0755 nvidia_drv.so %{buildroot}%{_libdir}/xorg/modules/drivers/
 install    -m 0755         -d %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 install -p -m 0644 nvidia.icd %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 # Vulkan config
+sed -i -e 's|__NV_VK_ICD__|libGLX_nvidia.so.0|' nvidia_icd.json.template
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/icd.d/
-install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+install -p -m 0644 nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 %endif
 
 # EGL config for libglvnd
@@ -598,6 +599,7 @@ fi ||:
 %{_libdir}/libnvidia-fatbinaryloader.so.%{version}
 %{_libdir}/libnvidia-ml.so.1
 %{_libdir}/libnvidia-ml.so.%{version}
+%{_libdir}/libnvidia-ptxjitcompiler.so.1
 %{_libdir}/libnvidia-ptxjitcompiler.so.%{version}
 %ifarch x86_64 i686
 %{_libdir}/libnvidia-compiler.so.%{version}
@@ -611,6 +613,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Tue Jul 25 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:384.59-1
+- Update to 384.59 release
+
 * Mon Jul 24 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:375.82-1
 - Update to 375.82 release
 - Fix non-glvnd build
