@@ -54,6 +54,7 @@ Source13:        parse-readme.py
 Source14:        60-nvidia-uvm.rules
 Source15:        nvidia-uvm.conf
 Source16:        99-nvidia-dracut.conf
+Source17:        nvidia-drm.conf
 Source20:        10-nvidia.rules
 Source21:        nvidia-fallback.service
 
@@ -301,6 +302,9 @@ install -p -m 0644 %{SOURCE15} %{buildroot}%{_modprobe_d}
 install -p -m 0644 %{SOURCE6} %{buildroot}%{_modprobe_d}
 %endif
 
+# DRM modprobe conf
+install -p -m 0644 %{SOURCE17} %{buildroot}%{_modprobe_d}
+
 # UDev rules for nvidia
 install    -m 0755 -d          %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE11} %{buildroot}%{_udevrulesdir}
@@ -498,6 +502,7 @@ fi ||:
 %if 0%{?rhel} > 6 || 0%{?fedora}
 %{_udevrulesdir}/10-nvidia.rules
 %{_udevrulesdir}/60-nvidia.rules
+%{_modprobe_d}/nvidia-drm.conf
 %{_unitdir}/nvidia-fallback.service
 %endif
 %if 0%{?fedora} >= 25
