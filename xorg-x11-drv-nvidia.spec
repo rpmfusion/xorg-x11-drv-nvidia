@@ -33,7 +33,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
 Version:         384.59
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -635,6 +635,10 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Tue Aug 15 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:384.59-3
+- Add udev rules so nvidia nodes are created under EGLDevice/wayland
+- Enable modeset for DRM
+
 * Fri Aug 04 2017 Nicolas Chauvet <kwizart@gmail.com> - 2:384.59-2
 - Add nvidia-fallback support
 
