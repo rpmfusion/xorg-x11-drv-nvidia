@@ -48,6 +48,7 @@ Source6:         blacklist-nouveau.conf
 Source7:         alternate-install-present
 Source9:         nvidia-settings.desktop
 Source10:        nvidia.conf
+Source11:        60-nvidia.rules
 Source12:        xorg-x11-drv-nvidia.metainfo.xml
 Source13:        parse-readme.py
 Source14:        60-nvidia-uvm.rules
@@ -300,8 +301,11 @@ install -p -m 0644 %{SOURCE15} %{buildroot}%{_modprobe_d}
 install -p -m 0644 %{SOURCE6} %{buildroot}%{_modprobe_d}
 %endif
 
-# UDev rules for nvidia-uvm
+# UDev rules for nvidia
 install    -m 0755 -d          %{buildroot}%{_udevrulesdir}
+install -p -m 0644 %{SOURCE11} %{buildroot}%{_udevrulesdir}
+
+# UDev rules for nvidia-uvm
 install -p -m 0644 %{SOURCE14} %{buildroot}%{_udevrulesdir}
 
 # dracut.conf.d file, nvidia modules must never be in the initrd
@@ -493,6 +497,7 @@ fi ||:
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
 %if 0%{?rhel} > 6 || 0%{?fedora}
 %{_udevrulesdir}/10-nvidia.rules
+%{_udevrulesdir}/60-nvidia.rules
 %{_unitdir}/nvidia-fallback.service
 %endif
 %if 0%{?fedora} >= 25
