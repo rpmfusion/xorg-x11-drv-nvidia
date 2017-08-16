@@ -12,7 +12,7 @@
 # RHEL 6 does not have _udevrulesdir defined
 %global        _udevrulesdir        %{_prefix}/lib/udev/rules.d/
 %global        _modprobe_d          %{_sysconfdir}/modprobe.d/
-%global        _dracutopts          nouveau.modeset=0 rdblacklist=nouveau
+%global        _dracutopts          nouveau.modeset=0 rdblacklist=nouveau nvidia-drm.modeset=1
 %global        _dracut_conf_d	    %{_sysconfdir}/dracut.conf.d
 %global        _grubby              /sbin/grubby --grub --update-kernel=ALL
 %else #rhel > 6 or fedora
@@ -20,9 +20,9 @@
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %if 0%{?rhel} == 7
-%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau
+%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
 %else #fedora
-%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
+%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
 %endif
 %endif
 
@@ -54,7 +54,6 @@ Source13:        parse-readme.py
 Source14:        60-nvidia-uvm.rules
 Source15:        nvidia-uvm.conf
 Source16:        99-nvidia-dracut.conf
-Source17:        nvidia-drm.conf
 Source20:        10-nvidia.rules
 Source21:        nvidia-fallback.service
 
@@ -302,9 +301,6 @@ install -p -m 0644 %{SOURCE15} %{buildroot}%{_modprobe_d}
 install -p -m 0644 %{SOURCE6} %{buildroot}%{_modprobe_d}
 %endif
 
-# DRM modprobe conf
-install -p -m 0644 %{SOURCE17} %{buildroot}%{_modprobe_d}
-
 # UDev rules for nvidia
 install    -m 0755 -d          %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE11} %{buildroot}%{_udevrulesdir}
@@ -502,7 +498,6 @@ fi ||:
 %if 0%{?rhel} > 6 || 0%{?fedora}
 %{_udevrulesdir}/10-nvidia.rules
 %{_udevrulesdir}/60-nvidia.rules
-%{_modprobe_d}/nvidia-drm.conf
 %{_unitdir}/nvidia-fallback.service
 %endif
 %if 0%{?fedora} >= 25
