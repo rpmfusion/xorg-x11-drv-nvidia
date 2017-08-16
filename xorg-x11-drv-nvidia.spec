@@ -422,7 +422,7 @@ if [ "$1" -eq "1" ]; then
 fi || :
 
 %if 0%{?fedora} || 0%{?rhel} >= 7
-%triggerun -- xorg-x11-drv-nvidia < 2:375.66-7
+%triggerun -- xorg-x11-drv-nvidia < 2:384.59-4
 if [ -f %{_sysconfdir}/default/grub ] ; then
   sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
   . %{_sysconfdir}/default/grub
