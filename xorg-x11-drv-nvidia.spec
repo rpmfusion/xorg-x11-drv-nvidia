@@ -33,7 +33,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
 Version:         384.59
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -630,6 +630,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Wed Aug 16 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:384.59-4
+- Use kernel option instead to set modeset for DRM module
+
 * Tue Aug 15 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:384.59-3
 - Add udev rules so nvidia nodes are created under EGLDevice/wayland
 - Enable modeset for DRM
