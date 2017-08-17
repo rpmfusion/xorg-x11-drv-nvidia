@@ -12,7 +12,7 @@
 # RHEL 6 does not have _udevrulesdir defined
 %global        _udevrulesdir        %{_prefix}/lib/udev/rules.d/
 %global        _modprobe_d          %{_sysconfdir}/modprobe.d/
-%global        _dracutopts          nouveau.modeset=0 rdblacklist=nouveau nvidia-drm.modeset=1
+%global        _dracutopts          nouveau.modeset=0 rdblacklist=nouveau
 %global        _dracut_conf_d	    %{_sysconfdir}/dracut.conf.d
 %global        _grubby              /sbin/grubby --grub --update-kernel=ALL
 %else #rhel > 6 or fedora
@@ -20,9 +20,13 @@
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %if 0%{?rhel} == 7
-%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
+%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau
 %else #fedora
+%if 0%{?fedora} >= 27
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
+%else
+%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
+%endif
 %endif
 %endif
 
@@ -33,7 +37,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
 Version:         384.59
-Release:         4%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -422,7 +426,7 @@ if [ "$1" -eq "1" ]; then
 fi || :
 
 %if 0%{?fedora} || 0%{?rhel} >= 7
-%triggerun -- xorg-x11-drv-nvidia < 2:384.59-4
+%triggerun -- xorg-x11-drv-nvidia < 2:384.59-5
 if [ -f %{_sysconfdir}/default/grub ] ; then
   sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
   . %{_sysconfdir}/default/grub
@@ -630,6 +634,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Thu Aug 17 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:384.59-5
+- Enable modeset for DRM for F27+ only
+
 * Wed Aug 16 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:384.59-4
 - Use kernel option instead to set modeset for DRM module
 
