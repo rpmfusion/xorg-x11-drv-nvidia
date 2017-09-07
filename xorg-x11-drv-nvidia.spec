@@ -635,7 +635,8 @@ fi ||:
 
 %changelog
 * Thu Aug 17 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:384.59-5
-- Enable modeset for DRM for F27+ only
+- Enable modeset by default for F27+
+- Ensure the correct selinux context it set
 
 * Wed Aug 16 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:384.59-4
 - Use kernel option instead to set modeset for DRM module
