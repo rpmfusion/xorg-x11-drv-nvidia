@@ -36,8 +36,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
-Version:         384.59
-Release:         5%{?dist}
+Version:         384.90
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -634,6 +634,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Thu Sep 21 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:384.90-1
+- Update to 384.90 release
+
 * Thu Aug 17 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:384.59-5
 - Enable modeset by default for F27+
 - Ensure the correct selinux context it set
