@@ -36,7 +36,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
-Version:         387.12
+Version:         387.22
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -636,6 +636,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Mon Oct 30 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:387.22-1
+- Update to 387.22 release
+
 * Wed Oct 04 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:387.12-1
 - Update to 387.12 beta
 
