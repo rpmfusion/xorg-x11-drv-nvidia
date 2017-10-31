@@ -50,7 +50,6 @@ Source4:         99-nvidia.conf
 Source5:         00-avoid-glamor.conf
 Source6:         blacklist-nouveau.conf
 Source7:         alternate-install-present
-Source9:         nvidia-settings.desktop
 Source10:        nvidia.conf
 Source11:        60-nvidia.rules
 Source12:        xorg-x11-drv-nvidia.metainfo.xml
@@ -85,6 +84,8 @@ Requires(post):   ldconfig
 Requires(postun): ldconfig
 Requires(post):   grubby
 Requires:         which
+Requires:         nvidia-settings%{?_isa} = %{version}
+Suggests:         nvidia-xconfig%{?_isa} = %{version}
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
@@ -137,7 +138,8 @@ such as OpenGL headers.
 Summary:         CUDA driver for %{name}
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
-Provides:        nvidia-persistenced = %{version}-%{release}
+Requires:        nvidia-persistenced%{?_isa} = %{version}
+Suggests:        nvidia-modprobe%{?_isa} = %{version}
 Requires:        ocl-icd%{?_isa}
 Requires:        opencl-filesystem
 
@@ -230,7 +232,6 @@ cp -a \
     libnvidia-fbc.so.%{version} \
     libnvidia-glcore.so.%{version} \
     libnvidia-glsi.so.%{version} \
-    libnvidia-gtk*.so.%{version} \
     libnvidia-ifr.so.%{version} \
     libnvidia-ml.so.%{version} \
     libnvidia-ptxjitcompiler.so.%{version} \
@@ -320,7 +321,7 @@ install -p -m 0644 %{SOURCE16} %{buildroot}%{_dracut_conf_d}/
 
 # Install binaries
 install -m 0755 -d %{buildroot}%{_bindir}
-install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,xconfig,settings,persistenced} \
+install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server} \
   %{buildroot}%{_bindir}
 
 # Install headers
@@ -329,19 +330,8 @@ install -p -m 0644 {gl.h,glext.h,glx.h,glxext.h} %{buildroot}%{_includedir}/nvid
 
 # Install man pages
 install    -m 0755 -d   %{buildroot}%{_mandir}/man1/
-install -p -m 0644 nvidia-{cuda-mps-control,persistenced,settings,smi,xconfig}.1.gz \
+install -p -m 0644 nvidia-{cuda-mps-control,smi}.1.gz \
   %{buildroot}%{_mandir}/man1/
-
-# Install nvidia icon
-mkdir -p %{buildroot}%{_datadir}/pixmaps
-install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps
-
-# Fix desktop file and validate
-sed -i -e 's|__UTILS_PATH__/||g' -e 's|__PIXMAP_PATH__/||g' nvidia-settings.desktop
-sed -i -e 's|nvidia-settings.png|nvidia-settings|g' nvidia-settings.desktop
-desktop-file-install --vendor "" \
-    --dir %{buildroot}%{_datadir}/applications/ \
-    nvidia-settings.desktop
 
 #Alternate-install-present is checked by the nvidia .run
 mkdir -p %{buildroot}%{_alternate_dir}
@@ -372,16 +362,6 @@ touch -r nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_targ
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
-
-#Install the initscript
-tar jxf nvidia-persistenced-init.tar.bz2
-%if 0%{?rhel} > 6 || 0%{?fedora}
-mkdir -p %{buildroot}%{_unitdir}
-install -pm 0644 nvidia-persistenced-init/systemd/nvidia-persistenced.service.template \
-  %{buildroot}%{_unitdir}/nvidia-persistenced.service
-#Change the daemon running owner
-sed -i -e "s/__USER__/root/" %{buildroot}%{_unitdir}/nvidia-persistenced.service
-%endif
 
 #Create the default nvidia config directory
 mkdir -p %{buildroot}%{_sysconfdir}/nvidia
@@ -449,11 +429,6 @@ fi
 
 %post libs -p /sbin/ldconfig
 
-%post cuda
-%if 0%{?rhel} > 6 || 0%{?fedora}
-%systemd_post nvidia-persistenced.service
-%endif
-
 %post cuda-libs -p /sbin/ldconfig
 
 %if 0%{?rhel} == 6
@@ -471,19 +446,9 @@ if [ "$1" -eq "0" ]; then
   [ -f %{_sysconfdir}/X11/xorg.conf ] && mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.nvidia_uninstalled &>/dev/null
 fi ||:
 
-%if 0%{?rhel} > 6 || 0%{?fedora}
-%preun cuda
-%systemd_preun nvidia-persistenced.service
-%endif
-
 %postun -p /sbin/ldconfig
 
 %postun libs -p /sbin/ldconfig
-
-%postun cuda
-%if 0%{?rhel} > 6 || 0%{?fedora}
-%systemd_postun_with_restart nvidia-persistenced.service
-%endif
 
 %postun cuda-libs -p /sbin/ldconfig
 
@@ -526,32 +491,14 @@ fi ||:
 %endif
 %config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
 %{_bindir}/nvidia-bug-report.sh
-%{_bindir}/nvidia-settings
-%{_bindir}/nvidia-xconfig
 # Xorg libs that do not need to be multilib
 %dir %{_nvidia_xorgdir}
 %{_nvidia_xorgdir}/libglx.so
 %{_nvidia_xorgdir}/libglx.so.%{version}
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
-%ifarch %{arm}
-%{_libdir}/libnvidia-gtk2.so.%{version}
-%endif
-%ifarch x86_64 i686
-%if 0%{?rhel} == 6
-%exclude %{_libdir}/libnvidia-gtk3.so.%{version}
-%{_libdir}/libnvidia-gtk2.so.%{version}
-%else
-%exclude %{_libdir}/libnvidia-gtk2.so.%{version}
-%{_libdir}/libnvidia-gtk3.so.%{version}
-%endif
-%endif
 #/no_multilib
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-%{version}-*
-%{_datadir}/applications/*nvidia-settings.desktop
-%{_datadir}/pixmaps/*.png
-%{_mandir}/man1/nvidia-settings.*
-%{_mandir}/man1/nvidia-xconfig.*
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
@@ -594,20 +541,15 @@ fi ||:
 
 %files cuda
 %license nvidiapkg/LICENSE
-%if 0%{?rhel} > 6 || 0%{?fedora}
-%{_unitdir}/nvidia-persistenced.service
-%endif
 %{_bindir}/nvidia-debugdump
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-cuda-mps-control
 %{_bindir}/nvidia-cuda-mps-server
-%{_bindir}/nvidia-persistenced
 %ifarch x86_64 i686
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %endif
 %{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
-%{_mandir}/man1/nvidia-persistenced.1.*
 %{_modprobe_d}/nvidia-uvm.conf
 %{_udevrulesdir}/60-nvidia-uvm.rules
 
