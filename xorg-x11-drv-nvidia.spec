@@ -37,7 +37,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
 Version:         387.22
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -50,6 +50,7 @@ Source4:         99-nvidia.conf
 Source5:         00-avoid-glamor.conf
 Source6:         blacklist-nouveau.conf
 Source7:         alternate-install-present
+Source9:         nvidia-settings.desktop
 Source10:        nvidia.conf
 Source11:        60-nvidia.rules
 Source12:        xorg-x11-drv-nvidia.metainfo.xml
@@ -372,6 +373,7 @@ tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{
 
 #Add autostart file for nvidia-settings to load user config
 install -D -p -m 0644 %{SOURCE9} %{buildroot}%{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
+desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
 
 %if 0%{?fedora} >= 25
 # install AppData and add modalias provides
@@ -386,6 +388,7 @@ fn=%{buildroot}%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
 
 # Install nvidia-fallback
 %if 0%{?rhel} >= 6 || 0%{?fedora}
+mkdir -p %{buildroot}%{_unitdir}
 install -p -m 0644 %{SOURCE20} %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE21} %{buildroot}%{_unitdir}
 %endif
@@ -578,6 +581,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Tue Oct 31 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:387.22-2
+- Remove the prebuilt tools and use rpm packages instead
+
 * Mon Oct 30 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:387.22-1
 - Update to 387.22 release
 
