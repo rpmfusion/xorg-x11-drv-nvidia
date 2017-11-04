@@ -404,7 +404,7 @@ fi
 %post
 /sbin/ldconfig
 if [ "$1" -eq "1" ]; then
-  %{_grubby} --args='%{_dracutopts}' &>/dev/null
+  %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
 %if 0%{?fedora} || 0%{?rhel} >= 7
   sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
 %endif
