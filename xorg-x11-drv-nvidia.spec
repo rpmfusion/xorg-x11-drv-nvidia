@@ -36,7 +36,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
-Version:         384.90
+Version:         384.98
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -636,6 +636,11 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Tue Nov 07 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:384.98-1
+- Update to 384.98 release
+- Remove nomodeset from cmdline during install
+- Add nvidia-driver virtual provides
+
 * Thu Sep 21 2017 Leigh Scott <leigh123linux@googlemail.com> - 2:384.90-1
 - Update to 384.90 release
 
