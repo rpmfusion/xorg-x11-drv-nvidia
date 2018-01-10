@@ -36,8 +36,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
-Version:         387.34
-Release:         2%{?dist}
+Version:         390.12
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -581,6 +581,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Wed Jan 10 2018 Leigh Scott <leigh123linux@googlemail.com> - 2:390.12-1
+- Update to 390.12 beta
+
 * Sat Dec 16 2017 Nicolas Chauvet <kwizart@gmail.com> - 2:387.34-2
 - Add plymouth advertising for nvidia-fallback.service
 
