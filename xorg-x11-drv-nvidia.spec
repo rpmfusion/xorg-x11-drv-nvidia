@@ -16,7 +16,7 @@
 %global        _dracut_conf_d	    %{_sysconfdir}/dracut.conf.d
 %global        _grubby              /sbin/grubby --grub --update-kernel=ALL
 %else #rhel > 6 or fedora
-%global        _dracut_conf_d	    %{_prefix}/lib/dracut.conf.d
+%global        _dracut_conf_d	    %{_prefix}/lib/dracut/dracut.conf.d
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %if 0%{?rhel} == 7
@@ -37,7 +37,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           2
 Version:         390.25
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -581,6 +581,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Fri Feb 02 2018 Leigh Scott <leigh123linux@googlemail.com> - 2:390.25-2
+- Fix omitting drivers from the initrd.
+
 * Mon Jan 29 2018 Leigh Scott <leigh123linux@googlemail.com> - 2:390.25-1
 - Update to 390.25 release
 
