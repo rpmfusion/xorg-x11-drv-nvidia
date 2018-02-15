@@ -35,9 +35,9 @@
 
 
 Name:            xorg-x11-drv-nvidia
-Epoch:           2
+Epoch:           3
 Version:         390.25
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -581,6 +581,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Thu Feb 15 2018 Leigh Scott <leigh123linux@googlemail.com> - 2:390.25-3
+- Bump epoch to prevent cuda repo from replacing -kmodsrc
+
 * Fri Feb 02 2018 Leigh Scott <leigh123linux@googlemail.com> - 2:390.25-2
 - Fix omitting drivers from the initrd.
 
