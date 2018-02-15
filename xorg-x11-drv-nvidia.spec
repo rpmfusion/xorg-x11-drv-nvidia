@@ -581,7 +581,7 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
-* Thu Feb 15 2018 Leigh Scott <leigh123linux@googlemail.com> - 2:390.25-3
+* Thu Feb 15 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:390.25-3
 - Bump epoch to prevent cuda repo from replacing -kmodsrc
 
 * Fri Feb 02 2018 Leigh Scott <leigh123linux@googlemail.com> - 2:390.25-2
