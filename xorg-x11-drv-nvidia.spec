@@ -37,7 +37,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         390.25
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -273,10 +273,7 @@ install -D -p -m 0755 libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau
 ln -sf libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau/libvdpau_nvidia.so.1
 
 # GlVND
-%if 0%{?fedora} >= 25
-# We keep the same symlink than mesa-libGL to avoid conflict
-ln -s %{_libdir}/libGLX_mesa.so.0 %{buildroot}%{_libdir}/libGLX_indirect.so.0
-%else
+%if 0%{?rhel}
 ln -s libGLX_nvidia.so.%{version} %{buildroot}%{_libdir}/libGLX_indirect.so.0
 # ld.so.conf.d file
 install -m 0755 -d       %{buildroot}%{_sysconfdir}/ld.so.conf.d/
@@ -411,7 +408,7 @@ if [ "$1" -eq "1" ]; then
 fi || :
 
 %if 0%{?fedora} || 0%{?rhel} >= 7
-%triggerun -- xorg-x11-drv-nvidia < 2:384.59-5
+%triggerun -- xorg-x11-drv-nvidia < 3:384.59-5
 if [ -f %{_sysconfdir}/default/grub ] ; then
   sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
   . %{_sysconfdir}/default/grub
@@ -526,7 +523,9 @@ fi ||:
 %{_libdir}/libGLESv1_CM_nvidia.so.%{version}
 %{_libdir}/libGLESv2_nvidia.so.2
 %{_libdir}/libGLESv2_nvidia.so.%{version}
+%if 0%{?rhel}
 %{_libdir}/libGLX_indirect.so.0
+%endif
 %{_libdir}/libGLX_nvidia.so.0
 %{_libdir}/libGLX_nvidia.so.%{version}
 %{_libdir}/libnvidia-cfg.so.1
@@ -581,6 +580,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Fri Feb 16 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:390.25-4
+- mesa-libGL provides libGLX_indirect.so.0 on fedora
+
 * Thu Feb 15 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:390.25-3
 - Bump epoch to prevent cuda repo from replacing -kmodsrc
 
