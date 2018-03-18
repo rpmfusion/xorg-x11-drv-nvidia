@@ -238,7 +238,7 @@ cp -a \
     libnvidia-ptxjitcompiler.so.%{version} \
     %{buildroot}%{_libdir}/
 
-%if 0%{?rhel} || 0%{?fedora} == 24
+%if 0%{?rhel} && 0%{?rhel} < 8
 mkdir -p %{buildroot}%{_nvidia_libdir}
 cp -a \
     libEGL.so.%{version} \
@@ -273,7 +273,7 @@ install -D -p -m 0755 libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau
 ln -sf libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau/libvdpau_nvidia.so.1
 
 # GlVND
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} < 8
 ln -s libGLX_nvidia.so.%{version} %{buildroot}%{_libdir}/libGLX_indirect.so.0
 # ld.so.conf.d file
 install -m 0755 -d       %{buildroot}%{_sysconfdir}/ld.so.conf.d/
@@ -384,7 +384,7 @@ fn=%{buildroot}%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
 %endif
 
 # Install nvidia-fallback
-%if 0%{?rhel} >= 6 || 0%{?fedora}
+%if 0%{?rhel} > 6 || 0%{?fedora}
 mkdir -p %{buildroot}%{_unitdir}
 install -p -m 0644 %{SOURCE20} %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE21} %{buildroot}%{_unitdir}
@@ -505,7 +505,7 @@ fi ||:
 %{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_target_cpu}.tar.xz
 
 %files libs
-%if 0%{?rhel} || 0%{?fedora} == 24
+%if 0%{?rhel} && 0%{?rhel} < 8
 %config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
 %{_nvidia_libdir}/libEGL.so.1
 %{_nvidia_libdir}/libEGL.so.%{version}
