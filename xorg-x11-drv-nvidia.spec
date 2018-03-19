@@ -434,11 +434,6 @@ fi
 %ldconfig_scriptlets libs
 %ldconfig_scriptlets cuda-libs
 
-%if 0%{?rhel} == 6
-%posttrans
-[ -f %{_sysconfdir}/X11/xorg.conf ] || cp -p %{_sysconfdir}/X11/xorg.conf.nvidia %{_sysconfdir}/X11/xorg.conf || :
-%endif
-
 %preun
 if [ "$1" -eq "0" ]; then
   %{_grubby} --remove-args='%{_dracutopts}' &>/dev/null
