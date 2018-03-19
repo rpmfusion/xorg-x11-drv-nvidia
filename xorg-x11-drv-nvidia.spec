@@ -404,7 +404,9 @@ if [ "$1" -eq "1" ]; then
 %if 0%{?fedora} || 0%{?rhel} >= 7
   sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
 %endif
-%if 0%{?fedora} && 0%{?fedora} < 28
+# Until mutter enable egl stream support, we need to disable gdm wayland
+# https://bugzilla.redhat.com/1462052
+%if 0%{?fedora}
   if [ -f %{_sysconfdir}/gdm/custom.conf ] ; then
     sed -i -e 's/#WaylandEnable=.*/WaylandEnable=false/' %{_sysconfdir}/gdm/custom.conf
   fi
