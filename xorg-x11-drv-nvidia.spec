@@ -431,9 +431,8 @@ fi
 %{_grubby} --args='%{_dracutopts}' &>/dev/null || :
 %endif
 
-%post libs -p /sbin/ldconfig
-
-%post cuda-libs -p /sbin/ldconfig
+%ldconfig_scriptlets libs
+%ldconfig_scriptlets cuda-libs
 
 %if 0%{?rhel} == 6
 %posttrans
@@ -450,9 +449,6 @@ if [ "$1" -eq "0" ]; then
   [ -f %{_sysconfdir}/X11/xorg.conf ] && mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.nvidia_uninstalled &>/dev/null
 fi ||:
 
-%postun libs -p /sbin/ldconfig
-
-%postun cuda-libs -p /sbin/ldconfig
 
 %files
 %license nvidiapkg/LICENSE
