@@ -405,6 +405,11 @@ if [ "$1" -eq "1" ]; then
 %if 0%{?fedora} || 0%{?rhel} >= 7
   sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
 %endif
+%if 0%{?fedora} && 0%{?fedora} < 28
+  if [ -f %{_sysconfdir}/gdm/custom.conf ] ; then
+    sed -i -e 's/#WaylandEnable=.*/WaylandEnable=false/' %{_sysconfdir}/gdm/custom.conf
+  fi
+%endif
 fi || :
 
 %if 0%{?fedora} || 0%{?rhel} >= 7
