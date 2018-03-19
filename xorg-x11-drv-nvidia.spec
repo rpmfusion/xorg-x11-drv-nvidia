@@ -399,7 +399,6 @@ if [ "$1" -eq "1" ]; then
 fi
 
 %post
-/sbin/ldconfig
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
 %if 0%{?fedora} || 0%{?rhel} >= 7
@@ -450,8 +449,6 @@ if [ "$1" -eq "0" ]; then
   # Backup and disable previously used xorg.conf
   [ -f %{_sysconfdir}/X11/xorg.conf ] && mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.nvidia_uninstalled &>/dev/null
 fi ||:
-
-%postun -p /sbin/ldconfig
 
 %postun libs -p /sbin/ldconfig
 
