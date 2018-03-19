@@ -37,7 +37,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         390.42
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -575,6 +575,15 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Mon Mar 19 2018 Nicolas Chauvet <kwizart@gmail.com> - 3:390.42-2
+- Disable since we rely on OutputClass here
+- Use PrimaryGPU feature since Xorg >= 1.19
+- Use ldconfig_scriptlets macro
+- Disable uneeded ldconfig call from main
+- Disable wayland if gdm is available - See rhbz#1462052
+- Fixup removed f24 support
+- Fixup urls
+
 * Tue Mar 13 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:390.42-1
 - Update to 390.42 release
 
