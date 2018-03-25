@@ -86,7 +86,11 @@ Requires(postun): ldconfig
 Requires(post):   grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{version}
+%if 0%{?fedora}
 Suggests:         nvidia-xconfig%{?_isa} = %{version}
+%else
+Requires:         nvidia-xconfig%{?_isa} = %{version}
+%endif
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
@@ -140,7 +144,11 @@ Summary:         CUDA driver for %{name}
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        nvidia-persistenced%{?_isa} = %{version}
+%if 0%{?fedora}
 Suggests:        nvidia-modprobe%{?_isa} = %{version}
+%else
+Requires:        nvidia-modprobe%{?_isa} = %{version}
+%endif
 Requires:        ocl-icd%{?_isa}
 Requires:        opencl-filesystem
 
