@@ -10,6 +10,7 @@ ConditionPathExists=!/sys/module/nvidia
 Type=oneshot
 RemainAfterExit=yes
 ExecStart=-/sbin/modprobe nouveau
+ExecStartPost=-/bin/plymouth message --text="NVIDIA kernel module missing. Falling back to nouveau"
 
 
 [Install]
