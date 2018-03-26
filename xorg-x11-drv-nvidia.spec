@@ -301,6 +301,11 @@ install -p -m 0644 nvidia.icd %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 sed -i -e 's|__NV_VK_ICD__|libGLX_nvidia.so.0|' nvidia_icd.json.template
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/icd.d/
 install -p -m 0644 nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+%if 0%{?rhel}
+# back to non-glvnd version for vulkan
+sed -i -e 's|libGLX_nvidia.so.0|libGL.so.1|' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+touch -r nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+%endif
 %endif
 
 # EGL config for libglvnd
@@ -360,9 +365,6 @@ install -pm 0644 %{SOURCE4} %{buildroot}%{_datadir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE5} %{buildroot}%{_datadir}/X11/xorg.conf.d
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
 touch -r %{SOURCE4} %{buildroot}%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
-# back to non-glvnd version for vulkan
-sed -i -e 's|libGLX_nvidia.so.0|libGL.so.1|' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
-touch -r nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 %endif
 #Ghost Xorg nvidia.conf files
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
@@ -481,12 +483,12 @@ fi ||:
 # Owns the directory since libglvnd is optional here
 %dir %{_datadir}/glvnd
 %dir %{_datadir}/glvnd/egl_vendor.d
-%{_datadir}/X11/xorg.conf.d/00-avoid-glamor.conf
-%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
 # RHEL6 uses /etc
 %if 0%{?rhel} == 6
 %config(noreplace) %{_modprobe_d}/blacklist-nouveau.conf
 %config(noreplace) %{_dracut_conf_d}/99-nvidia-dracut.conf
+%{_datadir}/X11/xorg.conf.d/00-avoid-glamor.conf
+%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
 %else
 %{_modprobe_d}/blacklist-nouveau.conf
 %{_dracut_conf_d}/99-nvidia-dracut.conf
