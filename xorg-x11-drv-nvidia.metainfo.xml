@@ -32,5 +32,5 @@
     <keyword>OpenGL</keyword>
   </keywords>
   <url type="bugtracker">https://bugzilla.rpmfusion.org</url>
-  <update_contact>xorg-x11-drv-nvidia@rpmfusion.org</update_contact>
+  <update_contact>xorg-x11-drv-nvidia-owner@rpmfusion.org</update_contact>
 </component>
