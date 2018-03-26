@@ -350,7 +350,7 @@ install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation}
 #Install the Xorg configuration files
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 mkdir -p %{buildroot}%{_datadir}/X11/xorg.conf.d
-%if 0%{?fedora} >= 25 || 0%{?rhel} >= 8
+%if 0%{?fedora} >= 25 || 0%{?rhel} >= 7
 install -pm 0644 %{SOURCE10} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 touch -r %{SOURCE10} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
