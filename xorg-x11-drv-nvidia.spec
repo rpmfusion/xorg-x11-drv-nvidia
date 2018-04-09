@@ -50,7 +50,6 @@ Source4:         99-nvidia.conf
 Source5:         00-avoid-glamor.conf
 Source6:         blacklist-nouveau.conf
 Source7:         alternate-install-present
-Source9:         nvidia-settings.desktop
 Source10:        nvidia.conf
 Source11:        60-nvidia.rules
 Source12:        xorg-x11-drv-nvidia.metainfo.xml
@@ -63,7 +62,6 @@ Source21:        nvidia-fallback.service
 
 ExclusiveArch: i686 x86_64 armv7hl
 
-BuildRequires:    desktop-file-utils
 %if 0%{?rhel} > 6 || 0%{?fedora}
 Buildrequires:    systemd
 Requires(post):   systemd
@@ -378,10 +376,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/nvidia
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
 tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_target_cpu}.tar.xz kernel
 
-#Add autostart file for nvidia-settings to load user config
-install -D -p -m 0644 %{SOURCE9} %{buildroot}%{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
-desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
-
 %if 0%{?fedora} >= 25
 # install AppData and add modalias provides
 mkdir -p %{buildroot}%{_datadir}/appdata/
@@ -494,7 +488,6 @@ fi ||:
 %{_dracut_conf_d}/99-nvidia-dracut.conf
 %endif
 %endif
-%config %{_sysconfdir}/xdg/autostart/nvidia-settings.desktop
 %{_bindir}/nvidia-bug-report.sh
 # Xorg libs that do not need to be multilib
 %dir %{_nvidia_xorgdir}
