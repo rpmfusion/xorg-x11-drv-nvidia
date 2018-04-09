@@ -389,6 +389,8 @@ fn=%{buildroot}%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
 %{SOURCE13} README.txt "NVIDIA QUADRO GPUS" | xargs appstream-util add-provide ${fn} modalias
 %{SOURCE13} README.txt "NVIDIA NVS GPUS" | xargs appstream-util add-provide ${fn} modalias
 %{SOURCE13} README.txt "NVIDIA TESLA GPUS" | xargs appstream-util add-provide ${fn} modalias
+mkdir -p %{buildroot}%{_datadir}/pixmaps
+install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps/%{name}.png
 %endif
 
 # Install nvidia-fallback
@@ -475,7 +477,8 @@ fi ||:
 %{_unitdir}/nvidia-fallback.service
 %endif
 %if 0%{?fedora} >= 25
-%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
+%{_datadir}/appdata/%{name}.metainfo.xml
+%{_datadir}/pixmaps/%{name}.png
 %{_dracut_conf_d}/99-nvidia-dracut.conf
 %else
 # Owns the directory since libglvnd is optional here

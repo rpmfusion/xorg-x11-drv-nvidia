@@ -19,6 +19,7 @@
   </description>
   <translation/>
   <url type="homepage">http://www.nvidia.com/</url>
+  <icon type="local" width="128" height="128">/usr/share/pixmaps/xorg-x11-drv-nvidia.png</icon>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>LicenseRef-proprietary:NVIDIA</project_license>
   <developer_name>NVIDIA Corporation</developer_name>
