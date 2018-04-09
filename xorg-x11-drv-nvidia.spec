@@ -37,7 +37,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         390.48
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -585,6 +585,11 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Mon Apr 09 2018 Nicolas Chauvet <kwizart@gmail.com> - 3:390.48-2
+- Add icon to be used by appdata
+- Add cuda-libs(x86-32) if libGL(x86-32) is present
+- Remove any desktop file from the driver
+
 * Wed Mar 28 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:390.48-1
 - Update to 390.48 release
 
