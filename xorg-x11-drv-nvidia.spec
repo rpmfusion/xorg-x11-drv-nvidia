@@ -144,6 +144,10 @@ Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        nvidia-persistenced%{?_isa} = %{version}
 %if 0%{?fedora}
 Suggests:        nvidia-modprobe%{?_isa} = %{version}
+# Boolean dependencies are only fedora
+%ifarch x86_64
+Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
+%endif
 %else
 Requires:        nvidia-modprobe%{?_isa} = %{version}
 %endif
