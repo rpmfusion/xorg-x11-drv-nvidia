@@ -36,31 +36,29 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         390.48
-Release:         2%{?dist}
+Version:         396.24
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
 URL:             http://www.nvidia.com/
-Source0:         https://download.nvidia.com/XFree86/Linux-x86/%{version}/NVIDIA-Linux-x86-%{version}.run
-Source1:         https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-Source2:         https://download.nvidia.com/XFree86/Linux-32bit-ARM/%{version}/NVIDIA-Linux-armv7l-gnueabihf-%{version}.run
+Source0:         https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 
-Source4:         99-nvidia.conf
-Source5:         00-avoid-glamor.conf
-Source6:         blacklist-nouveau.conf
-Source7:         alternate-install-present
-Source10:        nvidia.conf
-Source11:        60-nvidia.rules
-Source12:        xorg-x11-drv-nvidia.metainfo.xml
-Source13:        parse-readme.py
-Source14:        60-nvidia-uvm.rules
-Source15:        nvidia-uvm.conf
-Source16:        99-nvidia-dracut.conf
-Source20:        10-nvidia.rules
-Source21:        nvidia-fallback.service
+Source2:         99-nvidia.conf
+Source3:         00-avoid-glamor.conf
+Source4:         blacklist-nouveau.conf
+Source5:         alternate-install-present
+Source6:        nvidia.conf
+Source7:        60-nvidia.rules
+Source8:        xorg-x11-drv-nvidia.metainfo.xml
+Source9:        parse-readme.py
+Source10:        60-nvidia-uvm.rules
+Source11:        nvidia-uvm.conf
+Source12:        99-nvidia-dracut.conf
+Source13:        10-nvidia.rules
+Source14:        nvidia-fallback.service
 
-ExclusiveArch: i686 x86_64 armv7hl
+ExclusiveArch: x86_64
 
 %if 0%{?rhel} > 6 || 0%{?fedora}
 Buildrequires:    systemd
@@ -145,9 +143,7 @@ Requires:        nvidia-persistenced%{?_isa} = %{version}
 %if 0%{?fedora}
 Suggests:        nvidia-modprobe%{?_isa} = %{version}
 # Boolean dependencies are only fedora
-%ifarch x86_64
 Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
-%endif
 %else
 Requires:        nvidia-modprobe%{?_isa} = %{version}
 %endif
@@ -191,13 +187,9 @@ Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
 # Boolean dependencies are only fedora
-%ifarch x86_64
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
 %endif
-%endif
-%ifarch x86_64 i686
 Requires:        vulkan-filesystem
-%endif
 
 %description libs
 This package provides the shared libraries for %{name}.
@@ -205,18 +197,9 @@ This package provides the shared libraries for %{name}.
 
 %prep
 %setup -q -c -T
-#Only extract the needed arch
-%ifarch %{ix86}
 sh %{SOURCE0} \
-%endif
-%ifarch x86_64
-sh %{SOURCE1} \
-%endif
-%ifarch armv7hl
-sh %{SOURCE2} \
-%endif
-  --extract-only --target nvidiapkg-%{_target_cpu}
-ln -s nvidiapkg-%{_target_cpu} nvidiapkg
+  --extract-only --target nvidiapkg-x86_64
+ln -s nvidiapkg-x86_64 nvidiapkg
 
 
 %build
@@ -248,6 +231,12 @@ cp -a \
     libnvidia-ptxjitcompiler.so.%{version} \
     %{buildroot}%{_libdir}/
 
+cp -af \
+    tls/libnvidia-tls.so* \
+    libnvidia-compiler.so.%{version} \
+    libnvidia-opencl.so.%{version} \
+    %{buildroot}%{_libdir}/
+
 %if 0%{?rhel} && 0%{?rhel} < 8
 mkdir -p %{buildroot}%{_nvidia_libdir}
 cp -a \
@@ -256,18 +245,6 @@ cp -a \
     libGLdispatch.so.0 \
     %{buildroot}%{_nvidia_libdir}/
 ldconfig -vn %{buildroot}%{_nvidia_libdir}/
-%endif
-
-# Use the correct TLS implementation for x86_64/i686, already ok on ARM
-# OpenCL is only available on x86_64/i686.
-%ifarch x86_64 i686
-cp -af \
-    tls/libnvidia-tls.so* \
-    libnvidia-compiler.so.%{version} \
-    libnvidia-opencl.so.%{version} \
-    %{buildroot}%{_libdir}/
-%else
-cp -af libnvidia-tls.so* %{buildroot}%{_libdir}/
 %endif
 
 # Use ldconfig for libraries with a mismatching SONAME/filename
@@ -295,19 +272,17 @@ install -p -D -m 0755 libglx.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglx
 ln -sf libglx.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglx.so
 install -D -p -m 0755 nvidia_drv.so %{buildroot}%{_libdir}/xorg/modules/drivers/nvidia_drv.so
 
-%ifarch x86_64 i686
 # OpenCL config
 install    -m 0755         -d %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 install -p -m 0644 nvidia.icd %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 # Vulkan config
 sed -i -e 's|__NV_VK_ICD__|libGLX_nvidia.so.0|' nvidia_icd.json.template
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/icd.d/
-install -p -m 0644 nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+install -p -m 0644 nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.x86_64.json
 %if 0%{?rhel}
 # back to non-glvnd version for vulkan
-sed -i -e 's|libGLX_nvidia.so.0|libGL.so.1|' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
-touch -r nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
-%endif
+sed -i -e 's|libGLX_nvidia.so.0|libGL.so.1|' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.x86_64.json
+touch -r nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.x86_64.json
 %endif
 
 # EGL config for libglvnd
@@ -316,21 +291,21 @@ install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_
 
 # Blacklist nouveau, autoload nvidia-uvm module after nvidia module
 mkdir -p %{buildroot}%{_modprobe_d}
-install -p -m 0644 %{SOURCE15} %{buildroot}%{_modprobe_d}
+install -p -m 0644 %{SOURCE11} %{buildroot}%{_modprobe_d}
 %if 0%{?rhel} && 0%{?rhel} < 8
-install -p -m 0644 %{SOURCE6} %{buildroot}%{_modprobe_d}
+install -p -m 0644 %{SOURCE4} %{buildroot}%{_modprobe_d}
 %endif
 
 # UDev rules for nvidia
 install    -m 0755 -d          %{buildroot}%{_udevrulesdir}
-install -p -m 0644 %{SOURCE11} %{buildroot}%{_udevrulesdir}
+install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
 
 # UDev rules for nvidia-uvm
-install -p -m 0644 %{SOURCE14} %{buildroot}%{_udevrulesdir}
+install -p -m 0644 %{SOURCE10} %{buildroot}%{_udevrulesdir}
 
 # dracut.conf.d file, nvidia modules must never be in the initrd
 install -p -m 0755 -d          %{buildroot}%{_dracut_conf_d}/
-install -p -m 0644 %{SOURCE16} %{buildroot}%{_dracut_conf_d}/
+install -p -m 0644 %{SOURCE12} %{buildroot}%{_dracut_conf_d}/
 
 # Install binaries
 install -m 0755 -d %{buildroot}%{_bindir}
@@ -348,7 +323,7 @@ install -p -m 0644 nvidia-{cuda-mps-control,smi}.1.gz \
 
 #Alternate-install-present is checked by the nvidia .run
 mkdir -p %{buildroot}%{_alternate_dir}
-install -p -m 0644 %{SOURCE7} %{buildroot}%{_alternate_dir}
+install -p -m 0644 %{SOURCE5} %{buildroot}%{_alternate_dir}
 
 #install the NVIDIA supplied application profiles
 mkdir -p %{buildroot}%{_datadir}/nvidia
@@ -358,15 +333,15 @@ install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation}
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 mkdir -p %{buildroot}%{_datadir}/X11/xorg.conf.d
 %if 0%{?fedora} >= 25 || 0%{?rhel} >= 7
-install -pm 0644 %{SOURCE10} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
+install -pm 0644 %{SOURCE6} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
-touch -r %{SOURCE10} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
+touch -r %{SOURCE6} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 %else
 install -pm 0644 nvidia-drm-outputclass.conf %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
-install -pm 0644 %{SOURCE4} %{buildroot}%{_datadir}/X11/xorg.conf.d
-install -pm 0644 %{SOURCE5} %{buildroot}%{_datadir}/X11/xorg.conf.d
+install -pm 0644 %{SOURCE2} %{buildroot}%{_datadir}/X11/xorg.conf.d
+install -pm 0644 %{SOURCE3} %{buildroot}%{_datadir}/X11/xorg.conf.d
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
-touch -r %{SOURCE4} %{buildroot}%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
+touch -r %{SOURCE2} %{buildroot}%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
 %endif
 #Ghost Xorg nvidia.conf files
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
@@ -378,17 +353,17 @@ mkdir -p %{buildroot}%{_sysconfdir}/nvidia
 
 #Install the nvidia kernel modules sources archive
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
-tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_target_cpu}.tar.xz kernel
+tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz kernel
 
 %if 0%{?fedora} >= 25
 # install AppData and add modalias provides
 mkdir -p %{buildroot}%{_datadir}/appdata/
-install -pm 0644 %{SOURCE12} %{buildroot}%{_datadir}/appdata/
+install -pm 0644 %{SOURCE8} %{buildroot}%{_datadir}/appdata/
 fn=%{buildroot}%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
-%{SOURCE13} README.txt "NVIDIA GEFORCE GPUS" | xargs appstream-util add-provide ${fn} modalias
-%{SOURCE13} README.txt "NVIDIA QUADRO GPUS" | xargs appstream-util add-provide ${fn} modalias
-%{SOURCE13} README.txt "NVIDIA NVS GPUS" | xargs appstream-util add-provide ${fn} modalias
-%{SOURCE13} README.txt "NVIDIA TESLA GPUS" | xargs appstream-util add-provide ${fn} modalias
+%{SOURCE9} README.txt "NVIDIA GEFORCE GPUS" | xargs appstream-util add-provide ${fn} modalias
+%{SOURCE9} README.txt "NVIDIA QUADRO GPUS" | xargs appstream-util add-provide ${fn} modalias
+%{SOURCE9} README.txt "NVIDIA NVS GPUS" | xargs appstream-util add-provide ${fn} modalias
+%{SOURCE9} README.txt "NVIDIA TESLA GPUS" | xargs appstream-util add-provide ${fn} modalias
 mkdir -p %{buildroot}%{_datadir}/pixmaps
 install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps/%{name}.png
 %endif
@@ -396,8 +371,8 @@ install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps/%{name}.png
 # Install nvidia-fallback
 %if 0%{?rhel} > 6 || 0%{?fedora}
 mkdir -p %{buildroot}%{_unitdir}
-install -p -m 0644 %{SOURCE20} %{buildroot}%{_udevrulesdir}
-install -p -m 0644 %{SOURCE21} %{buildroot}%{_unitdir}
+install -p -m 0644 %{SOURCE13} %{buildroot}%{_udevrulesdir}
+install -p -m 0644 %{SOURCE14} %{buildroot}%{_unitdir}
 %endif
 
 
@@ -507,7 +482,7 @@ fi ||:
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
-%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_target_cpu}.tar.xz
+%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz
 
 %files libs
 %if 0%{?rhel} && 0%{?rhel} < 8
@@ -518,9 +493,7 @@ fi ||:
 %{_nvidia_libdir}/libGL.so.%{version}
 %{_nvidia_libdir}/libGLdispatch.so.0
 %endif
-%ifarch x86_64 i686
-%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
-%endif
+%{_datadir}/vulkan/icd.d/nvidia_icd.x86_64.json
 %dir %{_nvidia_libdir}
 %{_libdir}/libEGL_nvidia.so.0
 %{_libdir}/libEGL_nvidia.so.%{version}
@@ -552,9 +525,7 @@ fi ||:
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-cuda-mps-control
 %{_bindir}/nvidia-cuda-mps-server
-%ifarch x86_64 i686
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
-%endif
 %{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
 %{_modprobe_d}/nvidia-uvm.conf
@@ -573,11 +544,9 @@ fi ||:
 %{_libdir}/libnvidia-ml.so.%{version}
 %{_libdir}/libnvidia-ptxjitcompiler.so.1
 %{_libdir}/libnvidia-ptxjitcompiler.so.%{version}
-%ifarch x86_64 i686
 %{_libdir}/libnvidia-compiler.so.%{version}
 %{_libdir}/libnvidia-opencl.so.1
 %{_libdir}/libnvidia-opencl.so.%{version}
-%endif
 
 %files devel
 %{_includedir}/nvidia/
@@ -585,6 +554,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Fri May 04 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:396.24-1
+- Update to 396.24 release
+
 * Mon Apr 09 2018 Nicolas Chauvet <kwizart@gmail.com> - 3:390.48-2
 - Add icon to be used by appdata
 - Add cuda-libs(x86-32) if libGL(x86-32) is present
