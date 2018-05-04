@@ -48,10 +48,10 @@ Source2:         99-nvidia.conf
 Source3:         00-avoid-glamor.conf
 Source4:         blacklist-nouveau.conf
 Source5:         alternate-install-present
-Source6:        nvidia.conf
-Source7:        60-nvidia.rules
-Source8:        xorg-x11-drv-nvidia.metainfo.xml
-Source9:        parse-readme.py
+Source6:         nvidia.conf
+Source7:         60-nvidia.rules
+Source8:         xorg-x11-drv-nvidia.metainfo.xml
+Source9:         parse-readme.py
 Source10:        60-nvidia-uvm.rules
 Source11:        nvidia-uvm.conf
 Source12:        99-nvidia-dracut.conf
@@ -226,6 +226,7 @@ cp -a \
     libnvidia-fbc.so.%{version} \
     libnvidia-glcore.so.%{version} \
     libnvidia-glsi.so.%{version} \
+    libnvidia-glvkspirv.so.%{version} \
     libnvidia-ifr.so.%{version} \
     libnvidia-ml.so.%{version} \
     libnvidia-ptxjitcompiler.so.%{version} \
@@ -513,6 +514,7 @@ fi ||:
 %{_libdir}/libnvidia-fbc.so.%{version}
 %{_libdir}/libnvidia-glcore.so.%{version}
 %{_libdir}/libnvidia-glsi.so.%{version}
+%{_libdir}/libnvidia-glvkspirv.so.%{version}
 %{_libdir}/libnvidia-ifr.so.1
 %{_libdir}/libnvidia-ifr.so.%{version}
 %{_libdir}/libnvidia-tls.so.%{version}
