@@ -1,4 +1,5 @@
 %global        _nvidia_serie        nvidia
+%global        _libdir32            %{_prefix}/lib
 %global        _nvidia_libdir       %{_libdir}/%{_nvidia_serie}
 %global        _nvidia_xorgdir      %{_nvidia_libdir}/xorg
 # Unfortunately this is always hardcoded regardless of architecture:
@@ -58,7 +59,7 @@ Source12:        99-nvidia-dracut.conf
 Source13:        10-nvidia.rules
 Source14:        nvidia-fallback.service
 
-ExclusiveArch: x86_64
+ExclusiveArch: x86_64 i686
 
 %if 0%{?rhel} > 6 || 0%{?fedora}
 Buildrequires:    systemd
@@ -186,14 +187,15 @@ Requires:        egl-wayland%{?_isa} >= 1.0.0
 Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
+%ifarch x86_64
 # Boolean dependencies are only fedora
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
+%endif
 %endif
 Requires:        vulkan-filesystem
 
 %description libs
 This package provides the shared libraries for %{name}.
-
 
 %prep
 %setup -q -c -T
@@ -210,6 +212,7 @@ echo "Nothing to build"
 %install
 cd nvidiapkg
 
+%ifarch x86_64
 # Install only required libraries
 mkdir -p %{buildroot}%{_libdir}
 cp -a \
@@ -247,7 +250,74 @@ cp -a \
     %{buildroot}%{_nvidia_libdir}/
 ldconfig -vn %{buildroot}%{_nvidia_libdir}/
 %endif
+%endif
 
+%ifarch i686
+# Install the 32bit libraries
+mkdir -p %{buildroot}%{_libdir32} %{buildroot}%{_alternate_dir}
+pushd 32
+cp -a \
+    libcuda.so.%{version} \
+    libEGL_nvidia.so.%{version} \
+    libGLESv1_CM_nvidia.so.%{version} \
+    libGLESv2_nvidia.so.%{version} \
+    libGLX_nvidia.so.%{version} \
+    libnvcuvid.so.%{version} \
+    libnvidia-eglcore.so.%{version} \
+    libnvidia-encode.so.%{version} \
+    libnvidia-fatbinaryloader.so.%{version} \
+    libnvidia-fbc.so.%{version} \
+    libnvidia-glcore.so.%{version} \
+    libnvidia-glsi.so.%{version} \
+    libnvidia-glvkspirv.so.%{version} \
+    libnvidia-ifr.so.%{version} \
+    libnvidia-ml.so.%{version} \
+    libnvidia-ptxjitcompiler.so.%{version} \
+    %{buildroot}%{_libdir32}/
+
+cp -af \
+    tls/libnvidia-tls.so* \
+    libnvidia-compiler.so.%{version} \
+    libnvidia-opencl.so.%{version} \
+    %{buildroot}%{_libdir32}/
+
+%if 0%{?rhel} && 0%{?rhel} < 8
+mkdir -p %{buildroot}%{_alternate_dir}
+cp -a \
+    libEGL.so.%{version} \
+    libGL.so.%{version} \
+    libGLdispatch.so.0 \
+    %{buildroot}%{_alternate_dir}/
+ldconfig -vn %{buildroot}%{_alternate_dir}/
+%endif
+# Use ldconfig for libraries with a mismatching SONAME/filename
+ldconfig -vn %{buildroot}%{_libdir32}/
+# Libraries you can link against
+ln -sf libcuda.so.%{version} %{buildroot}%{_libdir32}/libcuda.so
+# Vdpau driver
+install -D -p -m 0755 libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir32}/vdpau/libvdpau_nvidia.so.%{version}
+ln -sf libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir32}/vdpau/libvdpau_nvidia.so.1
+# GlVND
+%if 0%{?rhel} && 0%{?rhel} < 8
+ln -s libGLX_nvidia.so.%{version} %{buildroot}%{_libdir32}/libGLX_indirect.so.0
+# ld.so.conf.d file
+install -m 0755 -d       %{buildroot}%{_sysconfdir}/ld.so.conf.d/
+echo -e "%{_alternate_dir} \n" > %{buildroot}%{_sysconfdir}/ld.so.conf.d/nvidia-lib.conf
+%endif
+# Vulkan config
+sed -i -e 's|__NV_VK_ICD__|libGLX_nvidia.so.0|' ../nvidia_icd.json.template
+install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/icd.d/
+install -p -m 0644 ../nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.i686.json
+%if 0%{?rhel}
+# back to non-glvnd version for vulkan
+sed -i -e 's|libGLX_nvidia.so.0|libGL.so.1|' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.i686.json
+touch -r ../nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.i686.json
+%endif
+popd
+# End of 32bit libs
+%endif
+
+%ifarch x86_64
 # Use ldconfig for libraries with a mismatching SONAME/filename
 ldconfig -vn %{buildroot}%{_libdir}/
 
@@ -520,7 +590,47 @@ fi ||:
 %{_libdir}/libnvidia-tls.so.%{version}
 %{_libdir}/vdpau/libvdpau_nvidia.so.1
 %{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
+%endif
 
+%ifarch i686
+%ldconfig_scriptlets libs
+
+%files libs
+%if 0%{?rhel} && 0%{?rhel} < 8
+%config %{_sysconfdir}/ld.so.conf.d/nvidia-lib.conf
+%{_alternate_dir}/libEGL.so.1
+%{_alternate_dir}/libEGL.so.%{version}
+%{_alternate_dir}/libGL.so.1
+%{_alternate_dir}/libGL.so.%{version}
+%{_alternate_dir}/libGLdispatch.so.0
+%endif
+%{_datadir}/vulkan/icd.d/nvidia_icd.i686.json
+%dir %{_alternate_dir}
+%{_libdir32}/libEGL_nvidia.so.0
+%{_libdir32}/libEGL_nvidia.so.%{version}
+%{_libdir32}/libGLESv1_CM_nvidia.so.1
+%{_libdir32}/libGLESv1_CM_nvidia.so.%{version}
+%{_libdir32}/libGLESv2_nvidia.so.2
+%{_libdir32}/libGLESv2_nvidia.so.%{version}
+%if 0%{?rhel}
+%{_libdir32}/libGLX_indirect.so.0
+%endif
+%{_libdir32}/libGLX_nvidia.so.0
+%{_libdir32}/libGLX_nvidia.so.%{version}
+%{_libdir32}/libnvidia-eglcore.so.%{version}
+%{_libdir32}/libnvidia-fbc.so.1
+%{_libdir32}/libnvidia-fbc.so.%{version}
+%{_libdir32}/libnvidia-glcore.so.%{version}
+%{_libdir32}/libnvidia-glsi.so.%{version}
+%{_libdir32}/libnvidia-glvkspirv.so.%{version}
+%{_libdir32}/libnvidia-ifr.so.1
+%{_libdir32}/libnvidia-ifr.so.%{version}
+%{_libdir32}/libnvidia-tls.so.%{version}
+%{_libdir32}/vdpau/libvdpau_nvidia.so.1
+%{_libdir32}/vdpau/libvdpau_nvidia.so.%{version}
+%endif
+
+%ifarch x86_64
 %files cuda
 %license nvidiapkg/LICENSE
 %{_bindir}/nvidia-debugdump
@@ -549,11 +659,35 @@ fi ||:
 %{_libdir}/libnvidia-compiler.so.%{version}
 %{_libdir}/libnvidia-opencl.so.1
 %{_libdir}/libnvidia-opencl.so.%{version}
+%endif
 
+%ifarch i686
+%ldconfig_scriptlets cuda-libs
+
+%files cuda-libs
+%{_libdir32}/libcuda.so
+%{_libdir32}/libcuda.so.1
+%{_libdir32}/libcuda.so.%{version}
+%{_libdir32}/libnvcuvid.so.1
+%{_libdir32}/libnvcuvid.so.%{version}
+%{_libdir32}/libnvidia-encode.so.1
+%{_libdir32}/libnvidia-encode.so.%{version}
+%{_libdir32}/libnvidia-fatbinaryloader.so.%{version}
+%{_libdir32}/libnvidia-ml.so.1
+%{_libdir32}/libnvidia-ml.so.%{version}
+%{_libdir32}/libnvidia-ptxjitcompiler.so.1
+%{_libdir32}/libnvidia-ptxjitcompiler.so.%{version}
+%{_libdir32}/libnvidia-compiler.so.%{version}
+%{_libdir32}/libnvidia-opencl.so.1
+%{_libdir32}/libnvidia-opencl.so.%{version}
+%endif
+
+%ifarch x86_64
 %files devel
 %{_includedir}/nvidia/
 %{_libdir}/libnvcuvid.so
 %{_libdir}/libnvidia-encode.so
+%endif
 
 %changelog
 * Fri May 04 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:396.24-1
