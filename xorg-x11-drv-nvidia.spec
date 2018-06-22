@@ -37,7 +37,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         396.24
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -258,11 +258,7 @@ ldconfig -vn %{buildroot}%{_nvidia_libdir}/
 ldconfig -vn %{buildroot}%{_libdir}/
 
 # Libraries you can link against
-%ifarch x86_64
 for lib in libcuda libnvcuvid libnvidia-encode; do
-%else
-for lib in libcuda; do
-%endif
     ln -sf $lib.so.%{version} %{buildroot}%{_libdir}/$lib.so
 done
 
@@ -291,6 +287,10 @@ install -p -m 0644 nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d
 sed -i -e 's|libGLX_nvidia.so.0|libGL.so.1|' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 touch -r nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 %endif
+
+# Install headers
+install -m 0755 -d %{buildroot}%{_includedir}/nvidia/GL/
+install -p -m 0644 {gl.h,glext.h,glx.h,glxext.h} %{buildroot}%{_includedir}/nvidia/GL/
 
 %ifarch x86_64
 # X DDX driver and GLX extension
@@ -328,10 +328,6 @@ install -p -m 0644 %{SOURCE12} %{buildroot}%{_dracut_conf_d}/
 install -m 0755 -d %{buildroot}%{_bindir}
 install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server} \
   %{buildroot}%{_bindir}
-
-# Install headers
-install -m 0755 -d %{buildroot}%{_includedir}/nvidia/GL/
-install -p -m 0644 {gl.h,glext.h,glx.h,glxext.h} %{buildroot}%{_includedir}/nvidia/GL/
 
 # Install man pages
 install    -m 0755 -d   %{buildroot}%{_mandir}/man1/
@@ -576,14 +572,15 @@ fi ||:
 %{_libdir}/libnvidia-opencl.so.1
 %{_libdir}/libnvidia-opencl.so.%{version}
 
-%ifarch x86_64
 %files devel
 %{_includedir}/nvidia/
 %{_libdir}/libnvcuvid.so
 %{_libdir}/libnvidia-encode.so
-%endif
 
 %changelog
+* Fri Jun 22 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:396.24-3
+- Readd devel sub-package for i686
+
 * Fri May 04 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:396.24-2
 - Clean up
 
