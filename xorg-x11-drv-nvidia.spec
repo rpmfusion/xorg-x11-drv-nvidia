@@ -36,8 +36,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         396.24
-Release:         3%{?dist}
+Version:         396.45
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -157,6 +157,8 @@ Provides:        cuda-drivers = %{version}-100
 Provides:        cuda-drivers%{?_isa} = %{version}-100
 Provides:        nvidia-driver = %{version}-100
 Provides:        nvidia-driver%{?_isa} = %{version}-100
+Provides:        nvidia-drivers = %{version}-100
+Provides:        nvidia-drivers%{?_isa} = %{version}-100
 
 %description cuda
 This package provides the CUDA driver.
@@ -578,6 +580,10 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Fri Jul 20 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:396.45-1
+- Update to 396.45 release
+- Add compat provide for cuda repo
+
 * Fri Jun 22 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:396.24-3
 - Readd devel sub-package for i686
 
