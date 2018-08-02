@@ -193,7 +193,7 @@ Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
 %endif
 %endif
-Requires:        vulkan-filesystem
+Requires:        vulkan-loader
 
 %description libs
 This package provides the shared libraries for %{name}.
