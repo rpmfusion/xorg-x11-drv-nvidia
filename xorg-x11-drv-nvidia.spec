@@ -36,7 +36,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         396.45
+Version:         396.51
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -580,6 +580,10 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Sat Aug 04 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:396.51-1
+- Update to 396.51 release
+- Change vulkan requires
+
 * Fri Jul 20 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:396.45-1
 - Update to 396.45 release
 - Add compat provide for cuda repo
