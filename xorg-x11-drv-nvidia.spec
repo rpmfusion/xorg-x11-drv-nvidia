@@ -37,7 +37,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         396.54
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -139,7 +139,7 @@ such as OpenGL headers.
 Summary:         CUDA driver for %{name}
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
-Requires:        nvidia-persistenced%{?_isa} = %{version}
+Requires:        nvidia-persistenced%{?_isa} = %{?epoch}:%{version}
 %if 0%{?fedora}
 Suggests:        nvidia-modprobe%{?_isa} = %{version}
 # Boolean dependencies are only fedora
@@ -580,6 +580,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Wed Aug 22 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:396.54-2
+- Add epoch to for nvidia-persistenced requires
+
 * Wed Aug 22 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:396.54-1
 - Update to 396.54 release
 
