@@ -10,7 +10,7 @@
 %global        _dracut_conf_d	    %{_prefix}/lib/dracut/dracut.conf.d
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
-%if 0%{?rhel} >= 7
+%if 0%{?rhel}
 %global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
 %else #fedora
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         396.54
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -156,13 +156,13 @@ Requires:        egl-wayland%{?_isa} >= 1.0.0
 Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
-%if 0%{?fedora}
+%if 0%{?rhel}
+Requires:        vulkan-filesystem
+%else
 Requires:        vulkan-loader
 %ifarch x86_64
 # Boolean dependencies are only fedora
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
-%else
-Requires:        vulkan-filesystem
 %endif
 %endif
 
@@ -481,6 +481,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Wed Aug 29 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:396.54-3
+- Rebase for RHEL-7.6 beta
+
 * Wed Aug 22 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:396.54-2
 - Add epoch to for nvidia-persistenced requires
 
