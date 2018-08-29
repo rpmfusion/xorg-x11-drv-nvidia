@@ -29,10 +29,6 @@ Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 License:         Redistributable, no modification permitted
 URL:             http://www.nvidia.com/
 Source0:         https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-
-Source2:         99-nvidia.conf
-Source3:         00-avoid-glamor.conf
-Source4:         blacklist-nouveau.conf
 Source5:         alternate-install-present
 Source6:         nvidia.conf
 Source7:         60-nvidia.rules
@@ -221,16 +217,6 @@ cp -af \
     libnvidia-opencl.so.%{version} \
     %{buildroot}%{_libdir}/
 
-%if 0%{?rhel} && 0%{?rhel} < 8
-mkdir -p %{buildroot}%{_nvidia_libdir}
-cp -a \
-    libEGL.so.%{version} \
-    libGL.so.%{version} \
-    libGLdispatch.so.0 \
-    %{buildroot}%{_nvidia_libdir}/
-ldconfig -vn %{buildroot}%{_nvidia_libdir}/
-%endif
-
 # Use ldconfig for libraries with a mismatching SONAME/filename
 ldconfig -vn %{buildroot}%{_libdir}/
 
@@ -243,14 +229,6 @@ done
 install -D -p -m 0755 libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
 ln -sf libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau/libvdpau_nvidia.so.1
 
-# GlVND
-%if 0%{?rhel} && 0%{?rhel} < 8
-ln -s libGLX_nvidia.so.%{version} %{buildroot}%{_libdir}/libGLX_indirect.so.0
-
-# ld.so.conf.d file
-install -m 0755 -d       %{buildroot}%{_sysconfdir}/ld.so.conf.d/
-echo -e "%{_nvidia_libdir} \n" > %{buildroot}%{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
-%endif
 %ifarch i686
 popd
 %endif
@@ -259,11 +237,6 @@ popd
 sed -i -e 's|__NV_VK_ICD__|libGLX_nvidia.so.0|' nvidia_icd.json.template
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/icd.d/
 install -p -m 0644 nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
-%if 0%{?rhel}
-# back to non-glvnd version for vulkan
-sed -i -e 's|libGLX_nvidia.so.0|libGL.so.1|' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
-touch -r nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
-%endif
 
 # Install headers
 install -m 0755 -d %{buildroot}%{_includedir}/nvidia/GL/
@@ -286,9 +259,6 @@ install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_
 # Blacklist nouveau, autoload nvidia-uvm module after nvidia module
 mkdir -p %{buildroot}%{_modprobe_d}
 install -p -m 0644 %{SOURCE11} %{buildroot}%{_modprobe_d}
-%if 0%{?rhel} && 0%{?rhel} < 8
-install -p -m 0644 %{SOURCE4} %{buildroot}%{_modprobe_d}
-%endif
 
 # UDev rules for nvidia
 install    -m 0755 -d          %{buildroot}%{_udevrulesdir}
@@ -322,17 +292,10 @@ install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation}
 #Install the Xorg configuration files
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 mkdir -p %{buildroot}%{_datadir}/X11/xorg.conf.d
-%if 0%{?fedora} >= 25 || 0%{?rhel} >= 7
 install -pm 0644 %{SOURCE6} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 touch -r %{SOURCE6} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
-%else
-install -pm 0644 nvidia-drm-outputclass.conf %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
-install -pm 0644 %{SOURCE2} %{buildroot}%{_datadir}/X11/xorg.conf.d
-install -pm 0644 %{SOURCE3} %{buildroot}%{_datadir}/X11/xorg.conf.d
-sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
-touch -r %{SOURCE2} %{buildroot}%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
-%endif
+
 #Ghost Xorg nvidia.conf files
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
@@ -359,11 +322,9 @@ install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps/%{name}.png
 %endif
 
 # Install nvidia-fallback
-%if 0%{?rhel} > 6 || 0%{?fedora}
 mkdir -p %{buildroot}%{_unitdir}
 install -p -m 0644 %{SOURCE13} %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE14} %{buildroot}%{_unitdir}
-%endif
 
 
 %pre
@@ -430,30 +391,14 @@ fi ||:
 %ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
-%if 0%{?rhel} > 6 || 0%{?fedora}
 %{_udevrulesdir}/10-nvidia.rules
 %{_udevrulesdir}/60-nvidia.rules
 %{_unitdir}/nvidia-fallback.service
-%endif
-%if 0%{?fedora} >= 25
+%if 0%{?fedora}
 %{_datadir}/appdata/%{name}.metainfo.xml
 %{_datadir}/pixmaps/%{name}.png
-%{_dracut_conf_d}/99-nvidia-dracut.conf
-%else
-# Owns the directory since libglvnd is optional here
-%dir %{_datadir}/glvnd
-%dir %{_datadir}/glvnd/egl_vendor.d
-# RHEL6 uses /etc
-%if 0%{?rhel} == 6
-%config(noreplace) %{_modprobe_d}/blacklist-nouveau.conf
-%config(noreplace) %{_dracut_conf_d}/99-nvidia-dracut.conf
-%{_datadir}/X11/xorg.conf.d/00-avoid-glamor.conf
-%{_datadir}/X11/xorg.conf.d/99-nvidia.conf
-%else
-%{_modprobe_d}/blacklist-nouveau.conf
-%{_dracut_conf_d}/99-nvidia-dracut.conf
 %endif
-%endif
+%{_dracut_conf_d}/99-nvidia-dracut.conf
 %{_bindir}/nvidia-bug-report.sh
 # Xorg libs that do not need to be multilib
 %dir %{_nvidia_xorgdir}
@@ -475,14 +420,6 @@ fi ||:
 %endif
 
 %files libs
-%if 0%{?rhel} && 0%{?rhel} < 8
-%config %{_sysconfdir}/ld.so.conf.d/nvidia-%{_lib}.conf
-%{_nvidia_libdir}/libEGL.so.1
-%{_nvidia_libdir}/libEGL.so.%{version}
-%{_nvidia_libdir}/libGL.so.1
-%{_nvidia_libdir}/libGL.so.%{version}
-%{_nvidia_libdir}/libGLdispatch.so.0
-%endif
 %{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 %{_libdir}/libEGL_nvidia.so.0
 %{_libdir}/libEGL_nvidia.so.%{version}
@@ -490,9 +427,6 @@ fi ||:
 %{_libdir}/libGLESv1_CM_nvidia.so.%{version}
 %{_libdir}/libGLESv2_nvidia.so.2
 %{_libdir}/libGLESv2_nvidia.so.%{version}
-%if 0%{?rhel}
-%{_libdir}/libGLX_indirect.so.0
-%endif
 %{_libdir}/libGLX_nvidia.so.0
 %{_libdir}/libGLX_nvidia.so.%{version}
 %ifarch x86_64
