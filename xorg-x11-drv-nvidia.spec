@@ -46,21 +46,16 @@ Source14:        nvidia-fallback.service
 
 ExclusiveArch: x86_64 i686
 
-%if 0%{?rhel} > 6 || 0%{?fedora}
 Buildrequires:    systemd
 Requires(post):   systemd
 Requires(preun):  systemd
 Requires(postun): systemd
-%endif
-%if 0%{?fedora} >= 25
+# Xorg with PrimaryGPU
+Requires:         Xorg >= 1.19.0-3
+%if 0%{?fedora}
 # AppStream metadata generation
 BuildRequires:    python2
 BuildRequires:    libappstream-glib >= 0.6.3
-# Xorg with PrimaryGPU
-Requires:         Xorg >= 1.19.0-3
-%else
-# Xorg with OutputClass
-Requires:         Xorg >= 1.16.0-1
 %endif
 
 Requires(post):   ldconfig
@@ -84,17 +79,9 @@ Conflicts:       xorg-x11-drv-nvidia-340xx
 Conflicts:       xorg-x11-drv-fglrx
 Conflicts:       xorg-x11-drv-catalyst
 
-%if 0%{?fedora} || 0%{?rhel} >= 7
 %global         __provides_exclude ^(lib.*GL.*\\.so.*)$
 %global         __requires_exclude ^(lib.*GL.*\\.so.*)$
-%else
 
-%{?filter_setup:
-%filter_from_provides /^lib.*GL.*\.so/d;
-%filter_from_requires /^lib.*GL.*\.so/d;
-%filter_setup
-}
-%endif
 
 %description
 This package provides the most recent NVIDIA display driver which allows for
@@ -165,7 +152,6 @@ which is generated during the build of main package.
 %package libs
 Summary:         Libraries for %{name}
 Requires:        libvdpau%{?_isa} >= 0.5
-%if 0%{?fedora} >= 25
 Requires:        libglvnd-egl%{?_isa} >= 0.2
 Requires:        libglvnd-gles%{?_isa} >= 0.2
 Requires:        libglvnd-glx%{?_isa} >= 0.2
@@ -174,12 +160,15 @@ Requires:        egl-wayland%{?_isa} >= 1.0.0
 Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
+%if 0%{?fedora}
+Requires:        vulkan-loader
 %ifarch x86_64
 # Boolean dependencies are only fedora
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
+%else
+Requires:        vulkan-filesystem
 %endif
 %endif
-Requires:        vulkan-loader
 
 %description libs
 This package provides the shared libraries for %{name}.
