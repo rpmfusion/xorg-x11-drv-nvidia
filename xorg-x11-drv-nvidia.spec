@@ -7,27 +7,13 @@
 %global        _alternate_dir       %{_prefix}/lib/nvidia
 %global        _glvnd_libdir        %{_libdir}/libglvnd
 
-%if 0%{?rhel} == 6
-%global        _modprobe_d          %{_sysconfdir}/modprobe.d/
-# RHEL 6 does not have _udevrulesdir defined
-%global        _udevrulesdir        %{_prefix}/lib/udev/rules.d/
-%global        _modprobe_d          %{_sysconfdir}/modprobe.d/
-%global        _dracutopts          nouveau.modeset=0 rdblacklist=nouveau
-%global        _dracut_conf_d	    %{_sysconfdir}/dracut.conf.d
-%global        _grubby              /sbin/grubby --grub --update-kernel=ALL
-%else #rhel > 6 or fedora
 %global        _dracut_conf_d	    %{_prefix}/lib/dracut/dracut.conf.d
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
-%if 0%{?rhel} == 7
+%if 0%{?rhel} >= 7
 %global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau
 %else #fedora
-%if 0%{?fedora} >= 27
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
-%else
-%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
-%endif
-%endif
 %endif
 
 %global	       debug_package %{nil}
@@ -401,9 +387,7 @@ fi
 %post
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
-%if 0%{?fedora} || 0%{?rhel} >= 7
   sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
-%endif
 # Until mutter enable egl stream support, we need to disable gdm wayland
 # https://bugzilla.redhat.com/1462052
 %if 0%{?fedora}
@@ -413,7 +397,6 @@ if [ "$1" -eq "1" ]; then
 %endif
 fi || :
 
-%if 0%{?fedora} || 0%{?rhel} >= 7
 %triggerun -- xorg-x11-drv-nvidia < 3:384.59-5
 if [ -f %{_sysconfdir}/default/grub ] ; then
   sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
@@ -431,7 +414,6 @@ if [ -f %{_sysconfdir}/default/grub ] ; then
   fi
 fi
 %{_grubby} --args='%{_dracutopts}' &>/dev/null || :
-%endif
 
 %ldconfig_scriptlets libs
 %ldconfig_scriptlets cuda-libs
@@ -439,9 +421,7 @@ fi
 %preun
 if [ "$1" -eq "0" ]; then
   %{_grubby} --remove-args='%{_dracutopts}' &>/dev/null
-%if 0%{?fedora} || 0%{?rhel} >= 7
   sed -i -e 's/%{_dracutopts} //g' /etc/default/grub
-%endif
   # Backup and disable previously used xorg.conf
   [ -f %{_sysconfdir}/X11/xorg.conf ] && mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.nvidia_uninstalled &>/dev/null
 fi ||:
