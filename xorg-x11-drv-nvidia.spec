@@ -11,7 +11,7 @@
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %if 0%{?rhel} >= 7
-%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau
+%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
 %else #fedora
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
 %endif
@@ -340,11 +340,9 @@ if [ "$1" -eq "1" ]; then
   sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
 # Until mutter enable egl stream support, we need to disable gdm wayland
 # https://bugzilla.redhat.com/1462052
-%if 0%{?fedora}
   if [ -f %{_sysconfdir}/gdm/custom.conf ] ; then
     sed -i -e 's/#WaylandEnable=.*/WaylandEnable=false/' %{_sysconfdir}/gdm/custom.conf
   fi
-%endif
 fi || :
 
 %triggerun -- xorg-x11-drv-nvidia < 3:384.59-5
