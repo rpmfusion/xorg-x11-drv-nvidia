@@ -241,7 +241,7 @@ install -p -m 0644 nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d
 %ifarch x86_64
 # X DDX driver and GLX extension
 install -p -D -m 0755 libglxserver_nvidia.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglxserver_nvidia.so.%{version}
-ln -sf libglx.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglxserver_nvidia.so
+ln -sf libglxserver_nvidia.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglxserver_nvidia.so
 install -D -p -m 0755 nvidia_drv.so %{buildroot}%{_libdir}/xorg/modules/drivers/nvidia_drv.so
 
 # OpenCL config
