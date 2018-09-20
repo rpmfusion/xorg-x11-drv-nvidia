@@ -443,7 +443,7 @@ fi ||:
 
 %ifarch x86_64
 %files cuda
-%license nvidiapkg/LICENSE259290
+%license nvidiapkg/LICENSE
 %{_bindir}/nvidia-debugdump
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-cuda-mps-control
