@@ -197,6 +197,7 @@ cp -a \
     libnvcuvid.so.%{version} \
 %ifarch x86_64
     libnvidia-cfg.so.%{version} \
+    libnvoptix.so.%{version} \
 %endif
     libnvidia-eglcore.so.%{version} \
     libnvidia-encode.so.%{version} \
@@ -207,7 +208,6 @@ cp -a \
     libnvidia-glvkspirv.so.%{version} \
     libnvidia-ifr.so.%{version} \
     libnvidia-ml.so.%{version} \
-    libnvoptix.so.%{version} \
     libnvidia-ptxjitcompiler.so.%{version} \
     %{buildroot}%{_libdir}/
 
@@ -239,7 +239,9 @@ install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/icd.d/
 install -p -m 0644 nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 
 %ifarch x86_64
-# X DDX driver
+# X DDX driver and GLX extension
+install -p -D -m 0755 libglxserver_nvidia.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglxserver_nvidia.so.%{version}
+ln -sf libglx.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglxserver_nvidia.so
 install -D -p -m 0755 nvidia_drv.so %{buildroot}%{_libdir}/xorg/modules/drivers/nvidia_drv.so
 
 # OpenCL config
@@ -393,6 +395,9 @@ fi ||:
 %{_dracut_conf_d}/99-nvidia-dracut.conf
 %{_bindir}/nvidia-bug-report.sh
 # Xorg libs that do not need to be multilib
+%dir %{_nvidia_xorgdir}
+%{_nvidia_xorgdir}/libglxserver_nvidia.so
+%{_nvidia_xorgdir}/libglxserver_nvidia.so.%{version}
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 #/no_multilib
 %dir %{_datadir}/nvidia
