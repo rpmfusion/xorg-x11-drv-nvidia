@@ -22,8 +22,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         396.54
-Release:         3%{?dist}
+Version:         410.57
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -101,8 +101,7 @@ Provides:        cuda-drivers-devel = %{version}-100
 Provides:        cuda-drivers-devel%{?_isa} = %{version}-100
 
 %description devel
-This package provides the development files of the %{name} package,
-such as OpenGL headers.
+This package provides the development files of the %{name} package.
 
 %package cuda
 Summary:         CUDA driver for %{name}
@@ -208,6 +207,7 @@ cp -a \
     libnvidia-glvkspirv.so.%{version} \
     libnvidia-ifr.so.%{version} \
     libnvidia-ml.so.%{version} \
+    libnvoptix.so.%{version} \
     libnvidia-ptxjitcompiler.so.%{version} \
     %{buildroot}%{_libdir}/
 
@@ -238,14 +238,8 @@ sed -i -e 's|__NV_VK_ICD__|libGLX_nvidia.so.0|' nvidia_icd.json.template
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/icd.d/
 install -p -m 0644 nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 
-# Install headers
-install -m 0755 -d %{buildroot}%{_includedir}/nvidia/GL/
-install -p -m 0644 {gl.h,glext.h,glx.h,glxext.h} %{buildroot}%{_includedir}/nvidia/GL/
-
 %ifarch x86_64
-# X DDX driver and GLX extension
-install -p -D -m 0755 libglx.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglx.so.%{version}
-ln -sf libglx.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglx.so
+# X DDX driver
 install -D -p -m 0755 nvidia_drv.so %{buildroot}%{_libdir}/xorg/modules/drivers/nvidia_drv.so
 
 # OpenCL config
@@ -399,9 +393,6 @@ fi ||:
 %{_dracut_conf_d}/99-nvidia-dracut.conf
 %{_bindir}/nvidia-bug-report.sh
 # Xorg libs that do not need to be multilib
-%dir %{_nvidia_xorgdir}
-%{_nvidia_xorgdir}/libglx.so
-%{_nvidia_xorgdir}/libglx.so.%{version}
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 #/no_multilib
 %dir %{_datadir}/nvidia
@@ -428,7 +419,6 @@ fi ||:
 %{_libdir}/libGLX_nvidia.so.0
 %{_libdir}/libGLX_nvidia.so.%{version}
 %ifarch x86_64
-%dir %{_nvidia_libdir}
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
 %endif
@@ -440,6 +430,8 @@ fi ||:
 %{_libdir}/libnvidia-glvkspirv.so.%{version}
 %{_libdir}/libnvidia-ifr.so.1
 %{_libdir}/libnvidia-ifr.so.%{version}
+%{_libdir}/libnvoptix.so.%{version}
+%{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvidia-tls.so.%{version}
 %{_libdir}/vdpau/libvdpau_nvidia.so.1
 %{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
@@ -476,11 +468,13 @@ fi ||:
 %{_libdir}/libnvidia-opencl.so.%{version}
 
 %files devel
-%{_includedir}/nvidia/
 %{_libdir}/libnvcuvid.so
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Thu Sep 20 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-1
+- Update to 410.57 beta
+
 * Wed Aug 29 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:396.54-3
 - Rebase for RHEL-7.6 beta
 
