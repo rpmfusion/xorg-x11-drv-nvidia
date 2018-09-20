@@ -427,7 +427,7 @@ fi ||:
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
 %{_libdir}/libnvoptix.so.1
-%{_libdir}/libnvidia-tls.so.%{version}
+%{_libdir}/libnvoptix.so.%{version}
 %endif
 %{_libdir}/libnvidia-eglcore.so.%{version}
 %{_libdir}/libnvidia-fbc.so.1
@@ -437,13 +437,13 @@ fi ||:
 %{_libdir}/libnvidia-glvkspirv.so.%{version}
 %{_libdir}/libnvidia-ifr.so.1
 %{_libdir}/libnvidia-ifr.so.%{version}
-%{_libdir}/libnvoptix.so.%{version}
+%{_libdir}/libnvidia-tls.so.%{version}
 %{_libdir}/vdpau/libvdpau_nvidia.so.1
 %{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
 
 %ifarch x86_64
 %files cuda
-%license nvidiapkg/LICENSE
+%license nvidiapkg/LICENSE259290
 %{_bindir}/nvidia-debugdump
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-cuda-mps-control
