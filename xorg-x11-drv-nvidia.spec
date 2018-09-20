@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         410.57
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -76,7 +76,7 @@ Conflicts:       xorg-x11-drv-fglrx
 Conflicts:       xorg-x11-drv-catalyst
 
 %global         __provides_exclude ^(lib.*GL.*\\.so.*)$
-%global         __requires_exclude ^(lib.*GL.*\\.so.*)$
+%global         __requires_exclude ^libglxserver_nvidia.so|^(lib.*GL.*\\.so.*)$
 
 
 %description
@@ -477,6 +477,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Thu Sep 20 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-2
+- Filter libglxserver_nvidia.so requires on main
+
 * Thu Sep 20 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-1
 - Update to 410.57 beta
 
