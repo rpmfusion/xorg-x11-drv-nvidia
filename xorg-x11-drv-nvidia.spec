@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         410.57
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -58,7 +58,7 @@ Requires(post):   ldconfig
 Requires(postun): ldconfig
 Requires(post):   grubby
 Requires:         which
-Requires:         nvidia-settings%{?_isa} = %{version}
+Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 %if 0%{?fedora}
 Suggests:         nvidia-xconfig%{?_isa} = %{version}
 %else
@@ -477,6 +477,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Fri Sep 21 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-3
+- Add epoch to for nvidia-settings requires
+
 * Thu Sep 20 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-2
 - Filter libglxserver_nvidia.so requires on main
 
