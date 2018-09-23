@@ -21,7 +21,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         410.57
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -476,6 +476,10 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Sun Sep 23 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-4
+- Add new raytracing libs
+- Move the new glx server lib to it's correct location
+
 * Fri Sep 21 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-3
 - Add epoch to for nvidia-settings requires
 
