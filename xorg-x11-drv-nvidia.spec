@@ -1,6 +1,4 @@
 %global        _nvidia_serie        nvidia
-%global        _nvidia_libdir       %{_libdir}/%{_nvidia_serie}
-%global        _nvidia_xorgdir      %{_nvidia_libdir}/xorg
 # Unfortunately this is always hardcoded regardless of architecture:
 # https://github.com/NVIDIA/nvidia-installer/blob/master/misc.c#L2443
 # https://github.com/NVIDIA/nvidia-installer/blob/master/misc.c#L2556-L2558
@@ -242,8 +240,7 @@ install -p -m 0644 nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d
 
 %ifarch x86_64
 # X DDX driver and GLX extension
-install -p -D -m 0755 libglxserver_nvidia.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglxserver_nvidia.so.%{version}
-ln -sf libglxserver_nvidia.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglxserver_nvidia.so
+install -p -D -m 0755 libglxserver_nvidia.so.%{version} %{buildroot}%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
 install -D -p -m 0755 nvidia_drv.so %{buildroot}%{_libdir}/xorg/modules/drivers/nvidia_drv.so
 
 # OpenCL config
@@ -397,9 +394,7 @@ fi ||:
 %{_dracut_conf_d}/99-nvidia-dracut.conf
 %{_bindir}/nvidia-bug-report.sh
 # Xorg libs that do not need to be multilib
-%dir %{_nvidia_xorgdir}
-%{_nvidia_xorgdir}/libglxserver_nvidia.so
-%{_nvidia_xorgdir}/libglxserver_nvidia.so.%{version}
+%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 #/no_multilib
 %dir %{_datadir}/nvidia
