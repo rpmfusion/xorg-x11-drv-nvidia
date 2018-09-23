@@ -196,7 +196,9 @@ cp -a \
     libGLX_nvidia.so.%{version} \
     libnvcuvid.so.%{version} \
 %ifarch x86_64
+    libnvidia-cbl.so.%{version} \
     libnvidia-cfg.so.%{version} \
+    libnvidia-rtcore.so.%{version} \
     libnvoptix.so.%{version} \
 %endif
     libnvidia-eglcore.so.%{version} \
@@ -424,8 +426,10 @@ fi ||:
 %{_libdir}/libGLX_nvidia.so.0
 %{_libdir}/libGLX_nvidia.so.%{version}
 %ifarch x86_64
+%{_libdir}/libnvidia-cbl.so.%{version}
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
+%{_libdir}/libnvidia-rtcore.so.%{version}
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %endif
