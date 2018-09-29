@@ -21,7 +21,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         410.57
-Release:         4%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -58,9 +58,9 @@ Requires(post):   grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 %if 0%{?fedora}
-Suggests:         nvidia-xconfig%{?_isa} = %{version}
+Suggests:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 %else
-Requires:         nvidia-xconfig%{?_isa} = %{version}
+Requires:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 %endif
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
@@ -107,11 +107,11 @@ Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        nvidia-persistenced%{?_isa} = %{?epoch}:%{version}
 %if 0%{?fedora}
-Suggests:        nvidia-modprobe%{?_isa} = %{version}
+Suggests:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 # Boolean dependencies are only fedora
 Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
 %else
-Requires:        nvidia-modprobe%{?_isa} = %{version}
+Requires:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 %endif
 Requires:        ocl-icd%{?_isa}
 Requires:        opencl-filesystem
@@ -476,12 +476,15 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Sat Sep 29 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-5
+- Add epoch to nvidia-modprobe and nvidia-xconfig requires
+
 * Sun Sep 23 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-4
 - Add new raytracing libs
 - Move the new glx server lib to it's correct location
 
 * Fri Sep 21 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-3
-- Add epoch to for nvidia-settings requires
+- Add epoch to nvidia-settings requires
 
 * Thu Sep 20 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-2
 - Filter libglxserver_nvidia.so requires on main
