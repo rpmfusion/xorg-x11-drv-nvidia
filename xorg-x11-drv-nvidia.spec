@@ -156,7 +156,7 @@ Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
 %if 0%{?rhel}
 Requires:        vulkan-filesystem
 %else
-Requires:        vulkan-loader
+Requires:        vulkan-loader%{?_isa}
 %ifarch x86_64
 # Boolean dependencies are only fedora
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
