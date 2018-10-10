@@ -21,7 +21,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         410.57
-Release:         5%{?dist}
+Release:         6%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -478,6 +478,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Wed Oct 10 2018 Nicolas Chauvet <kwizart@gmail.com> - 3:410.57-6
+- Enforce the mesa version
+
 * Sat Sep 29 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-5
 - Add epoch to nvidia-modprobe and nvidia-xconfig requires
 
