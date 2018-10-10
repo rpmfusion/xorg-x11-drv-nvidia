@@ -109,7 +109,9 @@ Requires:        nvidia-persistenced%{?_isa} = %{?epoch}:%{version}
 %if 0%{?fedora}
 Suggests:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 # Boolean dependencies are only fedora
-Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
+%ifarch x86_64
+Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
+%endif
 %else
 Requires:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 %endif
@@ -159,7 +161,7 @@ Requires:        vulkan-filesystem
 Requires:        vulkan-loader%{?_isa}
 %ifarch x86_64
 # Boolean dependencies are only fedora
-Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
+Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
 %endif
 
