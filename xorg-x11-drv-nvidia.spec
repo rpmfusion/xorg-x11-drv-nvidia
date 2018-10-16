@@ -289,7 +289,6 @@ install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation}
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 mkdir -p %{buildroot}%{_datadir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE6} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
-touch -r %{SOURCE6} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 
 #Ghost Xorg nvidia.conf files
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
