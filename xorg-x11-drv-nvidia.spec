@@ -1,6 +1,4 @@
 %global        _nvidia_serie        nvidia
-%global        _nvidia_libdir       %{_libdir}/%{_nvidia_serie}
-%global        _nvidia_xorgdir      %{_nvidia_libdir}/xorg
 # Unfortunately this is always hardcoded regardless of architecture:
 # https://github.com/NVIDIA/nvidia-installer/blob/master/misc.c#L2443
 # https://github.com/NVIDIA/nvidia-installer/blob/master/misc.c#L2556-L2558
@@ -22,8 +20,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         396.54
-Release:         3%{?dist}
+Version:         410.73
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -58,11 +56,11 @@ Requires(post):   ldconfig
 Requires(postun): ldconfig
 Requires(post):   grubby
 Requires:         which
-Requires:         nvidia-settings%{?_isa} = %{version}
+Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 %if 0%{?fedora}
-Suggests:         nvidia-xconfig%{?_isa} = %{version}
+Suggests:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 %else
-Requires:         nvidia-xconfig%{?_isa} = %{version}
+Requires:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 %endif
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
@@ -72,11 +70,10 @@ Obsoletes:       %{_nvidia_serie}-kmod < %{?epoch}:%{version}
 Provides:        %{_nvidia_serie}-kmod-common = %{?epoch}:%{version}
 Conflicts:       xorg-x11-drv-nvidia-304xx
 Conflicts:       xorg-x11-drv-nvidia-340xx
-Conflicts:       xorg-x11-drv-fglrx
-Conflicts:       xorg-x11-drv-catalyst
+Conflicts:       xorg-x11-drv-nvidia-390xx
 
 %global         __provides_exclude ^(lib.*GL.*\\.so.*)$
-%global         __requires_exclude ^(lib.*GL.*\\.so.*)$
+%global         __requires_exclude ^libglxserver_nvidia.so|^(lib.*GL.*\\.so.*)$
 
 
 %description
@@ -101,8 +98,7 @@ Provides:        cuda-drivers-devel = %{version}-100
 Provides:        cuda-drivers-devel%{?_isa} = %{version}-100
 
 %description devel
-This package provides the development files of the %{name} package,
-such as OpenGL headers.
+This package provides the development files of the %{name} package.
 
 %package cuda
 Summary:         CUDA driver for %{name}
@@ -110,11 +106,13 @@ Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        nvidia-persistenced%{?_isa} = %{?epoch}:%{version}
 %if 0%{?fedora}
-Suggests:        nvidia-modprobe%{?_isa} = %{version}
+Suggests:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 # Boolean dependencies are only fedora
-Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
+%ifarch x86_64
+Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
+%endif
 %else
-Requires:        nvidia-modprobe%{?_isa} = %{version}
+Requires:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 %endif
 Requires:        ocl-icd%{?_isa}
 Requires:        opencl-filesystem
@@ -159,10 +157,10 @@ Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
 %if 0%{?rhel}
 Requires:        vulkan-filesystem
 %else
-Requires:        vulkan-loader
+Requires:        vulkan-loader%{?_isa}
 %ifarch x86_64
 # Boolean dependencies are only fedora
-Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if libGL(x86-32))
+Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
 %endif
 
@@ -197,7 +195,10 @@ cp -a \
     libGLX_nvidia.so.%{version} \
     libnvcuvid.so.%{version} \
 %ifarch x86_64
+    libnvidia-cbl.so.%{version} \
     libnvidia-cfg.so.%{version} \
+    libnvidia-rtcore.so.%{version} \
+    libnvoptix.so.%{version} \
 %endif
     libnvidia-eglcore.so.%{version} \
     libnvidia-encode.so.%{version} \
@@ -238,14 +239,9 @@ sed -i -e 's|__NV_VK_ICD__|libGLX_nvidia.so.0|' nvidia_icd.json.template
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/icd.d/
 install -p -m 0644 nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 
-# Install headers
-install -m 0755 -d %{buildroot}%{_includedir}/nvidia/GL/
-install -p -m 0644 {gl.h,glext.h,glx.h,glxext.h} %{buildroot}%{_includedir}/nvidia/GL/
-
 %ifarch x86_64
 # X DDX driver and GLX extension
-install -p -D -m 0755 libglx.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglx.so.%{version}
-ln -sf libglx.so.%{version} %{buildroot}%{_nvidia_xorgdir}/libglx.so
+install -p -D -m 0755 libglxserver_nvidia.so.%{version} %{buildroot}%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
 install -D -p -m 0755 nvidia_drv.so %{buildroot}%{_libdir}/xorg/modules/drivers/nvidia_drv.so
 
 # OpenCL config
@@ -293,8 +289,6 @@ install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation}
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 mkdir -p %{buildroot}%{_datadir}/X11/xorg.conf.d
 install -pm 0644 %{SOURCE6} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
-sed -i -e 's|@LIBDIR@|%{_libdir}|g' %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
-touch -r %{SOURCE6} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 
 #Ghost Xorg nvidia.conf files
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
@@ -399,9 +393,7 @@ fi ||:
 %{_dracut_conf_d}/99-nvidia-dracut.conf
 %{_bindir}/nvidia-bug-report.sh
 # Xorg libs that do not need to be multilib
-%dir %{_nvidia_xorgdir}
-%{_nvidia_xorgdir}/libglx.so
-%{_nvidia_xorgdir}/libglx.so.%{version}
+%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 #/no_multilib
 %dir %{_datadir}/nvidia
@@ -428,9 +420,12 @@ fi ||:
 %{_libdir}/libGLX_nvidia.so.0
 %{_libdir}/libGLX_nvidia.so.%{version}
 %ifarch x86_64
-%dir %{_nvidia_libdir}
+%{_libdir}/libnvidia-cbl.so.%{version}
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
+%{_libdir}/libnvidia-rtcore.so.%{version}
+%{_libdir}/libnvoptix.so.1
+%{_libdir}/libnvoptix.so.%{version}
 %endif
 %{_libdir}/libnvidia-eglcore.so.%{version}
 %{_libdir}/libnvidia-fbc.so.1
@@ -476,11 +471,35 @@ fi ||:
 %{_libdir}/libnvidia-opencl.so.%{version}
 
 %files devel
-%{_includedir}/nvidia/
 %{_libdir}/libnvcuvid.so
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Thu Oct 25 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.73-1
+- Update to 410.73 release
+
+* Tue Oct 16 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.66-1
+- Update to 410.66 release
+
+* Wed Oct 10 2018 Nicolas Chauvet <kwizart@gmail.com> - 3:410.57-6
+- Enforce the mesa version
+
+* Sat Sep 29 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-5
+- Add epoch to nvidia-modprobe and nvidia-xconfig requires
+
+* Sun Sep 23 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-4
+- Add new raytracing libs
+- Move the new glx server lib to it's correct location
+
+* Fri Sep 21 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-3
+- Add epoch to nvidia-settings requires
+
+* Thu Sep 20 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-2
+- Filter libglxserver_nvidia.so requires on main
+
+* Thu Sep 20 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.57-1
+- Update to 410.57 beta
+
 * Wed Aug 29 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:396.54-3
 - Rebase for RHEL-7.6 beta
 
