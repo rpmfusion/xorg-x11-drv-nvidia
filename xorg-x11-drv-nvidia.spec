@@ -20,8 +20,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         410.73
-Release:         2%{?dist}
+Version:         410.78
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -480,6 +480,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Fri Nov 16 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.78-1
+- Update to 410.78 release
+
 * Sun Nov 11 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.73-2
 - Use different output class for rhel as it chokes on options
 
