@@ -20,7 +20,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         410.78
+Version:         415.18
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -214,7 +214,7 @@ cp -a \
     %{buildroot}%{_libdir}/
 
 cp -af \
-    tls/libnvidia-tls.so* \
+    libnvidia-tls.so.%{version} \
     libnvidia-compiler.so.%{version} \
     libnvidia-opencl.so.%{version} \
     %{buildroot}%{_libdir}/
@@ -480,6 +480,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Wed Nov 21 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:415.18-1
+- Update to 415.18 release
+
 * Fri Nov 16 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.78-1
 - Update to 410.78 release
 
