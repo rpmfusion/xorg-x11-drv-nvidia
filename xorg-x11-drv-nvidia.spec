@@ -5,7 +5,7 @@
 %global        _alternate_dir       %{_prefix}/lib/nvidia
 %global        _glvnd_libdir        %{_libdir}/libglvnd
 
-%global        _dracut_conf_d	    %{_prefix}/lib/dracut/dracut.conf.d
+%global        _dracut_conf_d       %{_prefix}/lib/dracut/dracut.conf.d
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %if 0%{?rhel}
@@ -14,14 +14,14 @@
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
 %endif
 
-%global	       debug_package %{nil}
-%global	       __strip /bin/true
+%global        debug_package %{nil}
+%global        __strip /bin/true
 
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         415.18
-Release:         1%{?dist}
+Version:         415.22
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -352,7 +352,7 @@ if [ -f %{_sysconfdir}/default/grub ] ; then
     echo -e GRUB_CMDLINE_LINUX=\"%{_dracutopts}\" >> %{_sysconfdir}/default/grub
   else
     for i in %{_dracutopts} ; do
-      _has_string=$(echo ${GRUB_CMDLINE_LINUX} | fgrep -c $i)
+      _has_string=$(echo ${GRUB_CMDLINE_LINUX} | grep -F -c $i)
       if [ x"$_has_string" = x0 ] ; then
         GRUB_CMDLINE_LINUX="${GRUB_CMDLINE_LINUX} ${i}"
       fi
@@ -480,6 +480,10 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Fri Dec 07 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:415.22-2
+- Update to 415.22 release
+- Fix some rpmlint warnings
+
 * Wed Nov 21 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:415.18-1
 - Update to 415.18 release
 
