@@ -21,7 +21,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         415.22
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -454,8 +454,6 @@ fi ||:
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
-%{_modprobe_d}/nvidia-uvm.conf
-%{_udevrulesdir}/60-nvidia-uvm.rules
 %endif
 
 %files cuda-libs
@@ -474,12 +472,20 @@ fi ||:
 %{_libdir}/libnvidia-compiler.so.%{version}
 %{_libdir}/libnvidia-opencl.so.1
 %{_libdir}/libnvidia-opencl.so.%{version}
+%ifarch x86_64
+%{_modprobe_d}/nvidia-uvm.conf
+%{_udevrulesdir}/60-nvidia-uvm.rules
+%endif
 
 %files devel
 %{_libdir}/libnvcuvid.so
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Sat Dec 08 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:415.22-3
+- Move nvidia-uvm.conf and 60-nvidia-uvm.rules to cuda-libs,
+  nvdec shouldn't need the cuda package to function.
+
 * Fri Dec 07 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:415.22-2
 - Update to 415.22 release
 - Fix some rpmlint warnings
