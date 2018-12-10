@@ -86,7 +86,7 @@ For the full product support list, please consult the release notes
 http://download.nvidia.com/XFree86/Linux-x86_64/%{version}/README/index.html
 
 Please use the following documentation:
-http://rpmfusion.org/Howto/nVidia
+http://rpmfusion.org/Howto/NVIDIA
 
 
 %package devel
