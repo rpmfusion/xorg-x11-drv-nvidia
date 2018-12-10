@@ -307,6 +307,13 @@ mkdir -p %{buildroot}%{_sysconfdir}/nvidia
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
 tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz kernel
 
+#RPM Macros support
+mkdir -p %{buildroot}%{rpmmacrodir}
+cat > %{buildroot}%{rpmmacrodir}/macros.%{name}-kmodsrc<< EOF
+# nvidia_kmodsrc_version RPM Macro
+%nvidia_kmodsrc_version	%{version}
+EOF
+
 %if 0%{?fedora} >= 25
 # install AppData and add modalias provides
 mkdir -p %{buildroot}%{_datadir}/appdata/
@@ -406,6 +413,7 @@ fi ||:
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
+%{rpmmacrodir}/macros.%{name}-kmodsrc
 %{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz
 %endif
 
