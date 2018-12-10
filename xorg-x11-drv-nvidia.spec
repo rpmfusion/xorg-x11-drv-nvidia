@@ -3,7 +3,6 @@
 # https://github.com/NVIDIA/nvidia-installer/blob/master/misc.c#L2443
 # https://github.com/NVIDIA/nvidia-installer/blob/master/misc.c#L2556-L2558
 %global        _alternate_dir       %{_prefix}/lib/nvidia
-%global        _glvnd_libdir        %{_libdir}/libglvnd
 
 %global        _dracut_conf_d       %{_prefix}/lib/dracut/dracut.conf.d
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
