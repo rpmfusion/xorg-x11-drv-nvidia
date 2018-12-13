@@ -150,7 +150,11 @@ Requires:        libglvnd-egl%{?_isa} >= 0.2
 Requires:        libglvnd-gles%{?_isa} >= 0.2
 Requires:        libglvnd-glx%{?_isa} >= 0.2
 Requires:        libglvnd-opengl%{?_isa} >= 0.2
+%if 0%{?fedora}
 Requires:        egl-wayland%{?_isa} >= 1.0.0
+%else
+Requires:        egl-wayland >= 1.0.0
+%endif
 Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
