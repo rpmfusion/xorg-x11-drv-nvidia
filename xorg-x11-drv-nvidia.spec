@@ -19,8 +19,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         415.22
-Release:         4%{?dist}
+Version:         415.23
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -493,6 +493,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Fri Dec 14 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:415.23-1
+- Update to 415.23 release
+
 * Mon Dec 10 2018 Nicolas Chauvet <kwizart@gmail.com> - 3:415.22-4
 - Add nvidia_kmodsrc_version macro
 
