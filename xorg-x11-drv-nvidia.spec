@@ -3,9 +3,8 @@
 # https://github.com/NVIDIA/nvidia-installer/blob/master/misc.c#L2443
 # https://github.com/NVIDIA/nvidia-installer/blob/master/misc.c#L2556-L2558
 %global        _alternate_dir       %{_prefix}/lib/nvidia
-%global        _glvnd_libdir        %{_libdir}/libglvnd
 
-%global        _dracut_conf_d	    %{_prefix}/lib/dracut/dracut.conf.d
+%global        _dracut_conf_d       %{_prefix}/lib/dracut/dracut.conf.d
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %if 0%{?rhel}
@@ -14,13 +13,13 @@
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
 %endif
 
-%global	       debug_package %{nil}
-%global	       __strip /bin/true
+%global        debug_package %{nil}
+%global        __strip /bin/true
 
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         410.78
+Version:         415.25
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -86,7 +85,7 @@ For the full product support list, please consult the release notes
 http://download.nvidia.com/XFree86/Linux-x86_64/%{version}/README/index.html
 
 Please use the following documentation:
-http://rpmfusion.org/Howto/nVidia
+http://rpmfusion.org/Howto/NVIDIA
 
 
 %package devel
@@ -218,7 +217,7 @@ cp -a \
     %{buildroot}%{_libdir}/
 
 cp -af \
-    tls/libnvidia-tls.so* \
+    libnvidia-tls.so.%{version} \
     libnvidia-compiler.so.%{version} \
     libnvidia-opencl.so.%{version} \
     %{buildroot}%{_libdir}/
@@ -311,6 +310,13 @@ mkdir -p %{buildroot}%{_sysconfdir}/nvidia
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
 tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz kernel
 
+#RPM Macros support
+mkdir -p %{buildroot}%{rpmmacrodir}
+cat > %{buildroot}%{rpmmacrodir}/macros.%{name}-kmodsrc<< EOF
+# nvidia_kmodsrc_version RPM Macro
+%nvidia_kmodsrc_version	%{version}
+EOF
+
 %if 0%{?fedora} >= 25
 # install AppData and add modalias provides
 mkdir -p %{buildroot}%{_datadir}/appdata/
@@ -356,7 +362,7 @@ if [ -f %{_sysconfdir}/default/grub ] ; then
     echo -e GRUB_CMDLINE_LINUX=\"%{_dracutopts}\" >> %{_sysconfdir}/default/grub
   else
     for i in %{_dracutopts} ; do
-      _has_string=$(echo ${GRUB_CMDLINE_LINUX} | fgrep -c $i)
+      _has_string=$(echo ${GRUB_CMDLINE_LINUX} | grep -F -c $i)
       if [ x"$_has_string" = x0 ] ; then
         GRUB_CMDLINE_LINUX="${GRUB_CMDLINE_LINUX} ${i}"
       fi
@@ -410,6 +416,7 @@ fi ||:
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
+%{rpmmacrodir}/macros.%{name}-kmodsrc
 %{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz
 %endif
 
@@ -458,8 +465,6 @@ fi ||:
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
-%{_modprobe_d}/nvidia-uvm.conf
-%{_udevrulesdir}/60-nvidia-uvm.rules
 %endif
 
 %files cuda-libs
@@ -478,12 +483,36 @@ fi ||:
 %{_libdir}/libnvidia-compiler.so.%{version}
 %{_libdir}/libnvidia-opencl.so.1
 %{_libdir}/libnvidia-opencl.so.%{version}
+%ifarch x86_64
+%{_modprobe_d}/nvidia-uvm.conf
+%{_udevrulesdir}/60-nvidia-uvm.rules
+%endif
 
 %files devel
 %{_libdir}/libnvcuvid.so
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Wed Dec 26 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:415.25-1
+- Update to 415.25 release
+
+* Fri Dec 14 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:415.23-1
+- Update to 415.23 release
+
+* Mon Dec 10 2018 Nicolas Chauvet <kwizart@gmail.com> - 3:415.22-4
+- Add nvidia_kmodsrc_version macro
+
+* Sat Dec 08 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:415.22-3
+- Move nvidia-uvm.conf and 60-nvidia-uvm.rules to cuda-libs,
+  nvdec shouldn't need the cuda package to function.
+
+* Fri Dec 07 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:415.22-2
+- Update to 415.22 release
+- Fix some rpmlint warnings
+
+* Wed Nov 21 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:415.18-1
+- Update to 415.18 release
+
 * Fri Nov 16 2018 Leigh Scott <leigh123linux@googlemail.com> - 3:410.78-1
 - Update to 410.78 release
 
