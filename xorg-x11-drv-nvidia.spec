@@ -19,7 +19,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         415.27
+Version:         418.43
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -213,6 +213,7 @@ cp -a \
     libnvidia-glvkspirv.so.%{version} \
     libnvidia-ifr.so.%{version} \
     libnvidia-ml.so.%{version} \
+    libnvidia-opticalflow.so.%{version} \
     libnvidia-ptxjitcompiler.so.%{version} \
     %{buildroot}%{_libdir}/
 
@@ -483,6 +484,8 @@ fi ||:
 %{_libdir}/libnvidia-compiler.so.%{version}
 %{_libdir}/libnvidia-opencl.so.1
 %{_libdir}/libnvidia-opencl.so.%{version}
+%{_libdir}/libnvidia-opticalflow.so.1
+%{_libdir}/libnvidia-opticalflow.so.%{version}
 %ifarch x86_64
 %{_modprobe_d}/nvidia-uvm.conf
 %{_udevrulesdir}/60-nvidia-uvm.rules
@@ -493,6 +496,12 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Fri Feb 22 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:418.43-1
+- Update to 418.43 release
+
+* Sat Feb 02 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:418.30-1
+- Update to 418.30 beta
+
 * Wed Jan 16 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:415.27-1
 - Update to 415.27 release
 
