@@ -19,7 +19,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         430.09
+Version:         430.14
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -496,6 +496,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Tue May 14 2019 Leigh Scott <leigh123linux@gmail.com> - 3:430.14-1
+- Update to 430.14 release
+
 * Wed Apr 24 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:430.09-1
 - Update to 430.09 beta
 
