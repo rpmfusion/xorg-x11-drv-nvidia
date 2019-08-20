@@ -20,7 +20,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         435.17
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -495,6 +495,10 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Tue Aug 20 2019 Nicolas Chauvet <kwizart@gmail.com> - 3:435.17-2
+- Use AllowNVIDIAGPUScreens for Optimus offload sync support
+- Disable PrimaryGPU by default
+
 * Tue Aug 13 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:435.17-1
 - Update to 435.17 beta
 
