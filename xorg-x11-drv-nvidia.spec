@@ -20,7 +20,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         435.17
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -48,7 +48,7 @@ Requires(postun): systemd
 Requires:         Xorg >= 1.19.0-3
 %if 0%{?fedora}
 # AppStream metadata generation
-BuildRequires:    python2
+BuildRequires:    python3
 BuildRequires:    libappstream-glib >= 0.6.3
 %endif
 
@@ -495,6 +495,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Wed Aug 21 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:435.17-3
+- Switch to python3 for appdata
+
 * Tue Aug 20 2019 Nicolas Chauvet <kwizart@gmail.com> - 3:435.17-2
 - Use AllowNVIDIAGPUScreens for Optimus offload sync support
 - Disable PrimaryGPU by default
