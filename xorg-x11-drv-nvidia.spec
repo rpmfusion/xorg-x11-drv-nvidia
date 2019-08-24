@@ -56,7 +56,7 @@ Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 # AppStream metadata generation
 BuildRequires:    python3
 BuildRequires:    libappstream-glib >= 0.6.3
-# Needed so nvidia-settings can 
+# Needed so nvidia-settings can broken configs
 Suggests:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 # nvidia-bug-report.sh requires needed to provide extra info
 Suggests:         acpica-tools
