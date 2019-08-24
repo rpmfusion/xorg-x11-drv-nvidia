@@ -20,7 +20,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         435.17
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -240,8 +240,9 @@ popd
 %endif
 
 # Vulkan config
-install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/icd.d/
+install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
 install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+install -p -m 0644 nvidia_layers.json %{buildroot}%{_datadir}/vulkan/implicit_layer.d/nvidia_layers.%{_target_cpu}.json
 
 %ifarch x86_64
 # X DDX driver and GLX extension
@@ -427,6 +428,7 @@ fi ||:
 
 %files libs
 %{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+%{_datadir}/vulkan/implicit_layer.d/nvidia_layers.%{_target_cpu}.json
 %{_libdir}/libEGL_nvidia.so.0
 %{_libdir}/libEGL_nvidia.so.%{version}
 %{_libdir}/libGLESv1_CM_nvidia.so.1
@@ -495,6 +497,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Sat Aug 24 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:435.17-4
+- Add Vulkan layer for Optimus
+
 * Wed Aug 21 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:435.17-3
 - Switch to python3 for appdata
 
