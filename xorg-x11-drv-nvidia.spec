@@ -46,11 +46,6 @@ Requires(preun):  systemd
 Requires(postun): systemd
 # Xorg with PrimaryGPU
 Requires:         Xorg >= 1.19.0-3
-%if 0%{?fedora}
-# AppStream metadata generation
-BuildRequires:    python3
-BuildRequires:    libappstream-glib >= 0.6.3
-%endif
 
 Requires(post):   ldconfig
 Requires(postun): ldconfig
@@ -58,7 +53,14 @@ Requires(post):   grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 %if 0%{?fedora}
+# AppStream metadata generation
+BuildRequires:    python3
+BuildRequires:    libappstream-glib >= 0.6.3
+# Needed so nvidia-settings can 
 Suggests:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
+# nvidia-bug-report.sh requires needed to provide extra info
+Suggests:         acpica-tools
+Suggests:         vulkan-tools
 %else
 Requires:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 %endif
@@ -499,6 +501,7 @@ fi ||:
 %changelog
 * Sat Aug 24 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:435.17-4
 - Add Vulkan layer for Optimus
+- Add Suggests acpica-tools and vulkan-tools (nvidia-bug-report.sh)
 
 * Wed Aug 21 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:435.17-3
 - Switch to python3 for appdata
