@@ -19,8 +19,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         435.17
-Release:         4%{?dist}
+Version:         435.21
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -499,6 +499,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Thu Aug 29 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:435.21-1
+- Update to 435.21 release
+
 * Sat Aug 24 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:435.17-4
 - Add Vulkan layer for Optimus
 - Add Suggests acpica-tools and vulkan-tools (nvidia-bug-report.sh)
