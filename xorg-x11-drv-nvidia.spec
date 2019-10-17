@@ -19,8 +19,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         435.21
-Release:         2%{?dist}
+Version:         440.26
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -199,6 +199,7 @@ cp -a \
     libGLESv2_nvidia.so.%{version} \
     libGLX_nvidia.so.%{version} \
     libnvcuvid.so.%{version} \
+    libnvidia-allocator.so.%{version} \
 %ifarch x86_64
     libnvidia-cbl.so.%{version} \
     libnvidia-cfg.so.%{version} \
@@ -438,6 +439,8 @@ fi ||:
 %{_libdir}/libGLESv2_nvidia.so.%{version}
 %{_libdir}/libGLX_nvidia.so.0
 %{_libdir}/libGLX_nvidia.so.%{version}
+%{_libdir}/libnvidia-allocator.so.1
+%{_libdir}/libnvidia-allocator.so.%{version}
 %ifarch x86_64
 %{_libdir}/libnvidia-cbl.so.%{version}
 %{_libdir}/libnvidia-cfg.so.1
@@ -498,6 +501,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Thu Oct 17 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:440.26-1
+- Update to 440.26 beta
+
 * Thu Sep 19 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:435.21-2
 - Fix conflict with rpmfusion-nonfree-obsolete-packages
 
