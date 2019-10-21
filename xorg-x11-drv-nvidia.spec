@@ -97,6 +97,10 @@ Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 #Don't put an epoch here
 Provides:        cuda-drivers-devel = %{version}-100
 Provides:        cuda-drivers-devel%{?_isa} = %{version}-100
+Provides:        nvidia-driver-devel = %{version}-100
+Provides:        nvidia-driver-devel%{?_isa} = %{version}-100
+Provides:        nvidia-drivers-devel = %{version}-100
+Provides:        nvidia-drivers-devel%{?_isa} = %{version}-100
 
 %description devel
 This package provides the development files of the %{name} package.
