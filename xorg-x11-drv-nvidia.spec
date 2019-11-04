@@ -19,7 +19,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         430.40
+Version:         440.31
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -46,11 +46,6 @@ Requires(preun):  systemd
 Requires(postun): systemd
 # Xorg with PrimaryGPU
 Requires:         Xorg >= 1.19.0-3
-%if 0%{?fedora}
-# AppStream metadata generation
-BuildRequires:    python2
-BuildRequires:    libappstream-glib >= 0.6.3
-%endif
 
 Requires(post):   ldconfig
 Requires(postun): ldconfig
@@ -58,7 +53,14 @@ Requires(post):   grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 %if 0%{?fedora}
+# AppStream metadata generation
+BuildRequires:    python3
+BuildRequires:    libappstream-glib >= 0.6.3
+# Needed so nvidia-settings can write broken configs
 Suggests:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
+# nvidia-bug-report.sh requires needed to provide extra info
+Suggests:         acpica-tools
+Suggests:         vulkan-tools
 %else
 Requires:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 %endif
@@ -68,7 +70,6 @@ Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 
 Obsoletes:       %{_nvidia_serie}-kmod < %{?epoch}:%{version}
 Provides:        %{_nvidia_serie}-kmod-common = %{?epoch}:%{version}
-Conflicts:       xorg-x11-drv-nvidia-304xx
 Conflicts:       xorg-x11-drv-nvidia-340xx
 Conflicts:       xorg-x11-drv-nvidia-390xx
 
@@ -96,6 +97,10 @@ Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 #Don't put an epoch here
 Provides:        cuda-drivers-devel = %{version}-100
 Provides:        cuda-drivers-devel%{?_isa} = %{version}-100
+Provides:        nvidia-driver-devel = %{version}-100
+Provides:        nvidia-driver-devel%{?_isa} = %{version}-100
+Provides:        nvidia-drivers-devel = %{version}-100
+Provides:        nvidia-drivers-devel%{?_isa} = %{version}-100
 
 %description devel
 This package provides the development files of the %{name} package.
@@ -198,6 +203,7 @@ cp -a \
     libGLESv2_nvidia.so.%{version} \
     libGLX_nvidia.so.%{version} \
     libnvcuvid.so.%{version} \
+    libnvidia-allocator.so.%{version} \
 %ifarch x86_64
     libnvidia-cbl.so.%{version} \
     libnvidia-cfg.so.%{version} \
@@ -240,9 +246,9 @@ popd
 %endif
 
 # Vulkan config
-sed -i -e 's|__NV_VK_ICD__|libGLX_nvidia.so.0|' nvidia_icd.json.template
-install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/icd.d/
-install -p -m 0644 nvidia_icd.json.template %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
+install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+install -p -m 0644 nvidia_layers.json %{buildroot}%{_datadir}/vulkan/implicit_layer.d/nvidia_layers.%{_target_cpu}.json
 
 %ifarch x86_64
 # X DDX driver and GLX extension
@@ -318,7 +324,7 @@ cat > %{buildroot}%{rpmmacrodir}/macros.%{name}-kmodsrc<< EOF
 %nvidia_kmodsrc_version	%{version}
 EOF
 
-%if 0%{?fedora} >= 25
+%if 0%{?fedora}
 # install AppData and add modalias provides
 mkdir -p %{buildroot}%{_datadir}/appdata/
 install -pm 0644 %{SOURCE8} %{buildroot}%{_datadir}/appdata/
@@ -428,6 +434,7 @@ fi ||:
 
 %files libs
 %{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+%{_datadir}/vulkan/implicit_layer.d/nvidia_layers.%{_target_cpu}.json
 %{_libdir}/libEGL_nvidia.so.0
 %{_libdir}/libEGL_nvidia.so.%{version}
 %{_libdir}/libGLESv1_CM_nvidia.so.1
@@ -436,6 +443,8 @@ fi ||:
 %{_libdir}/libGLESv2_nvidia.so.%{version}
 %{_libdir}/libGLX_nvidia.so.0
 %{_libdir}/libGLX_nvidia.so.%{version}
+%{_libdir}/libnvidia-allocator.so.1
+%{_libdir}/libnvidia-allocator.so.%{version}
 %ifarch x86_64
 %{_libdir}/libnvidia-cbl.so.%{version}
 %{_libdir}/libnvidia-cfg.so.1
@@ -496,6 +505,32 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Mon Nov 04 2019 Leigh Scott <leigh123linux@gmail.com> - 3:440.31-1
+- Update to 440.31 release
+
+* Thu Oct 17 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:440.26-1
+- Update to 440.26 beta
+
+* Thu Sep 19 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:435.21-2
+- Fix conflict with rpmfusion-nonfree-obsolete-packages
+
+* Thu Aug 29 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:435.21-1
+- Update to 435.21 release
+
+* Sat Aug 24 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:435.17-4
+- Add Vulkan layer for Optimus
+- Add Suggests acpica-tools and vulkan-tools (nvidia-bug-report.sh)
+
+* Wed Aug 21 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:435.17-3
+- Switch to python3 for appdata
+
+* Tue Aug 20 2019 Nicolas Chauvet <kwizart@gmail.com> - 3:435.17-2
+- Use AllowNVIDIAGPUScreens for Optimus offload sync support
+- Disable PrimaryGPU by default
+
+* Tue Aug 13 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:435.17-1
+- Update to 435.17 beta
+
 * Mon Jul 29 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:430.40-1
 - Update to 430.40 release
 
