@@ -9,7 +9,7 @@
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %if 0%{?rhel}
 %global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
-%else #fedora
+%else
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
 %endif
 
@@ -19,7 +19,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         440.31
+Version:         440.36
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -52,7 +52,7 @@ Requires(postun): ldconfig
 Requires(post):   grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} > 7
 # AppStream metadata generation
 BuildRequires:    python3
 BuildRequires:    libappstream-glib >= 0.6.3
@@ -110,7 +110,7 @@ Summary:         CUDA driver for %{name}
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        nvidia-persistenced%{?_isa} = %{?epoch}:%{version}
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} > 7
 Suggests:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 # Boolean dependencies are only fedora
 %ifarch x86_64
@@ -155,7 +155,7 @@ Requires:        libglvnd-egl%{?_isa} >= 0.2
 Requires:        libglvnd-gles%{?_isa} >= 0.2
 Requires:        libglvnd-glx%{?_isa} >= 0.2
 Requires:        libglvnd-opengl%{?_isa} >= 0.2
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} > 7
 Requires:        egl-wayland%{?_isa} >= 1.0.0
 %else
 Requires:        egl-wayland >= 1.0.0
@@ -163,7 +163,7 @@ Requires:        egl-wayland >= 1.0.0
 Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
-%if 0%{?rhel}
+%if 0%{?rhel} < 8
 Requires:        vulkan-filesystem
 %else
 Requires:        vulkan-loader%{?_isa}
@@ -324,7 +324,7 @@ cat > %{buildroot}%{rpmmacrodir}/macros.%{name}-kmodsrc<< EOF
 %nvidia_kmodsrc_version	%{version}
 EOF
 
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} > 7
 # install AppData and add modalias provides
 mkdir -p %{buildroot}%{_datadir}/appdata/
 install -pm 0644 %{SOURCE8} %{buildroot}%{_datadir}/appdata/
@@ -408,7 +408,7 @@ fi ||:
 %{_udevrulesdir}/10-nvidia.rules
 %{_udevrulesdir}/60-nvidia.rules
 %{_unitdir}/nvidia-fallback.service
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} > 7
 %{_datadir}/appdata/%{name}.metainfo.xml
 %{_datadir}/pixmaps/%{name}.png
 %endif
@@ -505,6 +505,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Fri Nov 22 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:440.36-1
+- Update to 440.36 release
+
 * Mon Nov 04 2019 Leigh Scott <leigh123linux@gmail.com> - 3:440.31-1
 - Update to 440.31 release
 
