@@ -9,7 +9,7 @@
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %if 0%{?rhel}
 %global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
-%else #fedora
+%else
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
 %endif
 
@@ -19,7 +19,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         440.31
+Version:         440.36
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -505,6 +505,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Fri Nov 22 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:440.36-1
+- Update to 440.36 release
+
 * Mon Nov 04 2019 Leigh Scott <leigh123linux@gmail.com> - 3:440.31-1
 - Update to 440.31 release
 
