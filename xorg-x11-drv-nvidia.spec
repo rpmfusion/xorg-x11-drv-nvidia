@@ -20,7 +20,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         440.44
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -163,14 +163,15 @@ Requires:        egl-wayland >= 1.0.0
 Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
 Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
-%if 0%{?rhel} < 8
-Requires:        vulkan-filesystem
-%else
+%if 0%{?fedora} || 0%{?rhel} > 7
 Requires:        vulkan-loader%{?_isa}
 %ifarch x86_64
-# Boolean dependencies are only fedora
+# Boolean dependencies are only fedora and el8
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
+Requires:        vulkan-loader%{?_isa}
+%else
+Requires:        vulkan-filesystem
 %endif
 
 %description libs
@@ -505,6 +506,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Mon Dec 16 2019 Leigh Scott <leigh123linux@googlemail.com>
+- Fix boolean requires on libs
+
 * Wed Dec 11 2019 Leigh Scott <leigh123linux@googlemail.com> - 3:440.44-1
 - Update to 440.44 release
 
