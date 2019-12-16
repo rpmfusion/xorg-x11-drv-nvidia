@@ -157,13 +157,6 @@ Requires:        libglvnd-glx%{?_isa} >= 0.2
 Requires:        libglvnd-opengl%{?_isa} >= 0.2
 %if 0%{?fedora} || 0%{?rhel} > 7
 Requires:        egl-wayland%{?_isa} >= 1.0.0
-%else
-Requires:        egl-wayland >= 1.0.0
-%endif
-Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
-Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
-Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
-%if 0%{?fedora} || 0%{?rhel} > 7
 Requires:        vulkan-loader%{?_isa}
 %ifarch x86_64
 # Boolean dependencies are only fedora and el8
@@ -171,7 +164,12 @@ Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa
 %endif
 %else
 Requires:        vulkan-filesystem
+Requires:        egl-wayland >= 1.0.0
 %endif
+Requires:        mesa-libEGL%{?_isa} >= 13.0.3-3
+Requires:        mesa-libGL%{?_isa} >= 13.0.3-3
+Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
+
 
 %description libs
 This package provides the shared libraries for %{name}.
