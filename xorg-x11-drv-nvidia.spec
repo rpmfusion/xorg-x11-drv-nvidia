@@ -169,7 +169,6 @@ Requires:        vulkan-loader%{?_isa}
 # Boolean dependencies are only fedora and el8
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
-Requires:        vulkan-loader%{?_isa}
 %else
 Requires:        vulkan-filesystem
 %endif
