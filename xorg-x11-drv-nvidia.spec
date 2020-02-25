@@ -20,7 +20,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         440.59
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -352,11 +352,6 @@ fi
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
   sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
-# Until mutter enable egl stream support, we need to disable gdm wayland
-# https://bugzilla.redhat.com/1462052
-  if [ -f %{_sysconfdir}/gdm/custom.conf ] ; then
-    sed -i -e 's/#WaylandEnable=.*/WaylandEnable=false/' %{_sysconfdir}/gdm/custom.conf
-  fi
 fi || :
 
 %triggerun -- xorg-x11-drv-nvidia < 3:384.59-5
@@ -503,6 +498,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Tue Feb 25 2020 Leigh Scott <leigh123linux@googlemail.com> - 3:440.59-3
+- Remove 'Disable wayland if gdm is available', gdm has it's own blacklist
+
 * Sat Feb 15 2020 Leigh Scott <leigh123linux@googlemail.com> - 3:440.59-2
 - Ensure that only one Vulkan ICD manifest is present
 
