@@ -19,8 +19,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         440.44
-Release:         2%{?dist}
+Version:         440.64
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -243,12 +243,12 @@ ln -sf libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau/libvdpau_nvidi
 popd
 %endif
 
+%ifarch x86_64
 # Vulkan config
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
-install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
-install -p -m 0644 nvidia_layers.json %{buildroot}%{_datadir}/vulkan/implicit_layer.d/nvidia_layers.%{_target_cpu}.json
+install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/
+install -p -m 0644 nvidia_layers.json %{buildroot}%{_datadir}/vulkan/implicit_layer.d/
 
-%ifarch x86_64
 # X DDX driver and GLX extension
 install -p -D -m 0755 libglxserver_nvidia.so.%{version} %{buildroot}%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
 install -D -p -m 0755 nvidia_drv.so %{buildroot}%{_libdir}/xorg/modules/drivers/nvidia_drv.so
@@ -352,11 +352,6 @@ fi
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
   sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
-# Until mutter enable egl stream support, we need to disable gdm wayland
-# https://bugzilla.redhat.com/1462052
-  if [ -f %{_sysconfdir}/gdm/custom.conf ] ; then
-    sed -i -e 's/#WaylandEnable=.*/WaylandEnable=false/' %{_sysconfdir}/gdm/custom.conf
-  fi
 fi || :
 
 %triggerun -- xorg-x11-drv-nvidia < 3:384.59-5
@@ -431,8 +426,6 @@ fi ||:
 %endif
 
 %files libs
-%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
-%{_datadir}/vulkan/implicit_layer.d/nvidia_layers.%{_target_cpu}.json
 %{_libdir}/libEGL_nvidia.so.0
 %{_libdir}/libEGL_nvidia.so.%{version}
 %{_libdir}/libGLESv1_CM_nvidia.so.1
@@ -444,6 +437,8 @@ fi ||:
 %{_libdir}/libnvidia-allocator.so.1
 %{_libdir}/libnvidia-allocator.so.%{version}
 %ifarch x86_64
+%{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
+%{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{_libdir}/libnvidia-cbl.so.%{version}
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
@@ -503,6 +498,18 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Fri Feb 28 2020 leigh123linux <leigh123linux@googlemail.com> - 3:440.64-1
+- rebuilt
+
+* Tue Feb 25 2020 Leigh Scott <leigh123linux@googlemail.com> - 3:440.59-3
+- Remove 'Disable wayland if gdm is available', gdm has it's own blacklist
+
+* Sat Feb 15 2020 Leigh Scott <leigh123linux@googlemail.com> - 3:440.59-2
+- Ensure that only one Vulkan ICD manifest is present
+
+* Mon Feb 03 2020 Leigh Scott <leigh123linux@gmail.com> - 3:440.59-1
+- Update to 440.59 release
+
 * Mon Dec 16 2019 Leigh Scott <leigh123linux@googlemail.com>
 - Fix boolean requires on libs
 
