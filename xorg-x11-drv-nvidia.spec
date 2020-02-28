@@ -19,8 +19,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         440.59
-Release:         3%{?dist}
+Version:         440.64
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -498,6 +498,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Fri Feb 28 2020 leigh123linux <leigh123linux@googlemail.com> - 3:440.64-1
+- rebuilt
+
 * Tue Feb 25 2020 Leigh Scott <leigh123linux@googlemail.com> - 3:440.59-3
 - Remove 'Disable wayland if gdm is available', gdm has it's own blacklist
 
