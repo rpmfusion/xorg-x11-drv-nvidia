@@ -95,8 +95,8 @@ Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 
 #Don't put an epoch here
-Provides:        cuda-drivers-devel = %{version}-100
-Provides:        cuda-drivers-devel%{?_isa} = %{version}-100
+Provides:        cuda-drivers-devel = %{version}.100
+Provides:        cuda-drivers-devel%{?_isa} = %{version}.100
 Provides:        nvidia-driver-devel = %{version}-100
 Provides:        nvidia-driver-devel%{?_isa} = %{version}-100
 Provides:        nvidia-drivers-devel = %{version}-100
@@ -125,8 +125,8 @@ Requires:        opencl-filesystem
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 
 #Don't put an epoch here
-Provides:        cuda-drivers = %{version}-100
-Provides:        cuda-drivers%{?_isa} = %{version}-100
+Provides:        cuda-drivers = %{version}.100
+Provides:        cuda-drivers%{?_isa} = %{version}.100
 Provides:        nvidia-driver = %{version}-100
 Provides:        nvidia-driver%{?_isa} = %{version}-100
 Provides:        nvidia-drivers = %{version}-100
