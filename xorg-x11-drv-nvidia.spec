@@ -20,7 +20,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         440.64
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -95,8 +95,8 @@ Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 
 #Don't put an epoch here
-Provides:        cuda-drivers-devel = %{version}-100
-Provides:        cuda-drivers-devel%{?_isa} = %{version}-100
+Provides:        cuda-drivers-devel = %{version}.100
+Provides:        cuda-drivers-devel%{?_isa} = %{version}.100
 Provides:        nvidia-driver-devel = %{version}-100
 Provides:        nvidia-driver-devel%{?_isa} = %{version}-100
 Provides:        nvidia-drivers-devel = %{version}-100
@@ -125,8 +125,8 @@ Requires:        opencl-filesystem
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 
 #Don't put an epoch here
-Provides:        cuda-drivers = %{version}-100
-Provides:        cuda-drivers%{?_isa} = %{version}-100
+Provides:        cuda-drivers = %{version}.100
+Provides:        cuda-drivers%{?_isa} = %{version}.100
 Provides:        nvidia-driver = %{version}-100
 Provides:        nvidia-driver%{?_isa} = %{version}-100
 Provides:        nvidia-drivers = %{version}-100
@@ -498,6 +498,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Wed Mar 11 2020 Nicolas Chauvet <kwizart@gmail.com> - 3:440.64-2
+- Deal with cuda-drivers insanity
+
 * Fri Feb 28 2020 leigh123linux <leigh123linux@googlemail.com> - 3:440.64-1
 - rebuilt
 
