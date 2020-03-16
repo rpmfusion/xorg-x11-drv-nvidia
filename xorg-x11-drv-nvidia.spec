@@ -127,6 +127,8 @@ Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 #Don't put an epoch here
 Provides:        cuda-drivers = %{version}.100
 Provides:        cuda-drivers%{?_isa} = %{version}.100
+Obsoletes:       cuda-drivers < %{version}.100
+Obsoletes:       cuda-drivers%{?_isa} < %{version}.100
 Provides:        nvidia-driver = %{version}-100
 Provides:        nvidia-driver%{?_isa} = %{version}-100
 Provides:        nvidia-drivers = %{version}-100
