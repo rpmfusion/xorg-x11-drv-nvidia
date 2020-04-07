@@ -19,8 +19,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         440.64
-Release:         2%{?dist}
+Version:         440.82
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -128,7 +128,11 @@ Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 Provides:        cuda-drivers = %{version}.100
 Provides:        cuda-drivers%{?_isa} = %{version}.100
 Obsoletes:       cuda-drivers < %{version}.100
-Obsoletes:       cuda-drivers%{?_isa} < %{version}.100
+# Comment out due to
+#error: line 131: Illegal char ')' (0x29) in: Obsoletes:       cuda-drivers(x86-64) < 440.82.100
+#error: line 131: Only package names are allowed in Obsoletes: Obsoletes:       cuda-drivers(x86-64) < 440.82.100
+#error: query of specfile /home/leigh/development/fedora-git/xorg-x11-drv-nvidia/xorg-x11-drv-nvidia.spec failed, can't parse
+#Obsoletes:       cuda-drivers%{?_isa} < %{version}.100
 Provides:        nvidia-driver = %{version}-100
 Provides:        nvidia-driver%{?_isa} = %{version}-100
 Provides:        nvidia-drivers = %{version}-100
@@ -500,11 +504,14 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Tue Apr 07 2020 leigh123linux <leigh123linux@googlemail.com> - 3:440.82-2
+- Update to 440.82 release
+
 * Wed Mar 11 2020 Nicolas Chauvet <kwizart@gmail.com> - 3:440.64-2
 - Deal with cuda-drivers insanity
 
 * Fri Feb 28 2020 leigh123linux <leigh123linux@googlemail.com> - 3:440.64-1
-- rebuilt
+- Update to 440.64 release
 
 * Tue Feb 25 2020 Leigh Scott <leigh123linux@googlemail.com> - 3:440.59-3
 - Remove 'Disable wayland if gdm is available', gdm has it's own blacklist
