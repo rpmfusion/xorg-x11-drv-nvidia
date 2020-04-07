@@ -128,11 +128,6 @@ Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 Provides:        cuda-drivers = %{version}.100
 Provides:        cuda-drivers%{?_isa} = %{version}.100
 Obsoletes:       cuda-drivers < %{version}.100
-# Comment out due to
-#error: line 131: Illegal char ')' (0x29) in: Obsoletes:       cuda-drivers(x86-64) < 440.82.100
-#error: line 131: Only package names are allowed in Obsoletes: Obsoletes:       cuda-drivers(x86-64) < 440.82.100
-#error: query of specfile /home/leigh/development/fedora-git/xorg-x11-drv-nvidia/xorg-x11-drv-nvidia.spec failed, can't parse
-#Obsoletes:       cuda-drivers%{?_isa} < %{version}.100
 Provides:        nvidia-driver = %{version}-100
 Provides:        nvidia-driver%{?_isa} = %{version}-100
 Provides:        nvidia-drivers = %{version}-100
