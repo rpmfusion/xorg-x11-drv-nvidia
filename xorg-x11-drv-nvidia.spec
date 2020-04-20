@@ -7,10 +7,10 @@
 %global        _dracut_conf_d       %{_prefix}/lib/dracut/dracut.conf.d
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
-%if 0%{?rhel}
-%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
-%else
+%if 0%{?fedora} || 0%{?rhel} > 7
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
+%else
+%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
 %endif
 
 %global        debug_package %{nil}
