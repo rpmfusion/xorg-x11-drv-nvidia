@@ -7,10 +7,10 @@
 %global        _dracut_conf_d       %{_prefix}/lib/dracut/dracut.conf.d
 %global        _modprobe_d          %{_prefix}/lib/modprobe.d/
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
-%if 0%{?rhel}
-%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
-%else
+%if 0%{?fedora} || 0%{?rhel} > 7
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
+%else
+%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
 %endif
 
 %global        debug_package %{nil}
@@ -19,8 +19,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         440.64
-Release:         2%{?dist}
+Version:         440.82
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -127,6 +127,7 @@ Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 #Don't put an epoch here
 Provides:        cuda-drivers = %{version}.100
 Provides:        cuda-drivers%{?_isa} = %{version}.100
+Obsoletes:       cuda-drivers < %{version}.100
 Provides:        nvidia-driver = %{version}-100
 Provides:        nvidia-driver%{?_isa} = %{version}-100
 Provides:        nvidia-drivers = %{version}-100
@@ -498,11 +499,14 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Tue Apr 07 2020 leigh123linux <leigh123linux@googlemail.com> - 3:440.82-2
+- Update to 440.82 release
+
 * Wed Mar 11 2020 Nicolas Chauvet <kwizart@gmail.com> - 3:440.64-2
 - Deal with cuda-drivers insanity
 
 * Fri Feb 28 2020 leigh123linux <leigh123linux@googlemail.com> - 3:440.64-1
-- rebuilt
+- Update to 440.64 release
 
 * Tue Feb 25 2020 Leigh Scott <leigh123linux@googlemail.com> - 3:440.59-3
 - Remove 'Disable wayland if gdm is available', gdm has it's own blacklist
