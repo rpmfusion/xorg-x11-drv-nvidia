@@ -97,10 +97,10 @@ Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 #Don't put an epoch here
 Provides:        cuda-drivers-devel = %{version}.100
 Provides:        cuda-drivers-devel%{?_isa} = %{version}.100
-Provides:        nvidia-driver-devel = %{version}-100
-Provides:        nvidia-driver-devel%{?_isa} = %{version}-100
-Provides:        nvidia-drivers-devel = %{version}-100
-Provides:        nvidia-drivers-devel%{?_isa} = %{version}-100
+Provides:        nvidia-driver-devel = %{?epoch}:%{version}-100
+Provides:        nvidia-driver-devel%{?_isa} = %{?epoch}:%{version}-100
+Provides:        nvidia-drivers-devel = %{?epoch}:%{version}-100
+Provides:        nvidia-drivers-devel%{?_isa} = %{?epoch}:%{version}-100
 
 %description devel
 This package provides the development files of the %{name} package.
@@ -128,10 +128,10 @@ Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 Provides:        cuda-drivers = %{version}.100
 Provides:        cuda-drivers%{?_isa} = %{version}.100
 Obsoletes:       cuda-drivers < %{version}.100
-Provides:        nvidia-driver = %{version}-100
-Provides:        nvidia-driver%{?_isa} = %{version}-100
-Provides:        nvidia-drivers = %{version}-100
-Provides:        nvidia-drivers%{?_isa} = %{version}-100
+Provides:        nvidia-driver = %{?epoch}:%{version}-100
+Provides:        nvidia-driver%{?_isa} = %{?epoch}:%{version}-100
+Provides:        nvidia-drivers = %{?epoch}:%{version}-100
+Provides:        nvidia-drivers%{?_isa} = %{?epoch}:%{version}-100
 
 %description cuda
 This package provides the CUDA driver.
