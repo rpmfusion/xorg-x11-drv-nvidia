@@ -19,7 +19,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         440.82
+Version:         440.100
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -97,10 +97,10 @@ Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 #Don't put an epoch here
 Provides:        cuda-drivers-devel = %{version}.100
 Provides:        cuda-drivers-devel%{?_isa} = %{version}.100
-Provides:        nvidia-driver-devel = %{version}-100
-Provides:        nvidia-driver-devel%{?_isa} = %{version}-100
-Provides:        nvidia-drivers-devel = %{version}-100
-Provides:        nvidia-drivers-devel%{?_isa} = %{version}-100
+Provides:        nvidia-driver-devel = %{?epoch}:%{version}-100
+Provides:        nvidia-driver-devel%{?_isa} = %{?epoch}:%{version}-100
+Provides:        nvidia-drivers-devel = %{?epoch}:%{version}-100
+Provides:        nvidia-drivers-devel%{?_isa} = %{?epoch}:%{version}-100
 
 %description devel
 This package provides the development files of the %{name} package.
@@ -128,10 +128,10 @@ Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 Provides:        cuda-drivers = %{version}.100
 Provides:        cuda-drivers%{?_isa} = %{version}.100
 Obsoletes:       cuda-drivers < %{version}.100
-Provides:        nvidia-driver = %{version}-100
-Provides:        nvidia-driver%{?_isa} = %{version}-100
-Provides:        nvidia-drivers = %{version}-100
-Provides:        nvidia-drivers%{?_isa} = %{version}-100
+Provides:        nvidia-driver = %{?epoch}:%{version}-100
+Provides:        nvidia-driver%{?_isa} = %{?epoch}:%{version}-100
+Provides:        nvidia-drivers = %{?epoch}:%{version}-100
+Provides:        nvidia-drivers%{?_isa} = %{?epoch}:%{version}-100
 
 %description cuda
 This package provides the CUDA driver.
@@ -499,6 +499,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Thu Jun 25 2020 Leigh Scott <leigh123linux@gmail.com> - 3:440.100-1
+- Update to 440.100 release
+
 * Tue Apr 07 2020 leigh123linux <leigh123linux@googlemail.com> - 3:440.82-2
 - Update to 440.82 release
 
