@@ -19,7 +19,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         440.100
+Version:         450.66
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -206,12 +206,12 @@ cp -a \
 %ifarch x86_64
     libnvidia-cbl.so.%{version} \
     libnvidia-cfg.so.%{version} \
+    libnvidia-ngx.so.%{version} \
     libnvidia-rtcore.so.%{version} \
     libnvoptix.so.%{version} \
 %endif
     libnvidia-eglcore.so.%{version} \
     libnvidia-encode.so.%{version} \
-    libnvidia-fatbinaryloader.so.%{version} \
     libnvidia-fbc.so.%{version} \
     libnvidia-glcore.so.%{version} \
     libnvidia-glsi.so.%{version} \
@@ -443,6 +443,8 @@ fi ||:
 %{_libdir}/libnvidia-cbl.so.%{version}
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
+%{_libdir}/libnvidia-ngx.so.1
+%{_libdir}/libnvidia-ngx.so.%{version}
 %{_libdir}/libnvidia-rtcore.so.%{version}
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
@@ -479,7 +481,6 @@ fi ||:
 %{_libdir}/libnvcuvid.so.%{version}
 %{_libdir}/libnvidia-encode.so.1
 %{_libdir}/libnvidia-encode.so.%{version}
-%{_libdir}/libnvidia-fatbinaryloader.so.%{version}
 %{_libdir}/libnvidia-ml.so.1
 %{_libdir}/libnvidia-ml.so.%{version}
 %{_libdir}/libnvidia-ptxjitcompiler.so.1
@@ -499,8 +500,14 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
-* Thu Jun 25 2020 Leigh Scott <leigh123linux@gmail.com> - 3:440.100-1
-- Update to 440.100 release
+* Tue Aug 18 2020 Leigh Scott <leigh123linux@gmail.com> - 3:450.66-1
+- Update to 450.66 release
+
+* Thu Jul 09 2020 Leigh Scott <leigh123linux@gmail.com> - 3:450.57-1
+- Update to 450.57 release
+
+* Wed Jun 24 2020 Leigh Scott <leigh123linux@gmail.com> - 3:450.51-1
+- Update to 450.51 beta
 
 * Tue Apr 07 2020 leigh123linux <leigh123linux@googlemail.com> - 3:440.82-2
 - Update to 440.82 release
