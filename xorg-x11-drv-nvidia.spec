@@ -341,6 +341,9 @@ mkdir -p %{buildroot}%{_unitdir}
 install -p -m 0644 %{SOURCE13} %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE14} %{buildroot}%{_unitdir}
 
+# Install systemd samples
+mkdir -p samples/systemd/
+install -p -m 0444 {nvidia-{suspend,hibernate,resume}.service,nvidia-sleep.sh,nvidia} samples/systemd/
 
 %pre
 if [ "$1" -eq "1" ]; then
@@ -391,6 +394,7 @@ fi ||:
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
+%doc nvidiapkg/samples
 %dir %{_alternate_dir}
 %{_alternate_dir}/alternate-install-present
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
