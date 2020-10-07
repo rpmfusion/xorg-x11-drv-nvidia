@@ -19,8 +19,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         450.66
-Release:         2%{?dist}
+Version:         455.28
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -521,6 +521,12 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Wed Oct  7 2020 Leigh Scott <leigh123linux@gmail.com> - 3:455.28-1
+- Update to 455.28 release
+
+* Thu Sep 17 2020 Leigh Scott <leigh123linux@gmail.com> - 3:455.23.04-1
+- Update to 455.23.04 beta
+
 * Fri Aug 28 2020 Leigh Scott <leigh123linux@gmail.com> - 3:450.66-2
 - Install the systemd power management files
 
