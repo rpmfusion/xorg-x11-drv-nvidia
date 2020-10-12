@@ -298,6 +298,8 @@ install -p -m 0644 %{SOURCE5} %{buildroot}%{_alternate_dir}
 #install the NVIDIA supplied application profiles
 mkdir -p %{buildroot}%{_datadir}/nvidia
 install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} %{buildroot}%{_datadir}/nvidia
+ln -s nvidia-application-profiles-%{version}-rc %{buildroot}%{_datadir}/nvidia/nvidia-application-profiles-rc
+ln -s nvidia-application-profiles-%{version}-key-documentation %{buildroot}%{_datadir}/nvidia/nvidia-application-profiles-key-documentation
 
 #Install the Xorg configuration files
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
@@ -434,7 +436,7 @@ fi ||:
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 #/no_multilib
 %dir %{_datadir}/nvidia
-%{_datadir}/nvidia/nvidia-application-profiles-%{version}-*
+%{_datadir}/nvidia/nvidia-application-profiles-*
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
