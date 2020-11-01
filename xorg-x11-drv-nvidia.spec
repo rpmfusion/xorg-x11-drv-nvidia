@@ -19,7 +19,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         450.66
+Version:         455.38
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -40,7 +40,11 @@ Source15:        rhel_nvidia.conf
 
 ExclusiveArch: x86_64 i686
 
-Buildrequires:    systemd
+%if 0%{?fedora}
+BuildRequires:    systemd-rpm-macros
+%else
+BuildRequires:    systemd
+%endif
 Requires(post):   systemd
 Requires(preun):  systemd
 Requires(postun): systemd
@@ -294,6 +298,8 @@ install -p -m 0644 %{SOURCE5} %{buildroot}%{_alternate_dir}
 #install the NVIDIA supplied application profiles
 mkdir -p %{buildroot}%{_datadir}/nvidia
 install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} %{buildroot}%{_datadir}/nvidia
+ln -s nvidia-application-profiles-%{version}-rc %{buildroot}%{_datadir}/nvidia/nvidia-application-profiles-rc
+ln -s nvidia-application-profiles-%{version}-key-documentation %{buildroot}%{_datadir}/nvidia/nvidia-application-profiles-key-documentation
 
 #Install the Xorg configuration files
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
@@ -341,6 +347,9 @@ mkdir -p %{buildroot}%{_unitdir}
 install -p -m 0644 %{SOURCE13} %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE14} %{buildroot}%{_unitdir}
 
+# Systemd units and script for suspending/resuming
+install -p -m 0644 nvidia-hibernate.service nvidia-resume.service nvidia-suspend.service %{buildroot}%{_unitdir}
+install -p -m 0755 nvidia-sleep.sh %{buildroot}%{_bindir}
 
 %pre
 if [ "$1" -eq "1" ]; then
@@ -350,6 +359,9 @@ if [ "$1" -eq "1" ]; then
 fi
 
 %post
+%systemd_post nvidia-hibernate.service
+%systemd_post nvidia-resume.service
+%systemd_post nvidia-suspend.service
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
   sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
@@ -377,6 +389,9 @@ fi
 %ldconfig_scriptlets cuda-libs
 
 %preun
+%systemd_preun nvidia-hibernate.service
+%systemd_preun nvidia-resume.service
+%systemd_preun nvidia-suspend.service
 if [ "$1" -eq "0" ]; then
   %{_grubby} --remove-args='%{_dracutopts}' &>/dev/null
   sed -i -e 's/%{_dracutopts} //g' /etc/default/grub
@@ -384,6 +399,10 @@ if [ "$1" -eq "0" ]; then
   [ -f %{_sysconfdir}/X11/xorg.conf ] && mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.nvidia_uninstalled &>/dev/null
 fi ||:
 
+%postun
+%systemd_postun nvidia-hibernate.service
+%systemd_postun nvidia-resume.service
+%systemd_postun nvidia-suspend.service
 
 %files
 %license nvidiapkg/LICENSE
@@ -391,6 +410,10 @@ fi ||:
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
+%{_bindir}/nvidia-sleep.sh
+%{_unitdir}/nvidia-hibernate.service
+%{_unitdir}/nvidia-resume.service
+%{_unitdir}/nvidia-suspend.service
 %dir %{_alternate_dir}
 %{_alternate_dir}/alternate-install-present
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
@@ -413,7 +436,7 @@ fi ||:
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 #/no_multilib
 %dir %{_datadir}/nvidia
-%{_datadir}/nvidia/nvidia-application-profiles-%{version}-*
+%{_datadir}/nvidia/nvidia-application-profiles-*
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
@@ -500,6 +523,18 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Thu Oct 29 2020 Leigh Scott <leigh123linux@gmail.com> - 3:455.38-1
+- Update to 455.38 release
+
+* Wed Oct  7 2020 Leigh Scott <leigh123linux@gmail.com> - 3:455.28-1
+- Update to 455.28 release
+
+* Thu Sep 17 2020 Leigh Scott <leigh123linux@gmail.com> - 3:455.23.04-1
+- Update to 455.23.04 beta
+
+* Fri Aug 28 2020 Leigh Scott <leigh123linux@gmail.com> - 3:450.66-2
+- Install the systemd power management files
+
 * Tue Aug 18 2020 Leigh Scott <leigh123linux@gmail.com> - 3:450.66-1
 - Update to 450.66 release
 
