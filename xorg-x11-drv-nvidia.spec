@@ -19,8 +19,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         450.66
-Release:         2%{?dist}
+Version:         455.38
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -298,6 +298,8 @@ install -p -m 0644 %{SOURCE5} %{buildroot}%{_alternate_dir}
 #install the NVIDIA supplied application profiles
 mkdir -p %{buildroot}%{_datadir}/nvidia
 install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} %{buildroot}%{_datadir}/nvidia
+ln -s nvidia-application-profiles-%{version}-rc %{buildroot}%{_datadir}/nvidia/nvidia-application-profiles-rc
+ln -s nvidia-application-profiles-%{version}-key-documentation %{buildroot}%{_datadir}/nvidia/nvidia-application-profiles-key-documentation
 
 #Install the Xorg configuration files
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
@@ -434,7 +436,7 @@ fi ||:
 %{_libdir}/xorg/modules/drivers/nvidia_drv.so
 #/no_multilib
 %dir %{_datadir}/nvidia
-%{_datadir}/nvidia/nvidia-application-profiles-%{version}-*
+%{_datadir}/nvidia/nvidia-application-profiles-*
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
@@ -521,6 +523,15 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Thu Oct 29 2020 Leigh Scott <leigh123linux@gmail.com> - 3:455.38-1
+- Update to 455.38 release
+
+* Wed Oct  7 2020 Leigh Scott <leigh123linux@gmail.com> - 3:455.28-1
+- Update to 455.28 release
+
+* Thu Sep 17 2020 Leigh Scott <leigh123linux@gmail.com> - 3:455.23.04-1
+- Update to 455.23.04 beta
+
 * Fri Aug 28 2020 Leigh Scott <leigh123linux@gmail.com> - 3:450.66-2
 - Install the systemd power management files
 
