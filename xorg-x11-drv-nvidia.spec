@@ -335,7 +335,7 @@ mkdir -p %{buildroot}%{_datadir}/appdata/
 install -pm 0644 %{SOURCE8} %{buildroot}%{_datadir}/appdata/
 fn=%{buildroot}%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
 %{SOURCE9} README.txt "NVIDIA GEFORCE GPUS" | xargs appstream-util add-provide ${fn} modalias
-%{SOURCE9} README.txt "NVIDIA QUADRO GPUS" | xargs appstream-util add-provide ${fn} modalias
+%{SOURCE9} README.txt "NVIDIA RTX/QUADRO GPUS" | xargs appstream-util add-provide ${fn} modalias
 %{SOURCE9} README.txt "NVIDIA NVS GPUS" | xargs appstream-util add-provide ${fn} modalias
 %{SOURCE9} README.txt "NVIDIA TESLA GPUS" | xargs appstream-util add-provide ${fn} modalias
 mkdir -p %{buildroot}%{_datadir}/pixmaps
