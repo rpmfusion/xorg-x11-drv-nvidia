@@ -20,7 +20,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         460.27.04
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -525,6 +525,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Sat Dec 19 2020 Leigh Scott <leigh123linux@gmail.com> - 3:460.27.04-2
+- Add missed bin files
+
 * Wed Dec 16 2020 Leigh Scott <leigh123linux@gmail.com> - 3:460.27.04-1
 - Update to 460.27.04 beta
 
