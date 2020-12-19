@@ -410,7 +410,6 @@ fi ||:
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
-%{_bindir}/nvidia-ngx-updater
 %{_bindir}/nvidia-powerd
 %{_bindir}/nvidia-sleep.sh
 %{_unitdir}/nvidia-hibernate.service
