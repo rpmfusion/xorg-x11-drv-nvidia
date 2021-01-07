@@ -283,7 +283,7 @@ install -p -m 0644 %{SOURCE12} %{buildroot}%{_dracut_conf_d}/
 
 # Install binaries
 install -m 0755 -d %{buildroot}%{_bindir}
-install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater,powerd} \
+install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater} \
   %{buildroot}%{_bindir}
 
 # Install man pages
@@ -410,7 +410,6 @@ fi ||:
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
-%{_bindir}/nvidia-powerd
 %{_bindir}/nvidia-sleep.sh
 %{_unitdir}/nvidia-hibernate.service
 %{_unitdir}/nvidia-resume.service
