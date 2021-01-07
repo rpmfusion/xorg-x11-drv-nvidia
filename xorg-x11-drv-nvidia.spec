@@ -19,7 +19,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         455.45.01
+Version:         460.32.03
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -283,7 +283,7 @@ install -p -m 0644 %{SOURCE12} %{buildroot}%{_dracut_conf_d}/
 
 # Install binaries
 install -m 0755 -d %{buildroot}%{_bindir}
-install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server} \
+install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater,powerd} \
   %{buildroot}%{_bindir}
 
 # Install man pages
@@ -335,7 +335,7 @@ mkdir -p %{buildroot}%{_datadir}/appdata/
 install -pm 0644 %{SOURCE8} %{buildroot}%{_datadir}/appdata/
 fn=%{buildroot}%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
 %{SOURCE9} README.txt "NVIDIA GEFORCE GPUS" | xargs appstream-util add-provide ${fn} modalias
-%{SOURCE9} README.txt "NVIDIA QUADRO GPUS" | xargs appstream-util add-provide ${fn} modalias
+%{SOURCE9} README.txt "NVIDIA RTX/QUADRO GPUS" | xargs appstream-util add-provide ${fn} modalias
 %{SOURCE9} README.txt "NVIDIA NVS GPUS" | xargs appstream-util add-provide ${fn} modalias
 %{SOURCE9} README.txt "NVIDIA TESLA GPUS" | xargs appstream-util add-provide ${fn} modalias
 mkdir -p %{buildroot}%{_datadir}/pixmaps
@@ -410,6 +410,7 @@ fi ||:
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
+%{_bindir}/nvidia-powerd
 %{_bindir}/nvidia-sleep.sh
 %{_unitdir}/nvidia-hibernate.service
 %{_unitdir}/nvidia-resume.service
@@ -488,6 +489,7 @@ fi ||:
 %files cuda
 %license nvidiapkg/LICENSE
 %{_bindir}/nvidia-debugdump
+%{_bindir}/nvidia-ngx-updater
 %{_bindir}/nvidia-smi
 %{_bindir}/nvidia-cuda-mps-control
 %{_bindir}/nvidia-cuda-mps-server
@@ -523,6 +525,15 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Thu Jan  7 2021 Leigh Scott <leigh123linux@gmail.com> - 3:460.32.03-1
+- Update to 460.32.03 release
+
+* Sat Dec 19 2020 Leigh Scott <leigh123linux@gmail.com> - 3:460.27.04-2
+- Add missed bin files
+
+* Wed Dec 16 2020 Leigh Scott <leigh123linux@gmail.com> - 3:460.27.04-1
+- Update to 460.27.04 beta
+
 * Wed Nov 18 2020 Leigh Scott <leigh123linux@gmail.com> - 3:455.45.01-1
 - Update to 455.45.01 release
 
