@@ -98,9 +98,6 @@ Summary:         Development files for %{name}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 
-#Don't put an epoch here
-Provides:        cuda-drivers-devel = %{version}.100
-Provides:        cuda-drivers-devel%{?_isa} = %{version}.100
 Provides:        nvidia-driver-devel = %{?epoch}:%{version}-100
 Provides:        nvidia-driver-devel%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-drivers-devel = %{?epoch}:%{version}-100
