@@ -5,12 +5,14 @@
 %global        _alternate_dir       %{_prefix}/lib/nvidia
 
 %global        _dracut_conf_d       %{_prefix}/lib/dracut/dracut.conf.d
-%global        _modprobe_d          %{_prefix}/lib/modprobe.d/
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
+%global        _firmwarepath        %{_prefix}/lib/firmware
 %if 0%{?fedora} || 0%{?rhel} > 7
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
 %else
 %global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
+%global        _modprobedir         %{_prefix}/lib/modprobe.d
+%global        _systemd_util_dir    %{_prefix}/lib/systemd
 %endif
 
 %global        debug_package %{nil}
@@ -19,7 +21,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         460.67
+Version:         465.19.01
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -40,14 +42,6 @@ Source15:        rhel_nvidia.conf
 
 ExclusiveArch: x86_64 i686
 
-%if 0%{?fedora}
-BuildRequires:    systemd-rpm-macros
-%else
-BuildRequires:    systemd
-%endif
-Requires(post):   systemd
-Requires(preun):  systemd
-Requires(postun): systemd
 # Xorg with PrimaryGPU
 Requires:         Xorg >= 1.19.0-3
 
@@ -57,6 +51,7 @@ Requires(post):   grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 %if 0%{?fedora} || 0%{?rhel} > 7
+BuildRequires:    systemd-rpm-macros
 # AppStream metadata generation
 BuildRequires:    python3
 BuildRequires:    libappstream-glib >= 0.6.3
@@ -66,8 +61,12 @@ Suggests:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 Suggests:         acpica-tools
 Suggests:         vulkan-tools
 %else
+BuildRequires:    systemd
 Requires:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 %endif
+Requires(post):   systemd
+Requires(preun):  systemd
+Requires(postun): systemd
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
@@ -267,8 +266,8 @@ install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
 install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 
 # Blacklist nouveau, autoload nvidia-uvm module after nvidia module
-mkdir -p %{buildroot}%{_modprobe_d}
-install -p -m 0644 %{SOURCE11} %{buildroot}%{_modprobe_d}
+mkdir -p %{buildroot}%{_modprobedir}
+install -p -m 0644 %{SOURCE11} %{buildroot}%{_modprobedir}
 
 # UDev rules for nvidia
 install    -m 0755 -d          %{buildroot}%{_udevrulesdir}
@@ -331,13 +330,13 @@ EOF
 
 %if 0%{?fedora} || 0%{?rhel} > 7
 # install AppData and add modalias provides
-mkdir -p %{buildroot}%{_datadir}/appdata/
-install -pm 0644 %{SOURCE8} %{buildroot}%{_datadir}/appdata/
-fn=%{buildroot}%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
-%{SOURCE9} README.txt "NVIDIA GEFORCE GPUS" | xargs appstream-util add-provide ${fn} modalias
-%{SOURCE9} README.txt "NVIDIA RTX/QUADRO GPUS" | xargs appstream-util add-provide ${fn} modalias
-%{SOURCE9} README.txt "NVIDIA NVS GPUS" | xargs appstream-util add-provide ${fn} modalias
-%{SOURCE9} README.txt "NVIDIA TESLA GPUS" | xargs appstream-util add-provide ${fn} modalias
+mkdir -p %{buildroot}%{_metainfodir}/
+install -pm 0644 %{SOURCE8} %{buildroot}%{_metainfodir}/
+#fn=%{buildroot}%{_datadir}/appdata/xorg-x11-drv-nvidia.metainfo.xml
+#%{SOURCE9} README.txt "NVIDIA GEFORCE GPUS" | xargs appstream-util add-provide ${fn} modalias
+#%{SOURCE9} README.txt "NVIDIA RTX/QUADRO GPUS" | xargs appstream-util add-provide ${fn} modalias
+#%{SOURCE9} README.txt "NVIDIA NVS GPUS" | xargs appstream-util add-provide ${fn} modalias
+#%{SOURCE9} README.txt "NVIDIA TESLA GPUS" | xargs appstream-util add-provide ${fn} modalias
 mkdir -p %{buildroot}%{_datadir}/pixmaps
 install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps/%{name}.png
 %endif
@@ -348,8 +347,14 @@ install -p -m 0644 %{SOURCE13} %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE14} %{buildroot}%{_unitdir}
 
 # Systemd units and script for suspending/resuming
-install -p -m 0644 nvidia-hibernate.service nvidia-resume.service nvidia-suspend.service %{buildroot}%{_unitdir}
-install -p -m 0755 nvidia-sleep.sh %{buildroot}%{_bindir}
+mkdir %{buildroot}%{_systemd_util_dir}/system-sleep/
+install -p -m 0644 systemd/system/nvidia-{hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
+install -p -m 0644 systemd/system-sleep/nvidia %{buildroot}%{_systemd_util_dir}/system-sleep/
+install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
+
+# Firmware
+mkdir -p %{buildroot}%{_firmwarepath}
+install -p -m 0644 firmware/gsp.bin %{buildroot}%{_firmwarepath}
 
 %pre
 if [ "$1" -eq "1" ]; then
@@ -411,6 +416,8 @@ fi ||:
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
 %{_bindir}/nvidia-sleep.sh
+%{_firmwarepath}/gsp.bin
+%{_systemd_util_dir}/system-sleep/nvidia
 %{_unitdir}/nvidia-hibernate.service
 %{_unitdir}/nvidia-resume.service
 %{_unitdir}/nvidia-suspend.service
@@ -426,7 +433,7 @@ fi ||:
 %{_udevrulesdir}/60-nvidia.rules
 %{_unitdir}/nvidia-fallback.service
 %if 0%{?fedora} || 0%{?rhel} > 7
-%{_datadir}/appdata/%{name}.metainfo.xml
+%{_metainfodir}/%{name}.metainfo.xml
 %{_datadir}/pixmaps/%{name}.png
 %endif
 %{_dracut_conf_d}/99-nvidia-dracut.conf
@@ -515,7 +522,7 @@ fi ||:
 %{_libdir}/libnvidia-opticalflow.so.1
 %{_libdir}/libnvidia-opticalflow.so.%{version}
 %ifarch x86_64
-%{_modprobe_d}/nvidia-uvm.conf
+%{_modprobedir}/nvidia-uvm.conf
 %{_udevrulesdir}/60-nvidia-uvm.rules
 %endif
 
@@ -524,6 +531,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Tue Mar 30 2021 Leigh Scott <leigh123linux@gmail.com> - 3:465.19.01-1
+- Update to 465.19.01 beta
+
 * Fri Mar 19 2021 Leigh Scott <leigh123linux@gmail.com> - 3:460.67-1
 - Update to 460.67 release
 
