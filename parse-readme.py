@@ -1,61 +1,61 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2016 Richard Hughes <richard@hughsie.com>
+# Copyright (C) 2021 Simone Caronni <negativo17@gmail.com>
 # Licensed under the GNU General Public License Version or later
 
-from __future__ import print_function
 import sys
 
 def main():
-    if len(sys.argv) != 3:
-        print("usage: %s README.txt \"header to match\"" % sys.argv[0])
+    if len(sys.argv) != 2:
+        print("usage: %s README.txt" % sys.argv[0])
         return 1
 
-    # open file
     f = open(sys.argv[1])
     in_section = False
     in_table = False
     pids = []
-    for line in f.readlines():
+    sections = ["NVIDIA GEFORCE GPUS", "NVIDIA RTX/QUADRO GPUS", "NVIDIA NVS GPUS", "NVIDIA TESLA GPUS", "NVIDIA GRID GPUS"]
+    for section in sections:
 
-        # find the right data table
-        if line.find(sys.argv[2]) != -1:
-            in_section = True
-            continue
-        if not in_section:
-            continue
+        for line in f.readlines():
 
-        # remove Windows and Linux line endings
-        line = line.replace('\r', '')
-        line = line.replace('\n', '')
+            # Find the right data tables
+            if line.find(section) != -1:
+                in_section = True
+                continue
+            if not in_section:
+                continue
 
-        # end of section
-        if len(line) > 0 and not line.startswith('    '):
-            in_section = False
-            in_table = False
-            continue
+            # Remove Windows and Linux line endings
+            line = line.replace('\r', '')
+            line = line.replace('\n', '')
 
-        # empty line
-        if len(line) == 0:
-            continue
+            # End of section
+            if len(line) > 0 and not line.startswith(' '):
+                in_section = False
+                in_table = False
+                continue
 
-        # skip the header
-        if line.startswith('    ---'):
-            in_table = True
-            continue
-        if not in_table:
-            continue
+            if len(line) == 0:
+                continue
 
-        # get name
-        pid = int(line[42:46], 16)
-        if not pid in pids:
-            pids.append(pid)
+            # Skip the header
+            if line.startswith(' ---'):
+                in_table = True
+                continue
+            if not in_table:
+                continue
 
-    # output
+            # PCI ID
+            pid = int(line[50:54], 16)
+            if not pid in pids:
+                pids.append(pid)
+
     for pid in pids:
         vid = 0x10de
         print("pci:v%08Xd%08Xsv*sd*bc*sc*i*" % (vid, pid))
 
 if __name__ == "__main__":
     main()
+
