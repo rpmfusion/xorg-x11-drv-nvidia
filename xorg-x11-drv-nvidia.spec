@@ -6,7 +6,7 @@
 
 %global        _dracut_conf_d       %{_prefix}/lib/dracut/dracut.conf.d
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
-%global        _firmwarepath        %{_prefix}/lib/firmware/nvidia/%{version}/
+%global        _firmwarepath        %{_prefix}/lib/firmware
 %if 0%{?fedora} || 0%{?rhel} > 7
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
 %else
@@ -22,7 +22,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         465.24.02
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -349,8 +349,8 @@ install -p -m 0644 systemd/system-sleep/nvidia %{buildroot}%{_systemd_util_dir}/
 install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
 # Firmware
-mkdir -p %{buildroot}%{_firmwarepath}
-install -p -m 0644 firmware/gsp.bin %{buildroot}%{_firmwarepath}
+mkdir -p %{buildroot}%{_firmwarepath}/nvidia/%{version}/
+install -p -m 0644 firmware/gsp.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 
 %pre
 if [ "$1" -eq "1" ]; then
@@ -412,7 +412,7 @@ fi ||:
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
 %{_bindir}/nvidia-sleep.sh
-%{_firmwarepath}/gsp.bin
+%{_firmwarepath}
 %{_systemd_util_dir}/system-sleep/nvidia
 %{_unitdir}/nvidia-hibernate.service
 %{_unitdir}/nvidia-resume.service
@@ -527,6 +527,9 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 
 %changelog
+* Wed Apr 21 2021 Leigh Scott <leigh123linux@gmail.com> - 3:465.24.02-4
+- Fix firmware directory ownership
+
 * Wed Apr 21 2021 Leigh Scott <leigh123linux@gmail.com> - 3:465.24.02-3
 - Fix firmware path
 
