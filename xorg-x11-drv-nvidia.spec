@@ -539,7 +539,9 @@ fi ||:
 %files devel
 %{_libdir}/libnvcuvid.so
 %{_libdir}/libnvidia-encode.so
+%ifarch x86_64
 %{_libdir}/libnvidia-nvvm.so
+%endif
 
 %changelog
 * Tue Jun 22 2021 Leigh Scott <leigh123linux@gmail.com> - 3:470.42.01-1
