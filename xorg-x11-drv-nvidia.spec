@@ -7,6 +7,7 @@
 %global        _dracut_conf_d       %{_prefix}/lib/dracut/dracut.conf.d
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %global        _firmwarepath        %{_prefix}/lib/firmware
+%global        _winedir             %{_libdir}/wine/x86_64-windows
 %if 0%{?fedora} || 0%{?rhel} > 7
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
 %else
@@ -21,7 +22,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         465.31
+Version:         470.42.01
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -210,6 +211,7 @@ cp -a \
     libnvidia-cbl.so.%{version} \
     libnvidia-cfg.so.%{version} \
     libnvidia-ngx.so.%{version} \
+    libnvidia-nvvm.so.4.0.0 \
     libnvidia-rtcore.so.%{version} \
     libnvoptix.so.%{version} \
 %endif
@@ -248,6 +250,10 @@ popd
 %endif
 
 %ifarch x86_64
+# Install additional cuda lib, ldconfig generates wrong .so name.
+ln -sf libnvidia-nvvm.so.4.0.0 %{buildroot}%{_libdir}/libnvidia-nvvm.so.4.0
+ln -sf libnvidia-nvvm.so.4 %{buildroot}%{_libdir}/libnvidia-nvvm.so
+
 # Vulkan config
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
 install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/
@@ -320,6 +326,10 @@ mkdir -p %{buildroot}%{_sysconfdir}/nvidia
 #Install the nvidia kernel modules sources archive
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
 tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz kernel
+
+#Install wine dll
+mkdir -p %{buildroot}%{_winedir}
+install -p -m 0644 _nvngx.dll nvngx.dll %{buildroot}%{_winedir}
 
 #RPM Macros support
 mkdir -p %{buildroot}%{rpmmacrodir}
@@ -474,6 +484,8 @@ fi ||:
 %{_libdir}/libnvidia-rtcore.so.%{version}
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
+%{_winedir}/_nvngx.dll
+%{_winedir}/nvngx.dll
 %endif
 %{_libdir}/libnvidia-eglcore.so.%{version}
 %{_libdir}/libnvidia-fbc.so.1
@@ -518,6 +530,8 @@ fi ||:
 %{_libdir}/libnvidia-opticalflow.so.1
 %{_libdir}/libnvidia-opticalflow.so.%{version}
 %ifarch x86_64
+%{_libdir}/libnvidia-nvvm.so.4.*
+%{_libdir}/libnvvm.so.4
 %{_modprobedir}/nvidia-uvm.conf
 %{_udevrulesdir}/60-nvidia-uvm.rules
 %endif
@@ -525,8 +539,12 @@ fi ||:
 %files devel
 %{_libdir}/libnvcuvid.so
 %{_libdir}/libnvidia-encode.so
+%{_libdir}/libnvidia-nvvm.so
 
 %changelog
+* Tue Jun 22 2021 Leigh Scott <leigh123linux@gmail.com> - 3:470.42.01-1
+- Update to 470.42.01 beta
+
 * Fri May 21 2021 Leigh Scott <leigh123linux@gmail.com> - 3:465.31-1
 - Update to 465.31 release
 
