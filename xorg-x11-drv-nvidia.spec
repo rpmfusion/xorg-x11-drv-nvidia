@@ -484,8 +484,7 @@ fi ||:
 %{_libdir}/libnvidia-rtcore.so.%{version}
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
-%{_winedir}/_nvngx.dll
-%{_winedir}/nvngx.dll
+%{_winedir}/
 %endif
 %{_libdir}/libnvidia-eglcore.so.%{version}
 %{_libdir}/libnvidia-fbc.so.1
