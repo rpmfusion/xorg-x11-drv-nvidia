@@ -8,12 +8,14 @@
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/wine/x86_64-windows
+%if !0%{?fedora}
+%global        _systemd_util_dir    %{_prefix}/lib/systemd
+%endif
 %if 0%{?fedora} || 0%{?rhel} > 7
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
 %else
 %global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
 %global        _modprobedir         %{_prefix}/lib/modprobe.d
-%global        _systemd_util_dir    %{_prefix}/lib/systemd
 %endif
 
 %global        debug_package %{nil}
