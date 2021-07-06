@@ -7,7 +7,7 @@
 %global        _dracut_conf_d       %{_prefix}/lib/dracut/dracut.conf.d
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %global        _firmwarepath        %{_prefix}/lib/firmware
-%global        _winedir             %{_libdir}/wine/x86_64-windows
+%global        _winedir             %{_libdir}/nvidia/wine
 %if 0%{?fedora} || 0%{?rhel} > 7
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
 %else
@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         470.42.01
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -543,6 +543,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Jul 06 2021 Leigh Scott <leigh123linux@gmail.com> - 3:470.42.01-2
+- Install dll to correct directory
+
 * Tue Jun 22 2021 Leigh Scott <leigh123linux@gmail.com> - 3:470.42.01-1
 - Update to 470.42.01 beta
 
