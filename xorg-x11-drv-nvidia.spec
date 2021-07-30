@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         470.57.02
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -40,6 +40,7 @@ Source12:        99-nvidia-dracut.conf
 Source13:        10-nvidia.rules
 Source14:        nvidia-fallback.service
 Source15:        rhel_nvidia.conf
+Source16:        nvidia-power-management.conf
 
 ExclusiveArch: x86_64 i686
 
@@ -274,6 +275,7 @@ install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_
 # Blacklist nouveau, autoload nvidia-uvm module after nvidia module
 mkdir -p %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE11} %{buildroot}%{_modprobedir}
+install -p -m 0644 %{SOURCE16} %{buildroot}%{_modprobedir}
 
 # UDev rules for nvidia
 install    -m 0755 -d          %{buildroot}%{_udevrulesdir}
@@ -450,6 +452,7 @@ fi ||:
 #/no_multilib
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-*
+%{_modprobedir}/nvidia-power-management.conf
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
@@ -543,6 +546,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Jul 20 2021 Olivier Fourdan <fourdan@gmail.com> - 3:470.57.02-2
+- Add power management option (NVreg_PreserveVideoMemoryAllocations)
+
 * Mon Jul 19 2021 Leigh Scott <leigh123linux@gmail.com> - 3:470.57.02-1
 - Update to 470.57.02 release
 
