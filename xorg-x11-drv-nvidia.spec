@@ -22,8 +22,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         470.57.02
-Release:         2%{?dist}
+Version:         470.63.01
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -546,6 +546,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Aug 10 2021 Leigh Scott <leigh123linux@gmail.com> - 3:470.63.01-1
+- Update to 470.63.01 release
+
 * Tue Jul 20 2021 Olivier Fourdan <fourdan@gmail.com> - 3:470.57.02-2
 - Add power management option (NVreg_PreserveVideoMemoryAllocations)
 
