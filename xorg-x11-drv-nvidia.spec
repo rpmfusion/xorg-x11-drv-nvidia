@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         470.63.01
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -66,9 +66,6 @@ Suggests:         vulkan-tools
 BuildRequires:    systemd
 Requires:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 %endif
-Requires(post):   systemd
-Requires(preun):  systemd
-Requires(postun): systemd
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
@@ -179,6 +176,17 @@ Requires:        mesa-libGLES%{?_isa} >= 13.0.3-3
 
 %description libs
 This package provides the shared libraries for %{name}.
+
+%package power
+Summary:          Advanced  power management
+Requires:         %{name} = %{?epoch}:%{version}
+Requires(post):   systemd
+Requires(preun):  systemd
+Requires(postun): systemd
+BuildArch:        noarch
+
+%description power
+Advanced  power management, preserve memory allocation on suspend/resume.
 
 %prep
 %setup -q -c -T
@@ -372,9 +380,6 @@ if [ "$1" -eq "1" ]; then
 fi
 
 %post
-%systemd_post nvidia-hibernate.service
-%systemd_post nvidia-resume.service
-%systemd_post nvidia-suspend.service
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
   sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
@@ -402,9 +407,6 @@ fi
 %ldconfig_scriptlets cuda-libs
 
 %preun
-%systemd_preun nvidia-hibernate.service
-%systemd_preun nvidia-resume.service
-%systemd_preun nvidia-suspend.service
 if [ "$1" -eq "0" ]; then
   %{_grubby} --remove-args='%{_dracutopts}' &>/dev/null
   sed -i -e 's/%{_dracutopts} //g' /etc/default/grub
@@ -412,10 +414,6 @@ if [ "$1" -eq "0" ]; then
   [ -f %{_sysconfdir}/X11/xorg.conf ] && mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.nvidia_uninstalled &>/dev/null
 fi ||:
 
-%postun
-%systemd_postun nvidia-hibernate.service
-%systemd_postun nvidia-resume.service
-%systemd_postun nvidia-suspend.service
 
 %files
 %license nvidiapkg/LICENSE
@@ -423,12 +421,7 @@ fi ||:
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
-%{_bindir}/nvidia-sleep.sh
 %{_firmwarepath}
-%{_systemd_util_dir}/system-sleep/nvidia
-%{_unitdir}/nvidia-hibernate.service
-%{_unitdir}/nvidia-resume.service
-%{_unitdir}/nvidia-suspend.service
 %dir %{_alternate_dir}
 %{_alternate_dir}/alternate-install-present
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
@@ -452,7 +445,6 @@ fi ||:
 #/no_multilib
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-*
-%{_modprobedir}/nvidia-power-management.conf
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
@@ -545,7 +537,35 @@ fi ||:
 %{_libdir}/libnvidia-nvvm.so
 %endif
 
+%ifarch x86_64
+%post power
+%systemd_post nvidia-hibernate.service
+%systemd_post nvidia-resume.service
+%systemd_post nvidia-suspend.service
+
+%preun power
+%systemd_preun nvidia-hibernate.service
+%systemd_preun nvidia-resume.service
+%systemd_preun nvidia-suspend.service
+
+%postun power
+%systemd_postun nvidia-hibernate.service
+%systemd_postun nvidia-resume.service
+%systemd_postun nvidia-suspend.service
+
+%files power
+%config %{_modprobedir}/nvidia-power-management.conf
+%{_bindir}/nvidia-sleep.sh
+%{_systemd_util_dir}/system-sleep/nvidia
+%{_unitdir}/nvidia-hibernate.service
+%{_unitdir}/nvidia-resume.service
+%{_unitdir}/nvidia-suspend.service
+%endif
+
 %changelog
+* Mon Aug 23 2021 Leigh Scott <leigh123linux@gmail.com> - 3:470.63.01-2
+- Move power management files to sub-package
+
 * Tue Aug 10 2021 Leigh Scott <leigh123linux@gmail.com> - 3:470.63.01-1
 - Update to 470.63.01 release
 
