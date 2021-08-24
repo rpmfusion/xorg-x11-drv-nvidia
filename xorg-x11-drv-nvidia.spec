@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         470.63.01
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -183,7 +183,8 @@ Requires:         %{name} = %{?epoch}:%{version}
 Requires(post):   systemd
 Requires(preun):  systemd
 Requires(postun): systemd
-BuildArch:        noarch
+# Mash can't handle noach package
+#BuildArch:        noarch
 
 %description power
 Advanced  power management, preserve memory allocation on suspend/resume.
@@ -563,6 +564,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Aug 24 2021 Leigh Scott <leigh123linux@gmail.com> - 3:470.63.01-3
+- Mash can't handle noach package
+
 * Mon Aug 23 2021 Leigh Scott <leigh123linux@gmail.com> - 3:470.63.01-2
 - Move power management files to sub-package
 
