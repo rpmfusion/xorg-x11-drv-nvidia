@@ -179,7 +179,7 @@ This package provides the shared libraries for %{name}.
 
 %package power
 Summary:          Advanced  power management
-Requires:         %{name} = %{?epoch}:%{version}
+Requires:         %{name}%{?_isa} = %{?epoch}:%{version}
 Requires(post):   systemd
 Requires(preun):  systemd
 Requires(postun): systemd
