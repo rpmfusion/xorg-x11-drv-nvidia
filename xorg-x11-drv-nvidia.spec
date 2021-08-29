@@ -18,7 +18,7 @@
 
 %global        debug_package %{nil}
 %global        __strip /bin/true
-
+%global        __brp_ldconfig %{nil}
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
@@ -261,8 +261,9 @@ popd
 
 %ifarch x86_64
 # Install additional cuda lib, ldconfig generates wrong .so name.
-ln -sf libnvidia-nvvm.so.4.0.0 %{buildroot}%{_libdir}/libnvidia-nvvm.so.4.0
-ln -sf libnvidia-nvvm.so.4 %{buildroot}%{_libdir}/libnvidia-nvvm.so
+rm -f %{buildroot}%{_libdir}/libnvvm.so.4
+ln -sf libnvidia-nvvm.so.4.0.0 %{buildroot}%{_libdir}/libnvidia-nvvm.so.4
+ln -sf libnvidia-nvvm.so.4 %{buildroot}%{_libdir}/libnvidia-nvvm.so																																
 
 # Vulkan config
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
@@ -525,8 +526,8 @@ fi ||:
 %{_libdir}/libnvidia-opticalflow.so.1
 %{_libdir}/libnvidia-opticalflow.so.%{version}
 %ifarch x86_64
-%{_libdir}/libnvidia-nvvm.so.4.*
-%{_libdir}/libnvvm.so.4
+%{_libdir}/libnvidia-nvvm.so
+%{_libdir}/libnvidia-nvvm.so.4*
 %{_modprobedir}/nvidia-uvm.conf
 %{_udevrulesdir}/60-nvidia-uvm.rules
 %endif
@@ -534,9 +535,6 @@ fi ||:
 %files devel
 %{_libdir}/libnvcuvid.so
 %{_libdir}/libnvidia-encode.so
-%ifarch x86_64
-%{_libdir}/libnvidia-nvvm.so
-%endif
 
 %ifarch x86_64
 %post power
