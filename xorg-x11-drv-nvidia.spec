@@ -367,7 +367,7 @@ install -p -m 0644 %{SOURCE14} %{buildroot}%{_unitdir}
 # Systemd units and script for suspending/resuming
 mkdir %{buildroot}%{_systemd_util_dir}/system-sleep/
 install -p -m 0644 systemd/system/nvidia-{hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
-install -p -m 0644 systemd/system-sleep/nvidia %{buildroot}%{_systemd_util_dir}/system-sleep/
+install -p -m 0755 systemd/system-sleep/nvidia %{buildroot}%{_systemd_util_dir}/system-sleep/
 install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
 # Firmware
