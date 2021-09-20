@@ -22,8 +22,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         470.63.01
-Release:         3%{?dist}
+Version:         470.74
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -565,6 +565,9 @@ fi ||:
 %endif
 
 %changelog
+* Mon Sep 20 2021 Leigh Scott <leigh123linux@gmail.com> - 3:470.74-1
+- Update to 470.74 release
+
 * Tue Aug 24 2021 Leigh Scott <leigh123linux@gmail.com> - 3:470.63.01-3
 - Mash can't handle noach package
 
