@@ -492,7 +492,7 @@ fi ||:
 %{_libdir}/libnvidia-rtcore.so.%{version}
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
-%{_libdir}/libnvidia-vulkan-producer.so.495.29.05
+%{_libdir}/libnvidia-vulkan-producer.so.%{version}
 %{_winedir}/
 %endif
 %{_libdir}/libnvidia-eglcore.so.%{version}
