@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         495.29.05
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -259,6 +259,9 @@ done
 install -D -p -m 0755 libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
 ln -sf libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau/libvdpau_nvidia.so.1
 
+# GBM symlink
+ln -sf libnvidia-allocator.so.1 %{buildroot}%{_libdir}/nvidia-drm_gbm.so
+
 %ifarch i686
 popd
 %endif
@@ -479,6 +482,7 @@ fi ||:
 %{_libdir}/libGLX_nvidia.so.%{version}
 %{_libdir}/libnvidia-allocator.so.1
 %{_libdir}/libnvidia-allocator.so.%{version}
+%{_libdir}/nvidia-drm_gbm.so
 %ifarch x86_64
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
 %{_datadir}/egl/egl_external_platform.d/15_nvidia_gbm.json
@@ -573,6 +577,9 @@ fi ||:
 %endif
 
 %changelog
+* Thu Oct 14 2021 Leigh Scott <leigh123linux@gmail.com> - 3:495.29.05-2
+- Add nvidia-drm_gbm.so symlink
+
 * Thu Oct 14 2021 Leigh Scott <leigh123linux@gmail.com> - 3:495.29.05-1
 - Update to 495.29.05 beta
 
