@@ -22,7 +22,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         470.74
+Version:         495.29.05
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -63,6 +63,9 @@ Suggests:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 # nvidia-bug-report.sh requires needed to provide extra info
 Suggests:         acpica-tools
 Suggests:         vulkan-tools
+%ifarch x86_64
+Suggests:         %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
+%endif
 %else
 BuildRequires:    systemd
 Requires:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
@@ -219,12 +222,13 @@ cp -a \
     libnvcuvid.so.%{version} \
     libnvidia-allocator.so.%{version} \
 %ifarch x86_64
-    libnvidia-cbl.so.%{version} \
     libnvidia-cfg.so.%{version} \
     libnvidia-ngx.so.%{version} \
     libnvidia-nvvm.so.4.0.0 \
     libnvidia-rtcore.so.%{version} \
     libnvoptix.so.%{version} \
+    libnvidia-vulkan-producer.so.%{version} \
+    libnvidia-egl-gbm.so.1.1.0 \
 %endif
     libnvidia-eglcore.so.%{version} \
     libnvidia-encode.so.%{version} \
@@ -232,7 +236,6 @@ cp -a \
     libnvidia-glcore.so.%{version} \
     libnvidia-glsi.so.%{version} \
     libnvidia-glvkspirv.so.%{version} \
-    libnvidia-ifr.so.%{version} \
     libnvidia-ml.so.%{version} \
     libnvidia-opticalflow.so.%{version} \
     libnvidia-ptxjitcompiler.so.%{version} \
@@ -264,7 +267,11 @@ popd
 # Install additional cuda lib, ldconfig generates wrong .so name.
 rm -f %{buildroot}%{_libdir}/libnvvm.so.4
 ln -sf libnvidia-nvvm.so.4.0.0 %{buildroot}%{_libdir}/libnvidia-nvvm.so.4
-ln -sf libnvidia-nvvm.so.4 %{buildroot}%{_libdir}/libnvidia-nvvm.so																																
+ln -sf libnvidia-nvvm.so.4 %{buildroot}%{_libdir}/libnvidia-nvvm.so
+
+# GBM config
+install    -m 0755         -d %{buildroot}%{_datadir}/egl/egl_external_platform.d/
+install -p -m 0644 15_nvidia_gbm.json %{buildroot}%{_datadir}/egl/egl_external_platform.d/
 
 # Vulkan config
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
@@ -351,7 +358,7 @@ cat > %{buildroot}%{rpmmacrodir}/macros.%{name}-kmodsrc<< EOF
 %nvidia_kmodsrc_version	%{version}
 EOF
 
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?fedora} > 36|| 0%{?rhel} > 7
 # install AppData and add modalias provides
 mkdir -p %{buildroot}%{_metainfodir}/
 install -pm 0644 %{SOURCE8} %{buildroot}%{_metainfodir}/
@@ -437,7 +444,7 @@ fi ||:
 %{_udevrulesdir}/10-nvidia.rules
 %{_udevrulesdir}/60-nvidia.rules
 %{_unitdir}/nvidia-fallback.service
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?fedora} > 36|| 0%{?rhel} > 7
 %{_metainfodir}/%{name}.metainfo.xml
 %{_datadir}/pixmaps/%{name}.png
 %endif
@@ -474,15 +481,18 @@ fi ||:
 %{_libdir}/libnvidia-allocator.so.%{version}
 %ifarch x86_64
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
+%{_datadir}/egl/egl_external_platform.d/15_nvidia_gbm.json
 %{_datadir}/vulkan/icd.d/nvidia_icd.json
-%{_libdir}/libnvidia-cbl.so.%{version}
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
+%{_libdir}/libnvidia-egl-gbm.so.1
+%{_libdir}/libnvidia-egl-gbm.so.1.1.0
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
 %{_libdir}/libnvidia-rtcore.so.%{version}
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
+%{_libdir}/libnvidia-vulkan-producer.so.495.29.05
 %{_winedir}/
 %endif
 %{_libdir}/libnvidia-eglcore.so.%{version}
@@ -491,8 +501,6 @@ fi ||:
 %{_libdir}/libnvidia-glcore.so.%{version}
 %{_libdir}/libnvidia-glsi.so.%{version}
 %{_libdir}/libnvidia-glvkspirv.so.%{version}
-%{_libdir}/libnvidia-ifr.so.1
-%{_libdir}/libnvidia-ifr.so.%{version}
 %{_libdir}/libnvidia-tls.so.%{version}
 %{_libdir}/vdpau/libvdpau_nvidia.so.1
 %{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
@@ -565,6 +573,9 @@ fi ||:
 %endif
 
 %changelog
+* Thu Oct 14 2021 Leigh Scott <leigh123linux@gmail.com> - 3:495.29.05-1
+- Update to 495.29.05 beta
+
 * Mon Sep 20 2021 Leigh Scott <leigh123linux@gmail.com> - 3:470.74-1
 - Update to 470.74 release
 
