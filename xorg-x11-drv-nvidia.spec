@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         495.29.05
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -166,7 +166,7 @@ Requires:        libglvnd-opengl%{?_isa} >= 0.2
 Requires:        vulkan-loader%{?_isa}
 %ifarch x86_64
 # Boolean dependencies are only fedora and el8
-Requires:        egl-wayland%{?_isa} >= 1.1.9
+Requires:        egl-wayland%{?_isa} >= 1.1.9-2
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
 %else
@@ -259,8 +259,8 @@ install -D -p -m 0755 libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau
 ln -sf libvdpau_nvidia.so.%{version} %{buildroot}%{_libdir}/vdpau/libvdpau_nvidia.so.1
 
 # GBM symlink
-mkdir %{buildroot}%{_libdir}/gbm/
-ln -sf ../libnvidia-allocator.so.1 %{buildroot}%{_libdir}/gbm/nvidia-drm_gbm.so
+install    -m 0755         -d %{buildroot}%{_libdir}/gbm/
+ln -sf ../libnvidia-allocator.so.%{version} %{buildroot}%{_libdir}/gbm/nvidia-drm_gbm.so
 
 %ifarch i686
 popd
@@ -271,10 +271,6 @@ popd
 rm -f %{buildroot}%{_libdir}/libnvvm.so.4
 ln -sf libnvidia-nvvm.so.4.0.0 %{buildroot}%{_libdir}/libnvidia-nvvm.so.4
 ln -sf libnvidia-nvvm.so.4 %{buildroot}%{_libdir}/libnvidia-nvvm.so
-
-# GBM config
-install    -m 0755         -d %{buildroot}%{_datadir}/egl/egl_external_platform.d/
-install -p -m 0644 15_nvidia_gbm.json %{buildroot}%{_datadir}/egl/egl_external_platform.d/
 
 # Vulkan config
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
@@ -485,7 +481,6 @@ fi ||:
 %{_libdir}/gbm/
 %ifarch x86_64
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
-%{_datadir}/egl/egl_external_platform.d/15_nvidia_gbm.json
 %{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
@@ -577,6 +572,9 @@ fi ||:
 %endif
 
 %changelog
+* Sat Oct 16 2021 Leigh Scott <leigh123linux@gmail.com> - 3:495.29.05-4
+- 15_nvidia_gbm.json moved to egl-wayland
+
 * Sat Oct 16 2021 Leigh Scott <leigh123linux@gmail.com> - 3:495.29.05-3
 - Fix symlink directory for nvidia-drm_gbm.so
 - Increase egl-wayland requires to 1.1.9
