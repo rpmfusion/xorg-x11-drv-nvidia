@@ -172,9 +172,9 @@ Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa
 %else
 Requires:        vulkan-filesystem
 %endif
-Requires:        mesa-libEGL%{?_isa} >= 21.2.0
-Requires:        mesa-libGL%{?_isa} >= 21.2.0
-Requires:        mesa-libGLES%{?_isa} >= 21.2.0
+Requires:        mesa-libEGL%{?_isa}
+Requires:        mesa-libGL%{?_isa}
+Requires:        mesa-libGLES%{?_isa}
 
 
 %description libs
