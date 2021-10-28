@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         495.44
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -573,6 +573,10 @@ fi ||:
 %endif
 
 %changelog
+* Thu Oct 28 2021 Nicolas Chauvet <kwizart@gmail.com> - 3:495.44-2
+- Update egl-wayland deps
+- Drop mesa version enforcing
+
 * Tue Oct 26 2021 Leigh Scott <leigh123linux@gmail.com> - 3:495.44-1
 - Update to 495.44 release
 
