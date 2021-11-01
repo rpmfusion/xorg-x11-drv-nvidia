@@ -253,7 +253,7 @@ cp -af \
 ldconfig -vn %{buildroot}%{_libdir}/
 
 # Libraries you can link against
-for lib in libcuda libnvcuvid libnvidia-encode libnvidia-vulkan-producer; do
+for lib in libcuda libnvcuvid libnvidia-encode; do
     ln -sf $lib.so.%{version} %{buildroot}%{_libdir}/$lib.so
 done
 
@@ -275,10 +275,11 @@ rm -f %{buildroot}%{_libdir}/libnvvm.so.4
 ln -sf libnvidia-nvvm.so.4.0.0 %{buildroot}%{_libdir}/libnvidia-nvvm.so.4
 ln -sf libnvidia-nvvm.so.4 %{buildroot}%{_libdir}/libnvidia-nvvm.so
 
-# Vulkan config
+# Vulkan config and symlink
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
 install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/
 install -p -m 0644 nvidia_layers.json %{buildroot}%{_datadir}/vulkan/implicit_layer.d/
+ln -sf libnvidia-vulkan-producer.so.%{version} %{buildroot}%{_libdir}/libnvidia-vulkan-producer.so
 
 # X DDX driver and GLX extension
 install -p -D -m 0755 libglxserver_nvidia.so.%{version} %{buildroot}%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
