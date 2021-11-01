@@ -88,7 +88,7 @@ Conflicts:       xorg-x11-drv-nvidia-390xx
 %description
 This package provides the most recent NVIDIA display driver which allows for
 hardware accelerated rendering with current NVIDIA chipsets series.
-GF8x, GF9x, and GT2xx GPUs NOT supported by this release.
+Fermi and Kelper GPUs NOT supported by this release.
 
 For the full product support list, please consult the release notes
 http://download.nvidia.com/XFree86/Linux-x86_64/%{version}/README/index.html
