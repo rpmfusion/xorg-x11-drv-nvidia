@@ -82,7 +82,7 @@ Conflicts:       xorg-x11-drv-nvidia-340xx
 Conflicts:       xorg-x11-drv-nvidia-390xx
 
 %global         __provides_exclude ^(lib.*GL.*\\.so.*)$
-%global         __requires_exclude ^libglxserver_nvidia.so|^(lib.*GL.*\\.so.*)$
+%global         __requires_exclude ^libnvidia-vulkan-producer.so|^libglxserver_nvidia.so|^(lib.*GL.*\\.so.*)$
 
 
 %description
@@ -253,7 +253,7 @@ cp -af \
 ldconfig -vn %{buildroot}%{_libdir}/
 
 # Libraries you can link against
-for lib in libcuda libnvcuvid libnvidia-encode; do
+for lib in libcuda libnvcuvid libnvidia-encode libnvidia-vulkan-producer; do
     ln -sf $lib.so.%{version} %{buildroot}%{_libdir}/$lib.so
 done
 
@@ -495,6 +495,7 @@ fi ||:
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %{_libdir}/libnvidia-vulkan-producer.so.%{version}
+%{_libdir}/libnvidia-vulkan-producer.so
 %{_winedir}/
 %endif
 %{_libdir}/libnvidia-eglcore.so.%{version}
