@@ -25,7 +25,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         495.44
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -576,6 +576,9 @@ fi ||:
 %endif
 
 %changelog
+* Mon Nov 01 2021 Leigh Scott <leigh123linux@gmail.com> - 3:495.44-3
+- Add libnvidia-vulkan-producer symlink
+
 * Thu Oct 28 2021 Nicolas Chauvet <kwizart@gmail.com> - 3:495.44-2
 - Update egl-wayland deps
 - Drop mesa version enforcing
