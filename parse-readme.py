@@ -15,7 +15,7 @@ def main():
     in_section = False
     in_table = False
     pids = []
-    sections = ["NVIDIA GEFORCE GPUS", "NVIDIA RTX/QUADRO GPUS", "NVIDIA NVS GPUS", "NVIDIA TESLA GPUS", "NVIDIA GRID GPUS"]
+    sections = ["CURRENT NVIDIA GPUS"]
     for section in sections:
 
         for line in f.readlines():

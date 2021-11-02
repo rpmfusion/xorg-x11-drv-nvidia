@@ -25,7 +25,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         495.44
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -361,7 +361,7 @@ cat > %{buildroot}%{rpmmacrodir}/macros.%{name}-kmodsrc<< EOF
 %nvidia_kmodsrc_version	%{version}
 EOF
 
-%if 0%{?fedora} > 36|| 0%{?rhel} > 7
+%if 0%{?fedora} || 0%{?rhel} > 7
 # install AppData and add modalias provides
 mkdir -p %{buildroot}%{_metainfodir}/
 install -pm 0644 %{SOURCE8} %{buildroot}%{_metainfodir}/
@@ -447,7 +447,7 @@ fi ||:
 %{_udevrulesdir}/10-nvidia.rules
 %{_udevrulesdir}/60-nvidia.rules
 %{_unitdir}/nvidia-fallback.service
-%if 0%{?fedora} > 36|| 0%{?rhel} > 7
+%if 0%{?fedora} || 0%{?rhel} > 7
 %{_metainfodir}/%{name}.metainfo.xml
 %{_datadir}/pixmaps/%{name}.png
 %endif
@@ -577,6 +577,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Nov 02 2021 Leigh Scott <leigh123linux@gmail.com> - 3:495.44-4
+- Fix appdata
+
 * Mon Nov 01 2021 Leigh Scott <leigh123linux@gmail.com> - 3:495.44-3
 - Add libnvidia-vulkan-producer symlink
 
