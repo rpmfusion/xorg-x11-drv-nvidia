@@ -35,7 +35,7 @@ Source5:         alternate-install-present
 Source6:         nvidia.conf
 Source7:         60-nvidia.rules
 Source8:         xorg-x11-drv-nvidia.metainfo.xml
-Source9:         parse-readme.py
+Source9:         parse-supported-gpus.py
 Source10:        60-nvidia-uvm.rules
 Source11:        nvidia-uvm.conf
 Source12:        99-nvidia-dracut.conf
@@ -363,9 +363,8 @@ EOF
 
 %if 0%{?fedora} || 0%{?rhel} > 7
 # install AppData and add modalias provides
-mkdir -p %{buildroot}%{_metainfodir}/
-install -pm 0644 %{SOURCE8} %{buildroot}%{_metainfodir}/
-%{SOURCE9} README.txt | xargs appstream-util add-provide %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml modalias
+install -D -p -m 0644 %{SOURCE8} %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml
+%{SOURCE9} supported-gpus/supported-gpus.json | xargs appstream-util add-provide %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml modalias
 mkdir -p %{buildroot}%{_datadir}/pixmaps
 install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps/%{name}.png
 %endif
