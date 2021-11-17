@@ -253,7 +253,7 @@ cp -af \
 ldconfig -vn %{buildroot}%{_libdir}/
 
 # Libraries you can link against
-for lib in libcuda libnvcuvid libnvidia-encode; do
+for lib in libcuda libnvcuvid libnvidia-encode libnvidia-ml; do
     ln -sf $lib.so.%{version} %{buildroot}%{_libdir}/$lib.so
 done
 
@@ -529,6 +529,7 @@ fi ||:
 %{_libdir}/libnvcuvid.so.%{version}
 %{_libdir}/libnvidia-encode.so.1
 %{_libdir}/libnvidia-encode.so.%{version}
+%{_libdir}/libnvidia-ml.so
 %{_libdir}/libnvidia-ml.so.1
 %{_libdir}/libnvidia-ml.so.%{version}
 %{_libdir}/libnvidia-ptxjitcompiler.so.1
