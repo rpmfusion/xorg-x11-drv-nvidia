@@ -17,20 +17,32 @@
       graphics driver supports all modern NVIDIA GPUs.
     </p>
   </description>
-  <translation/>
   <url type="homepage">http://www.nvidia.com/</url>
   <icon type="local" width="128" height="128">/usr/share/pixmaps/xorg-x11-drv-nvidia.png</icon>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>LicenseRef-proprietary:NVIDIA</project_license>
   <developer_name>NVIDIA Corporation</developer_name>
   <keywords>
-    <keyword>NVIDIA</keyword>
-    <keyword>driver</keyword>
-    <keyword>GeForce</keyword>
     <keyword>CUDA</keyword>
-    <keyword>Quadro</keyword>
-    <keyword>Vulkan</keyword>
+    <keyword>GeForce</keyword>
+    <keyword>NVIDIA</keyword>
     <keyword>OpenGL</keyword>
+    <keyword>Quadro</keyword>
+    <keyword>Tesla</keyword>
+    <keyword>Video</keyword>
+    <keyword>Vulkan</keyword>
+    <keyword>av1</keyword>
+    <keyword>avc</keyword>
+    <keyword>driver</keyword>
+    <keyword>h264</keyword>
+    <keyword>h265</keyword>
+    <keyword>hevc</keyword>
+    <keyword>jpeg</keyword>
+    <keyword>mpeg2</keyword>
+    <keyword>vaapi</keyword>
+    <keyword>vc-1</keyword>
+    <keyword>vp8</keyword>
+    <keyword>vp9</keyword>
   </keywords>
   <url type="bugtracker">https://bugzilla.rpmfusion.org</url>
   <update_contact>xorg-x11-drv-nvidia-owner@rpmfusion.org</update_contact>
