@@ -67,7 +67,7 @@ Suggests:         acpica-tools
 Suggests:         vulkan-tools
 %ifarch x86_64
 Recommends:       %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
-Recommends:        %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
+Recommends:       %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
 %endif
 %else
 BuildRequires:    systemd
