@@ -1,6 +1,7 @@
 # Enable complete power management. From:
 # file:///usr/share/doc/nvidia-driver/html/powermanagement.html
 
+enable nvidia-powerd.service
 enable nvidia-suspend.service
 enable nvidia-hibernate.service
 

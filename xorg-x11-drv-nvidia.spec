@@ -24,7 +24,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         495.46
+Version:         510.39.01
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -67,7 +67,7 @@ Suggests:         acpica-tools
 Suggests:         vulkan-tools
 %ifarch x86_64
 Recommends:       %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
-Suggests:         %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
+Recommends:        %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
 %endif
 %else
 BuildRequires:    systemd
@@ -227,6 +227,7 @@ cp -a \
     libnvidia-allocator.so.%{version} \
 %ifarch x86_64
     libnvidia-cfg.so.%{version} \
+    libnvidia-compiler-next.so.%{version} \
     libnvidia-ngx.so.%{version} \
     libnvidia-nvvm.so.4.0.0 \
     libnvidia-rtcore.so.%{version} \
@@ -313,7 +314,7 @@ install -p -m 0644 %{SOURCE12} %{buildroot}%{_dracut_conf_d}/
 
 # Install binaries
 install -m 0755 -d %{buildroot}%{_bindir}
-install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater} \
+install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater,powerd} \
   %{buildroot}%{_bindir}
 
 # Install man pages
@@ -379,7 +380,7 @@ install -p -m 0644 %{SOURCE14} %{buildroot}%{_unitdir}
 # Systemd units and script for suspending/resuming
 mkdir %{buildroot}%{_systemd_util_dir}/system-{sleep,preset}/
 install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
-install -p -m 0644 systemd/system/nvidia-{hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
+install -p -m 0644 systemd/system/nvidia-{hibernate,powerd,resume,suspend}.service %{buildroot}%{_unitdir}
 install -p -m 0755 systemd/system-sleep/nvidia %{buildroot}%{_systemd_util_dir}/system-sleep/
 install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
@@ -542,6 +543,7 @@ fi ||:
 %{_libdir}/libnvidia-opticalflow.so.1
 %{_libdir}/libnvidia-opticalflow.so.%{version}
 %ifarch x86_64
+%{_libdir}/libnvidia-compiler-next.so.%{version}
 %{_libdir}/libnvidia-nvvm.so
 %{_libdir}/libnvidia-nvvm.so.4*
 %{_modprobedir}/nvidia-uvm.conf
@@ -555,30 +557,38 @@ fi ||:
 %ifarch x86_64
 %post power
 %systemd_post nvidia-hibernate.service
+%systemd_post nvidia-powerd.service
 %systemd_post nvidia-resume.service
 %systemd_post nvidia-suspend.service
 
 %preun power
 %systemd_preun nvidia-hibernate.service
+%systemd_preun nvidia-powerd.service
 %systemd_preun nvidia-resume.service
 %systemd_preun nvidia-suspend.service
 
 %postun power
 %systemd_postun nvidia-hibernate.service
+%systemd_postun nvidia-powerd.service
 %systemd_postun nvidia-resume.service
 %systemd_postun nvidia-suspend.service
 
 %files power
 %config %{_modprobedir}/nvidia-power-management.conf
+%{_bindir}/nvidia-powerd
 %{_bindir}/nvidia-sleep.sh
 %{_systemd_util_dir}/system-preset/70-nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
 %{_unitdir}/nvidia-hibernate.service
+%{_unitdir}/nvidia-powerd.service
 %{_unitdir}/nvidia-resume.service
 %{_unitdir}/nvidia-suspend.service
 %endif
 
 %changelog
+* Tue Jan 11 2022 Leigh Scott <leigh123linux@gmail.com> - 3:510.39.01-1
+- Update to 510.39.01 beta
+
 * Tue Dec 14 2021 Leigh Scott <leigh123linux@gmail.com> - 3:495.46-1
 - Update to 495.46 release
 
