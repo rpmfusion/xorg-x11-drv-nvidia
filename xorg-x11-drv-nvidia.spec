@@ -134,7 +134,7 @@ Requires:        opencl-filesystem
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 
 #Don't put an epoch here
-Provides:        cuda-drivers-510 = %{version}
+Provides:        cuda-drivers-%(echo %{version} | cut -f 1 -d .) = %{version}
 Provides:        cuda-drivers = %{version}.100
 Provides:        cuda-drivers%{?_isa} = %{version}.100
 Obsoletes:       cuda-drivers < %{version}.100
