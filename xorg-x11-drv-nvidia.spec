@@ -171,6 +171,9 @@ Requires:        vulkan-loader%{?_isa}
 %ifarch x86_64
 # Fedora 35 has early XWayland support using recent egl-wayland
 Requires:        egl-wayland%{?_isa} %{?fc35: >= 1.1.9-2}
+%if 0%{?fedora} > 34
+Requires:        egl-gbm%{?_isa}
+%endif
 # Boolean dependencies are only fedora and el8
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
@@ -233,7 +236,9 @@ cp -a \
     libnvidia-rtcore.so.%{version} \
     libnvoptix.so.%{version} \
     libnvidia-vulkan-producer.so.%{version} \
+%if 0%{?fedora} < 35
     libnvidia-egl-gbm.so.1.1.0 \
+%endif
 %endif
     libnvidia-eglcore.so.%{version} \
     libnvidia-encode.so.%{version} \
@@ -490,8 +495,10 @@ fi ||:
 %{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
+%if 0%{?fedora} < 35
 %{_libdir}/libnvidia-egl-gbm.so.1
 %{_libdir}/libnvidia-egl-gbm.so.1.1.0
+%endif
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
 %{_libdir}/libnvidia-rtcore.so.%{version}
