@@ -313,6 +313,12 @@ install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
 # UDev rules for nvidia-uvm
 install -p -m 0644 %{SOURCE10} %{buildroot}%{_udevrulesdir}
 
+# Install dbus config
+install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
+%ifnarch i686
+install -p -m 0644 nvidia-dbus.conf %{buildroot}%{_dbus_systemd_dir}
+%endif
+
 # dracut.conf.d file, nvidia modules must never be in the initrd
 install -p -m 0755 -d          %{buildroot}%{_dracut_conf_d}/
 install -p -m 0644 %{SOURCE12} %{buildroot}%{_dracut_conf_d}/
@@ -451,6 +457,7 @@ fi ||:
 %ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
+%{_dbus_systemd_dir}/nvidia-dbus.conf
 %{_udevrulesdir}/10-nvidia.rules
 %{_udevrulesdir}/60-nvidia.rules
 %{_unitdir}/nvidia-fallback.service
