@@ -13,6 +13,7 @@
 %else
 %global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
 %global        _modprobedir         %{_prefix}/lib/modprobe.d
+%global        _dbus_systemd_dir    %{_sysconfdir}/dbus-1/system.d
 %endif
 %if 0%{?rhel}
 %global        _systemd_util_dir    %{_prefix}/lib/systemd
