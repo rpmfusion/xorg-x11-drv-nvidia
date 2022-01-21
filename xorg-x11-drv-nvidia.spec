@@ -25,7 +25,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         510.39.01
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -600,6 +600,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri Jan 21 2022 Nicolas Chauvet <kwizart@gmail.com> - 3:510.39.01-2
+- Add dbus-nvidia.conf
+
 * Tue Jan 11 2022 Leigh Scott <leigh123linux@gmail.com> - 3:510.39.01-1
 - Update to 510.39.01 beta
 
