@@ -4,6 +4,7 @@
 # https://github.com/NVIDIA/nvidia-installer/blob/master/misc.c#L2556-L2558
 %global        _alternate_dir       %{_prefix}/lib/nvidia
 
+%global        _dbus_systemd_dir    %{_datadir}/dbus-1/system.d
 %global        _dracut_conf_d       %{_prefix}/lib/dracut/dracut.conf.d
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %global        _firmwarepath        %{_prefix}/lib/firmware
@@ -13,7 +14,6 @@
 %else
 %global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
 %global        _modprobedir         %{_prefix}/lib/modprobe.d
-%global        _dbus_systemd_dir    %{_sysconfdir}/dbus-1/system.d
 %endif
 %if 0%{?rhel}
 %global        _systemd_util_dir    %{_prefix}/lib/systemd
@@ -316,9 +316,7 @@ install -p -m 0644 %{SOURCE10} %{buildroot}%{_udevrulesdir}
 
 # Install dbus config
 install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
-%ifnarch i686
 install -p -m 0644 nvidia-dbus.conf %{buildroot}%{_dbus_systemd_dir}
-%endif
 
 # dracut.conf.d file, nvidia modules must never be in the initrd
 install -p -m 0755 -d          %{buildroot}%{_dracut_conf_d}/
@@ -431,9 +429,6 @@ if [ -f %{_sysconfdir}/default/grub ] ; then
 fi
 %{_grubby} --args='%{_dracutopts}' &>/dev/null || :
 
-%ldconfig_scriptlets libs
-%ldconfig_scriptlets cuda-libs
-
 %preun
 if [ "$1" -eq "0" ]; then
   %{_grubby} --remove-args='%{_dracutopts}' &>/dev/null
@@ -458,7 +453,6 @@ fi ||:
 %ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 %ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
-%{_dbus_systemd_dir}/nvidia-dbus.conf
 %{_udevrulesdir}/10-nvidia.rules
 %{_udevrulesdir}/60-nvidia.rules
 %{_unitdir}/nvidia-fallback.service
@@ -481,11 +475,7 @@ fi ||:
 %{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz
 %endif
 
-%ifarch i686
 %ldconfig_scriptlets libs
-%ldconfig_scriptlets cuda-libs
-%endif
-
 %files libs
 %{_libdir}/libEGL_nvidia.so.0
 %{_libdir}/libEGL_nvidia.so.%{version}
@@ -539,6 +529,7 @@ fi ||:
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
 %endif
 
+%ldconfig_scriptlets cuda-libs
 %files cuda-libs
 %{_libdir}/libcuda.so
 %{_libdir}/libcuda.so.1
@@ -592,6 +583,7 @@ fi ||:
 %config %{_modprobedir}/nvidia-power-management.conf
 %{_bindir}/nvidia-powerd
 %{_bindir}/nvidia-sleep.sh
+%{_dbus_systemd_dir}/nvidia-dbus.conf
 %{_systemd_util_dir}/system-preset/70-nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
 %{_unitdir}/nvidia-hibernate.service
