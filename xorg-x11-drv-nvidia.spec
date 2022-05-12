@@ -26,7 +26,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         515.43.04
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -355,7 +355,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/nvidia
 
 #Install the nvidia kernel modules sources archive
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
-tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz kernel-open
+tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz kernel
 
 #Install wine dll
 mkdir -p %{buildroot}%{_winedir}
@@ -587,6 +587,9 @@ fi ||:
 %endif
 
 %changelog
+* Thu May 12 2022 Leigh Scott <leigh123linux@gmail.com> - 3:515.43.04-3
+- kernel-open isn't ready for main stream use
+
 * Thu May 12 2022 Leigh Scott <leigh123linux@gmail.com> - 3:515.43.04-2
 - Remove nvidia-settings lib
 
