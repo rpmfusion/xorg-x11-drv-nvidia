@@ -26,7 +26,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         515.43.04
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -247,7 +247,6 @@ cp -a \
     libnvidia-ngx.so.%{version} \
     libnvidia-rtcore.so.%{version} \
     libnvidia-vulkan-producer.so.%{version} \
-    libnvidia-wayland-client.so.%{version} \
     libnvoptix.so.%{version} \
 %endif
     %{buildroot}%{_libdir}/
@@ -506,7 +505,6 @@ fi ||:
 %{_libdir}/libnvidia-rtcore.so.%{version}
 %{_libdir}/libnvidia-vulkan-producer.so.%{version}
 %{_libdir}/libnvidia-vulkan-producer.so
-%{_libdir}/libnvidia-wayland-client.so.%{version}
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %{_winedir}/
@@ -589,6 +587,9 @@ fi ||:
 %endif
 
 %changelog
+* Thu May 12 2022 Leigh Scott <leigh123linux@gmail.com> - 3:515.43.04-2
+- Remove nvidia-settings lib
+
 * Wed May 11 2022 Leigh Scott <leigh123linux@gmail.com> - 3:515.43.04-1
 - Update to 515.43.04 beta
 
