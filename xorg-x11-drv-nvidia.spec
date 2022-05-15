@@ -26,7 +26,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         515.43.04
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -587,6 +587,9 @@ fi ||:
 %endif
 
 %changelog
+* Sun May 15 2022 Nicolas Chauvet <kwizart@gmail.com> - 3:515.43.04-4
+- Add both kernel and kernel-open to the kmodsrc
+
 * Thu May 12 2022 Leigh Scott <leigh123linux@gmail.com> - 3:515.43.04-3
 - kernel-open isn't ready for main stream use
 
