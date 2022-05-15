@@ -4,6 +4,7 @@
 # https://github.com/NVIDIA/nvidia-installer/blob/master/misc.c#L2556-L2558
 %global        _alternate_dir       %{_prefix}/lib/nvidia
 
+%global        _dbus_systemd_dir    %{_datadir}/dbus-1/system.d
 %global        _dracut_conf_d       %{_prefix}/lib/dracut/dracut.conf.d
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %global        _firmwarepath        %{_prefix}/lib/firmware
@@ -24,8 +25,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         495.44
-Release:         4%{?dist}
+Version:         510.68.02
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -66,7 +67,8 @@ Suggests:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 Suggests:         acpica-tools
 Suggests:         vulkan-tools
 %ifarch x86_64
-Suggests:         %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
+Recommends:       %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
+Recommends:       %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
 %endif
 %else
 BuildRequires:    systemd
@@ -133,6 +135,7 @@ Requires:        opencl-filesystem
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 
 #Don't put an epoch here
+Provides:        cuda-drivers-%(echo %{version} | cut -f 1 -d .) = %{version}
 Provides:        cuda-drivers = %{version}.100
 Provides:        cuda-drivers%{?_isa} = %{version}.100
 Obsoletes:       cuda-drivers < %{version}.100
@@ -169,6 +172,9 @@ Requires:        vulkan-loader%{?_isa}
 %ifarch x86_64
 # Fedora 35 has early XWayland support using recent egl-wayland
 Requires:        egl-wayland%{?_isa} %{?fc35: >= 1.1.9-2}
+%if 0%{?fedora} > 34
+Requires:        egl-gbm%{?_isa}
+%endif
 # Boolean dependencies are only fedora and el8
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
@@ -225,12 +231,15 @@ cp -a \
     libnvidia-allocator.so.%{version} \
 %ifarch x86_64
     libnvidia-cfg.so.%{version} \
+    libnvidia-compiler-next.so.%{version} \
     libnvidia-ngx.so.%{version} \
     libnvidia-nvvm.so.4.0.0 \
     libnvidia-rtcore.so.%{version} \
     libnvoptix.so.%{version} \
     libnvidia-vulkan-producer.so.%{version} \
+%if 0%{?fedora} < 35
     libnvidia-egl-gbm.so.1.1.0 \
+%endif
 %endif
     libnvidia-eglcore.so.%{version} \
     libnvidia-encode.so.%{version} \
@@ -305,13 +314,17 @@ install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
 # UDev rules for nvidia-uvm
 install -p -m 0644 %{SOURCE10} %{buildroot}%{_udevrulesdir}
 
+# Install dbus config
+install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
+install -p -m 0644 nvidia-dbus.conf %{buildroot}%{_dbus_systemd_dir}
+
 # dracut.conf.d file, nvidia modules must never be in the initrd
 install -p -m 0755 -d          %{buildroot}%{_dracut_conf_d}/
 install -p -m 0644 %{SOURCE12} %{buildroot}%{_dracut_conf_d}/
 
 # Install binaries
 install -m 0755 -d %{buildroot}%{_bindir}
-install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater} \
+install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater,powerd} \
   %{buildroot}%{_bindir}
 
 # Install man pages
@@ -377,7 +390,7 @@ install -p -m 0644 %{SOURCE14} %{buildroot}%{_unitdir}
 # Systemd units and script for suspending/resuming
 mkdir %{buildroot}%{_systemd_util_dir}/system-{sleep,preset}/
 install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
-install -p -m 0644 systemd/system/nvidia-{hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
+install -p -m 0644 systemd/system/nvidia-{hibernate,powerd,resume,suspend}.service %{buildroot}%{_unitdir}
 install -p -m 0755 systemd/system-sleep/nvidia %{buildroot}%{_systemd_util_dir}/system-sleep/
 install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
@@ -415,9 +428,6 @@ if [ -f %{_sysconfdir}/default/grub ] ; then
   fi
 fi
 %{_grubby} --args='%{_dracutopts}' &>/dev/null || :
-
-%ldconfig_scriptlets libs
-%ldconfig_scriptlets cuda-libs
 
 %preun
 if [ "$1" -eq "0" ]; then
@@ -465,11 +475,7 @@ fi ||:
 %{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz
 %endif
 
-%ifarch i686
 %ldconfig_scriptlets libs
-%ldconfig_scriptlets cuda-libs
-%endif
-
 %files libs
 %{_libdir}/libEGL_nvidia.so.0
 %{_libdir}/libEGL_nvidia.so.%{version}
@@ -487,8 +493,10 @@ fi ||:
 %{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
+%if 0%{?fedora} < 35
 %{_libdir}/libnvidia-egl-gbm.so.1
 %{_libdir}/libnvidia-egl-gbm.so.1.1.0
+%endif
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
 %{_libdir}/libnvidia-rtcore.so.%{version}
@@ -521,6 +529,7 @@ fi ||:
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
 %endif
 
+%ldconfig_scriptlets cuda-libs
 %files cuda-libs
 %{_libdir}/libcuda.so
 %{_libdir}/libcuda.so.1
@@ -540,6 +549,7 @@ fi ||:
 %{_libdir}/libnvidia-opticalflow.so.1
 %{_libdir}/libnvidia-opticalflow.so.%{version}
 %ifarch x86_64
+%{_libdir}/libnvidia-compiler-next.so.%{version}
 %{_libdir}/libnvidia-nvvm.so
 %{_libdir}/libnvidia-nvvm.so.4*
 %{_modprobedir}/nvidia-uvm.conf
@@ -553,30 +563,57 @@ fi ||:
 %ifarch x86_64
 %post power
 %systemd_post nvidia-hibernate.service
+%systemd_post nvidia-powerd.service
 %systemd_post nvidia-resume.service
 %systemd_post nvidia-suspend.service
 
 %preun power
 %systemd_preun nvidia-hibernate.service
+%systemd_preun nvidia-powerd.service
 %systemd_preun nvidia-resume.service
 %systemd_preun nvidia-suspend.service
 
 %postun power
 %systemd_postun nvidia-hibernate.service
+%systemd_postun nvidia-powerd.service
 %systemd_postun nvidia-resume.service
 %systemd_postun nvidia-suspend.service
 
 %files power
 %config %{_modprobedir}/nvidia-power-management.conf
+%{_bindir}/nvidia-powerd
 %{_bindir}/nvidia-sleep.sh
+%{_dbus_systemd_dir}/nvidia-dbus.conf
 %{_systemd_util_dir}/system-preset/70-nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
 %{_unitdir}/nvidia-hibernate.service
+%{_unitdir}/nvidia-powerd.service
 %{_unitdir}/nvidia-resume.service
 %{_unitdir}/nvidia-suspend.service
 %endif
 
 %changelog
+* Tue Apr 26 2022 Nicolas Chauvet <kwizart@gmail.com> - 3:510.68.02-1
+- Update to 510.68.02
+
+* Wed Mar 23 2022 Leigh Scott <leigh123linux@gmail.com> - 3:510.60.02-1
+- Update to 510.60.02 release
+
+* Mon Feb 14 2022 Nicolas Chauvet <kwizart@gmail.com> - 3:510.54-1
+- Update to 510.54
+
+* Tue Feb 01 2022 Leigh Scott <leigh123linux@gmail.com> - 3:510.47.03-1
+- Update to 510.47.03 release
+
+* Fri Jan 21 2022 Nicolas Chauvet <kwizart@gmail.com> - 3:510.39.01-2
+- Add dbus-nvidia.conf
+
+* Tue Jan 11 2022 Leigh Scott <leigh123linux@gmail.com> - 3:510.39.01-1
+- Update to 510.39.01 beta
+
+* Tue Dec 14 2021 Leigh Scott <leigh123linux@gmail.com> - 3:495.46-1
+- Update to 495.46 release
+
 * Tue Nov 02 2021 Leigh Scott <leigh123linux@gmail.com> - 3:495.44-4
 - Fix appdata
 
