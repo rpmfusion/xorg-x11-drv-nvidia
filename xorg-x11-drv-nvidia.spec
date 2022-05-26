@@ -26,7 +26,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         510.68.02
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -411,7 +411,7 @@ if [ "$1" -eq "1" ]; then
   sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
 fi || :
 
-%triggerun -- xorg-x11-drv-nvidia < 3:384.59-5
+%triggerun -- xorg-x11-drv-nvidia < 3:510.68.02-2
 if [ -f %{_sysconfdir}/default/grub ] ; then
   sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
   . %{_sysconfdir}/default/grub
@@ -593,6 +593,9 @@ fi ||:
 %endif
 
 %changelog
+* Thu May 26 2022 Leigh Scott <leigh123linux@gmail.com> - 3:510.68.02-2
+- Add option to blacklist simpledrm
+
 * Tue Apr 26 2022 Nicolas Chauvet <kwizart@gmail.com> - 3:510.68.02-1
 - Update to 510.68.02
 
