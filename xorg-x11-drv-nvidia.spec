@@ -25,8 +25,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         515.43.04
-Release:         5%{?dist}
+Version:         515.48.07
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -587,6 +587,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue May 31 2022 Nicolas Chauvet <kwizart@gmail.com> - 3:515.48.07-1
+- Update to 515.48.07
+
 * Thu May 26 2022 Leigh Scott <leigh123linux@gmail.com> - 3:515.43.04-5
 - Add option to blacklist simpledrm
 
