@@ -25,8 +25,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         510.68.02
-Release:         2%{?dist}
+Version:         515.57
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -229,18 +229,6 @@ cp -a \
     libGLX_nvidia.so.%{version} \
     libnvcuvid.so.%{version} \
     libnvidia-allocator.so.%{version} \
-%ifarch x86_64
-    libnvidia-cfg.so.%{version} \
-    libnvidia-compiler-next.so.%{version} \
-    libnvidia-ngx.so.%{version} \
-    libnvidia-nvvm.so.4.0.0 \
-    libnvidia-rtcore.so.%{version} \
-    libnvoptix.so.%{version} \
-    libnvidia-vulkan-producer.so.%{version} \
-%if 0%{?fedora} < 35
-    libnvidia-egl-gbm.so.1.1.0 \
-%endif
-%endif
     libnvidia-eglcore.so.%{version} \
     libnvidia-encode.so.%{version} \
     libnvidia-fbc.so.%{version} \
@@ -248,21 +236,32 @@ cp -a \
     libnvidia-glsi.so.%{version} \
     libnvidia-glvkspirv.so.%{version} \
     libnvidia-ml.so.%{version} \
+    libnvidia-nvvm.so.%{version} \
     libnvidia-opticalflow.so.%{version} \
     libnvidia-ptxjitcompiler.so.%{version} \
+%ifarch x86_64
+    libnvidia-cfg.so.%{version} \
+%if 0%{?fedora} < 35
+    libnvidia-egl-gbm.so.1.1.0 \
+%endif
+    libnvidia-ngx.so.%{version} \
+    libnvidia-rtcore.so.%{version} \
+    libnvidia-vulkan-producer.so.%{version} \
+    libnvoptix.so.%{version} \
+%endif
     %{buildroot}%{_libdir}/
 
 cp -af \
-    libnvidia-tls.so.%{version} \
     libnvidia-compiler.so.%{version} \
     libnvidia-opencl.so.%{version} \
+    libnvidia-tls.so.%{version} \
     %{buildroot}%{_libdir}/
 
 # Use ldconfig for libraries with a mismatching SONAME/filename
 ldconfig -vn %{buildroot}%{_libdir}/
 
 # Libraries you can link against
-for lib in libcuda libnvcuvid libnvidia-encode libnvidia-ml; do
+for lib in libcuda libnvcuvid libnvidia-encode libnvidia-ml libnvidia-nvvm; do
     ln -sf $lib.so.%{version} %{buildroot}%{_libdir}/$lib.so
 done
 
@@ -279,11 +278,6 @@ popd
 %endif
 
 %ifarch x86_64
-# Install additional cuda lib, ldconfig generates wrong .so name.
-rm -f %{buildroot}%{_libdir}/libnvvm.so.4
-ln -sf libnvidia-nvvm.so.4.0.0 %{buildroot}%{_libdir}/libnvidia-nvvm.so.4
-ln -sf libnvidia-nvvm.so.4 %{buildroot}%{_libdir}/libnvidia-nvvm.so
-
 # Vulkan config and symlink
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
 install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/
@@ -361,7 +355,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/nvidia
 
 #Install the nvidia kernel modules sources archive
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
-tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz kernel
+tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz kernel kernel-open
 
 #Install wine dll
 mkdir -p %{buildroot}%{_winedir}
@@ -411,7 +405,7 @@ if [ "$1" -eq "1" ]; then
   sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
 fi || :
 
-%triggerun -- xorg-x11-drv-nvidia < 3:510.68.02-2
+%triggerun -- xorg-x11-drv-nvidia < 3:515.43.04-5
 if [ -f %{_sysconfdir}/default/grub ] ; then
   sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
   . %{_sysconfdir}/default/grub
@@ -487,7 +481,16 @@ fi ||:
 %{_libdir}/libGLX_nvidia.so.%{version}
 %{_libdir}/libnvidia-allocator.so.1
 %{_libdir}/libnvidia-allocator.so.%{version}
+%{_libdir}/libnvidia-eglcore.so.%{version}
+%{_libdir}/libnvidia-fbc.so.1
+%{_libdir}/libnvidia-fbc.so.%{version}
+%{_libdir}/libnvidia-glcore.so.%{version}
+%{_libdir}/libnvidia-glsi.so.%{version}
+%{_libdir}/libnvidia-glvkspirv.so.%{version}
+%{_libdir}/libnvidia-tls.so.%{version}
 %{_libdir}/gbm/
+%{_libdir}/vdpau/libvdpau_nvidia.so.1
+%{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
 %ifarch x86_64
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
 %{_datadir}/vulkan/icd.d/nvidia_icd.json
@@ -500,33 +503,24 @@ fi ||:
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
 %{_libdir}/libnvidia-rtcore.so.%{version}
-%{_libdir}/libnvoptix.so.1
-%{_libdir}/libnvoptix.so.%{version}
 %{_libdir}/libnvidia-vulkan-producer.so.%{version}
 %{_libdir}/libnvidia-vulkan-producer.so
+%{_libdir}/libnvoptix.so.1
+%{_libdir}/libnvoptix.so.%{version}
 %{_winedir}/
 %endif
-%{_libdir}/libnvidia-eglcore.so.%{version}
-%{_libdir}/libnvidia-fbc.so.1
-%{_libdir}/libnvidia-fbc.so.%{version}
-%{_libdir}/libnvidia-glcore.so.%{version}
-%{_libdir}/libnvidia-glsi.so.%{version}
-%{_libdir}/libnvidia-glvkspirv.so.%{version}
-%{_libdir}/libnvidia-tls.so.%{version}
-%{_libdir}/vdpau/libvdpau_nvidia.so.1
-%{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
 
 %ifarch x86_64
 %files cuda
 %license nvidiapkg/LICENSE
+%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
+%{_bindir}/nvidia-cuda-mps-control
+%{_bindir}/nvidia-cuda-mps-server
 %{_bindir}/nvidia-debugdump
 %{_bindir}/nvidia-ngx-updater
 %{_bindir}/nvidia-smi
-%{_bindir}/nvidia-cuda-mps-control
-%{_bindir}/nvidia-cuda-mps-server
-%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
-%{_mandir}/man1/nvidia-smi.*
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
+%{_mandir}/man1/nvidia-smi.*
 %endif
 
 %ldconfig_scriptlets cuda-libs
@@ -536,22 +530,22 @@ fi ||:
 %{_libdir}/libcuda.so.%{version}
 %{_libdir}/libnvcuvid.so.1
 %{_libdir}/libnvcuvid.so.%{version}
+%{_libdir}/libnvidia-compiler.so.%{version}
 %{_libdir}/libnvidia-encode.so.1
 %{_libdir}/libnvidia-encode.so.%{version}
 %{_libdir}/libnvidia-ml.so
 %{_libdir}/libnvidia-ml.so.1
 %{_libdir}/libnvidia-ml.so.%{version}
-%{_libdir}/libnvidia-ptxjitcompiler.so.1
-%{_libdir}/libnvidia-ptxjitcompiler.so.%{version}
-%{_libdir}/libnvidia-compiler.so.%{version}
+%{_libdir}/libnvidia-nvvm.so
+%{_libdir}/libnvidia-nvvm.so.4
+%{_libdir}/libnvidia-nvvm.so.%{version}
 %{_libdir}/libnvidia-opencl.so.1
 %{_libdir}/libnvidia-opencl.so.%{version}
 %{_libdir}/libnvidia-opticalflow.so.1
 %{_libdir}/libnvidia-opticalflow.so.%{version}
+%{_libdir}/libnvidia-ptxjitcompiler.so.1
+%{_libdir}/libnvidia-ptxjitcompiler.so.%{version}
 %ifarch x86_64
-%{_libdir}/libnvidia-compiler-next.so.%{version}
-%{_libdir}/libnvidia-nvvm.so
-%{_libdir}/libnvidia-nvvm.so.4*
 %{_modprobedir}/nvidia-uvm.conf
 %{_udevrulesdir}/60-nvidia-uvm.rules
 %endif
@@ -593,8 +587,26 @@ fi ||:
 %endif
 
 %changelog
-* Thu May 26 2022 Leigh Scott <leigh123linux@gmail.com> - 3:510.68.02-2
+* Tue Jun 28 2022 Leigh Scott <leigh123linux@gmail.com> - 3:515.57-1
+- Update to 515.57
+
+* Tue May 31 2022 Nicolas Chauvet <kwizart@gmail.com> - 3:515.48.07-1
+- Update to 515.48.07
+
+* Thu May 26 2022 Leigh Scott <leigh123linux@gmail.com> - 3:515.43.04-5
 - Add option to blacklist simpledrm
+
+* Sun May 15 2022 Nicolas Chauvet <kwizart@gmail.com> - 3:515.43.04-4
+- Add both kernel and kernel-open to the kmodsrc
+
+* Thu May 12 2022 Leigh Scott <leigh123linux@gmail.com> - 3:515.43.04-3
+- kernel-open isn't ready for main stream use
+
+* Thu May 12 2022 Leigh Scott <leigh123linux@gmail.com> - 3:515.43.04-2
+- Remove nvidia-settings lib
+
+* Wed May 11 2022 Leigh Scott <leigh123linux@gmail.com> - 3:515.43.04-1
+- Update to 515.43.04 beta
 
 * Tue Apr 26 2022 Nicolas Chauvet <kwizart@gmail.com> - 3:510.68.02-1
 - Update to 510.68.02
