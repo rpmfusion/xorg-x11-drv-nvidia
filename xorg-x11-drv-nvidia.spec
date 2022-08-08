@@ -355,7 +355,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/nvidia
 
 #Install the nvidia kernel modules sources archive
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
-tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz kernel kernel-open
+tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz kernel
 
 #Install wine dll
 mkdir -p %{buildroot}%{_winedir}
