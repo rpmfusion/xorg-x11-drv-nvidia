@@ -10,7 +10,7 @@
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
 %if 0%{?fedora} || 0%{?rhel} > 7
-%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1 initcall_blacklist=simpledrm_platform_driver_init
+%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
 %else
 %global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
 %global        _modprobedir         %{_prefix}/lib/modprobe.d
@@ -25,7 +25,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         515.65.01
+Version:         515.76
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -80,6 +80,8 @@ Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 
 Obsoletes:       %{_nvidia_serie}-kmod < %{?epoch}:%{version}
 Provides:        %{_nvidia_serie}-kmod-common = %{?epoch}:%{version}
+# Support nvidia-open-kmod
+Provides:        %{_nvidia_serie}-open-kmod-common = %{?epoch}:%{version}
 Conflicts:       xorg-x11-drv-nvidia-340xx
 Conflicts:       xorg-x11-drv-nvidia-390xx
 
@@ -587,6 +589,12 @@ fi ||:
 %endif
 
 %changelog
+* Wed Sep 21 2022 Leigh Scott <leigh123linux@gmail.com> - 3:515.76-1
+- Update to 515.76
+
+* Fri Aug 12 2022 Nicolas Chauvet <kwizart@gmail.com> - 3:515.65.01-2
+- Add support for nvidia-open-kmod
+
 * Thu Aug 04 2022 Leigh Scott <leigh123linux@gmail.com> - 3:515.65.01-1
 - Update to 515.65.01
 
