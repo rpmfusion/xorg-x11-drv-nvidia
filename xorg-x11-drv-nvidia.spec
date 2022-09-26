@@ -22,6 +22,7 @@
 %global        debug_package %{nil}
 %global        __strip /bin/true
 %global        __brp_ldconfig %{nil}
+%undefine      _missing_build_ids_terminate_build
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
