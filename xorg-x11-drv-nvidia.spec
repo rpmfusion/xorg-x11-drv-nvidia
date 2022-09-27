@@ -179,7 +179,9 @@ Requires:        egl-wayland%{?_isa} %{?fc35: >= 1.1.9-2}
 Requires:        egl-gbm%{?_isa}
 %endif
 # Boolean dependencies are only fedora and el8
+%ifarch x86_64
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
+%endif
 %endif
 %else
 Requires:        vulkan-filesystem
