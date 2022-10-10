@@ -56,14 +56,14 @@ Requires(post):   ldconfig
 Requires(postun): ldconfig
 Requires(post):   grubby
 Requires:         which
-Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
+Requires:         nvidia-settings%{?_isa} >= %{?epoch}:%{version}
 %if 0%{?fedora} || 0%{?rhel} > 7
 BuildRequires:    systemd-rpm-macros
 # AppStream metadata generation
 BuildRequires:    python3
 BuildRequires:    libappstream-glib >= 0.6.3
 # Needed so nvidia-settings can write broken configs
-Suggests:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
+Suggests:         nvidia-xconfig%{?_isa} >= %{?epoch}:%{version}
 # nvidia-bug-report.sh requires needed to provide extra info
 Suggests:         acpica-tools
 Suggests:         vulkan-tools
@@ -73,7 +73,7 @@ Recommends:       %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
 %endif
 %else
 BuildRequires:    systemd
-Requires:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
+Requires:         nvidia-xconfig%{?_isa} >= %{?epoch}:%{version}
 %endif
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
@@ -120,15 +120,15 @@ This package provides the development files of the %{name} package.
 Summary:         CUDA driver for %{name}
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
-Requires:        nvidia-persistenced%{?_isa} = %{?epoch}:%{version}
+Requires:        nvidia-persistenced%{?_isa} >= %{?epoch}:%{version}
 %if 0%{?fedora} || 0%{?rhel} > 7
-Suggests:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
+Suggests:        nvidia-modprobe%{?_isa} >= %{?epoch}:%{version}
 # Boolean dependencies are only fedora
 %ifarch x86_64
 Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
 %else
-Requires:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
+Requires:        nvidia-modprobe%{?_isa} >= %{?epoch}:%{version}
 %endif
 Requires:        ocl-icd%{?_isa}
 Requires:        opencl-filesystem
