@@ -26,8 +26,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         515.76
-Release:         2%{?dist}
+Version:         520.56.06
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -234,6 +234,7 @@ pushd 32
 %endif
 cp -a \
     libcuda.so.%{version} \
+    libcudadebugger.so.%{version} \
     libEGL_nvidia.so.%{version} \
     libGLESv1_CM_nvidia.so.%{version} \
     libGLESv2_nvidia.so.%{version} \
@@ -555,6 +556,8 @@ fi ||:
 %{_libdir}/libcuda.so
 %{_libdir}/libcuda.so.1
 %{_libdir}/libcuda.so.%{version}
+%{_libdir}/libcudadebugger.so.1
+%{_libdir}/libcudadebugger.so.%{version}
 %{_libdir}/libnvcuvid.so.1
 %{_libdir}/libnvcuvid.so.%{version}
 %ifnarch aarch64
@@ -624,6 +627,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Oct 12 2022 Leigh Scott <leigh123linux@gmail.com> - 3:520.56.06-1
+- Update to 520.56.06
+
 * Sun Sep 25 2022 Dennis Gilmore <dennis@ausil.us> - 3:515.76-2
 - add initial aarch64 support
 
