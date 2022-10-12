@@ -22,16 +22,18 @@
 %global        debug_package %{nil}
 %global        __strip /bin/true
 %global        __brp_ldconfig %{nil}
+%undefine      _missing_build_ids_terminate_build
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         515.76
+Version:         520.56.06
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
 URL:             http://www.nvidia.com/
-Source0:         https://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source0:         https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source1:         https://download.nvidia.com/XFree86/Linux-aarch64/%{version}/NVIDIA-Linux-aarch64-%{version}.run
 Source5:         alternate-install-present
 Source6:         nvidia.conf
 Source7:         60-nvidia.rules
@@ -46,7 +48,7 @@ Source15:        rhel_nvidia.conf
 Source16:        nvidia-power-management.conf
 Source17:        70-nvidia.preset
 
-ExclusiveArch: x86_64 i686
+ExclusiveArch: x86_64 i686 aarch64
 
 # Xorg with PrimaryGPU
 Requires:         Xorg >= 1.19.0-3
@@ -171,14 +173,16 @@ Requires:        libglvnd-glx%{?_isa} >= 0.2
 Requires:        libglvnd-opengl%{?_isa} >= 0.2
 %if 0%{?fedora} || 0%{?rhel} > 7
 Requires:        vulkan-loader%{?_isa}
-%ifarch x86_64
+%ifarch x86_64 aarch64
 # Fedora 35 has early XWayland support using recent egl-wayland
 Requires:        egl-wayland%{?_isa} %{?fc35: >= 1.1.9-2}
 %if 0%{?fedora} > 34
 Requires:        egl-gbm%{?_isa}
 %endif
 # Boolean dependencies are only fedora and el8
+%ifarch x86_64
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
+%endif
 %endif
 %else
 Requires:        vulkan-filesystem
@@ -205,10 +209,15 @@ Advanced  power management, preserve memory allocation on suspend/resume.
 
 %prep
 %setup -q -c -T
+%ifarch i686 x86_64
 sh %{SOURCE0} \
-  --extract-only --target nvidiapkg-x86_64
-ln -s nvidiapkg-x86_64 nvidiapkg
-
+  --extract-only --target nvidiapkg
+%else
+%ifarch aarch64
+sh %{SOURCE1} \
+  --extract-only --target nvidiapkg
+%endif
+%endif
 
 %build
 # Nothing to build
@@ -225,6 +234,7 @@ pushd 32
 %endif
 cp -a \
     libcuda.so.%{version} \
+    libcudadebugger.so.%{version} \
     libEGL_nvidia.so.%{version} \
     libGLESv1_CM_nvidia.so.%{version} \
     libGLESv2_nvidia.so.%{version} \
@@ -241,7 +251,7 @@ cp -a \
     libnvidia-nvvm.so.%{version} \
     libnvidia-opticalflow.so.%{version} \
     libnvidia-ptxjitcompiler.so.%{version} \
-%ifarch x86_64
+%ifarch x86_64 aarch64
     libnvidia-cfg.so.%{version} \
 %if 0%{?fedora} < 35
     libnvidia-egl-gbm.so.1.1.0 \
@@ -254,7 +264,9 @@ cp -a \
     %{buildroot}%{_libdir}/
 
 cp -af \
+%ifnarch aarch64
     libnvidia-compiler.so.%{version} \
+%endif
     libnvidia-opencl.so.%{version} \
     libnvidia-tls.so.%{version} \
     %{buildroot}%{_libdir}/
@@ -279,7 +291,7 @@ ln -sf ../libnvidia-allocator.so.%{version} %{buildroot}%{_libdir}/gbm/nvidia-dr
 popd
 %endif
 
-%ifarch x86_64
+%ifarch x86_64 aarch64
 # Vulkan config and symlink
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
 install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/
@@ -310,9 +322,11 @@ install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
 # UDev rules for nvidia-uvm
 install -p -m 0644 %{SOURCE10} %{buildroot}%{_udevrulesdir}
 
+%ifarch x86_64
 # Install dbus config
 install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
 install -p -m 0644 nvidia-dbus.conf %{buildroot}%{_dbus_systemd_dir}
+%endif
 
 # dracut.conf.d file, nvidia modules must never be in the initrd
 install -p -m 0755 -d          %{buildroot}%{_dracut_conf_d}/
@@ -320,8 +334,12 @@ install -p -m 0644 %{SOURCE12} %{buildroot}%{_dracut_conf_d}/
 
 # Install binaries
 install -m 0755 -d %{buildroot}%{_bindir}
-install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater,powerd} \
+install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater} \
   %{buildroot}%{_bindir}
+%ifarch x86_64
+install -p -m 0755 nvidia-powerd \
+  %{buildroot}%{_bindir}
+%endif
 
 # Install man pages
 install    -m 0755 -d   %{buildroot}%{_mandir}/man1/
@@ -357,11 +375,12 @@ mkdir -p %{buildroot}%{_sysconfdir}/nvidia
 
 #Install the nvidia kernel modules sources archive
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
-tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz kernel kernel-open
-
+tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open
+%ifarch x86_64
 #Install wine dll
 mkdir -p %{buildroot}%{_winedir}
 install -p -m 0644 _nvngx.dll nvngx.dll %{buildroot}%{_winedir}
+%endif
 
 #RPM Macros support
 mkdir -p %{buildroot}%{rpmmacrodir}
@@ -386,7 +405,10 @@ install -p -m 0644 %{SOURCE14} %{buildroot}%{_unitdir}
 # Systemd units and script for suspending/resuming
 mkdir %{buildroot}%{_systemd_util_dir}/system-{sleep,preset}/
 install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
-install -p -m 0644 systemd/system/nvidia-{hibernate,powerd,resume,suspend}.service %{buildroot}%{_unitdir}
+install -p -m 0644 systemd/system/nvidia-{hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
+%ifarch x86_64
+install -p -m 0644 systemd/system/nvidia-powerd.service %{buildroot}%{_unitdir}
+%endif
 install -p -m 0755 systemd/system-sleep/nvidia %{buildroot}%{_systemd_util_dir}/system-sleep/
 install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
@@ -468,7 +490,7 @@ fi ||:
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
 %{rpmmacrodir}/macros.%{name}-kmodsrc
-%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-x86_64.tar.xz
+%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz
 %endif
 
 %ldconfig_scriptlets libs
@@ -493,7 +515,7 @@ fi ||:
 %{_libdir}/gbm/
 %{_libdir}/vdpau/libvdpau_nvidia.so.1
 %{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
-%ifarch x86_64
+%ifarch x86_64 aarch64
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
 %{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{_libdir}/libnvidia-cfg.so.1
@@ -507,12 +529,16 @@ fi ||:
 %{_libdir}/libnvidia-rtcore.so.%{version}
 %{_libdir}/libnvidia-vulkan-producer.so.%{version}
 %{_libdir}/libnvidia-vulkan-producer.so
+# Fix f38 screw up
+%exclude %{_libdir}/libnvidia-vulkan-producer.so.515
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
+%ifarch x86_64
 %{_winedir}/
 %endif
+%endif
 
-%ifarch x86_64
+%ifarch x86_64 aarch64
 %files cuda
 %license nvidiapkg/LICENSE
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
@@ -530,9 +556,13 @@ fi ||:
 %{_libdir}/libcuda.so
 %{_libdir}/libcuda.so.1
 %{_libdir}/libcuda.so.%{version}
+%{_libdir}/libcudadebugger.so.1
+%{_libdir}/libcudadebugger.so.%{version}
 %{_libdir}/libnvcuvid.so.1
 %{_libdir}/libnvcuvid.so.%{version}
+%ifnarch aarch64
 %{_libdir}/libnvidia-compiler.so.%{version}
+%endif
 %{_libdir}/libnvidia-encode.so.1
 %{_libdir}/libnvidia-encode.so.%{version}
 %{_libdir}/libnvidia-ml.so
@@ -547,7 +577,7 @@ fi ||:
 %{_libdir}/libnvidia-opticalflow.so.%{version}
 %{_libdir}/libnvidia-ptxjitcompiler.so.1
 %{_libdir}/libnvidia-ptxjitcompiler.so.%{version}
-%ifarch x86_64
+%ifarch x86_64 aarch64
 %{_modprobedir}/nvidia-uvm.conf
 %{_udevrulesdir}/60-nvidia-uvm.rules
 %endif
@@ -556,39 +586,53 @@ fi ||:
 %{_libdir}/libnvcuvid.so
 %{_libdir}/libnvidia-encode.so
 
-%ifarch x86_64
+%ifarch x86_64 aarch64
 %post power
 %systemd_post nvidia-hibernate.service
+%ifarch x86_64
 %systemd_post nvidia-powerd.service
+%endif
 %systemd_post nvidia-resume.service
 %systemd_post nvidia-suspend.service
 
 %preun power
 %systemd_preun nvidia-hibernate.service
+%ifarch x86_64
 %systemd_preun nvidia-powerd.service
+%endif
 %systemd_preun nvidia-resume.service
 %systemd_preun nvidia-suspend.service
 
 %postun power
 %systemd_postun nvidia-hibernate.service
+%ifarch x86_64
 %systemd_postun nvidia-powerd.service
+%endif
 %systemd_postun nvidia-resume.service
 %systemd_postun nvidia-suspend.service
 
 %files power
 %config %{_modprobedir}/nvidia-power-management.conf
+%ifarch x86_64
 %{_bindir}/nvidia-powerd
-%{_bindir}/nvidia-sleep.sh
+%{_unitdir}/nvidia-powerd.service
 %{_dbus_systemd_dir}/nvidia-dbus.conf
+%endif
+%{_bindir}/nvidia-sleep.sh
 %{_systemd_util_dir}/system-preset/70-nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
 %{_unitdir}/nvidia-hibernate.service
-%{_unitdir}/nvidia-powerd.service
 %{_unitdir}/nvidia-resume.service
 %{_unitdir}/nvidia-suspend.service
 %endif
 
 %changelog
+* Wed Oct 12 2022 Leigh Scott <leigh123linux@gmail.com> - 3:520.56.06-1
+- Update to 520.56.06
+
+* Sun Sep 25 2022 Dennis Gilmore <dennis@ausil.us> - 3:515.76-2
+- add initial aarch64 support
+
 * Wed Sep 21 2022 Leigh Scott <leigh123linux@gmail.com> - 3:515.76-1
 - Update to 515.76
 
