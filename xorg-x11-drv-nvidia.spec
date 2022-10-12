@@ -176,7 +176,7 @@ Requires:        vulkan-loader%{?_isa}
 %ifarch x86_64 aarch64
 # Fedora 35 has early XWayland support using recent egl-wayland
 Requires:        egl-wayland%{?_isa} %{?fc35: >= 1.1.9-2}
-%if 0%{?fedora} > 34
+%if 0%{?fedora}
 Requires:        egl-gbm%{?_isa}
 %endif
 # Boolean dependencies are only fedora and el8
@@ -234,7 +234,6 @@ pushd 32
 %endif
 cp -a \
     libcuda.so.%{version} \
-    libcudadebugger.so.%{version} \
     libEGL_nvidia.so.%{version} \
     libGLESv1_CM_nvidia.so.%{version} \
     libGLESv2_nvidia.so.%{version} \
@@ -252,8 +251,9 @@ cp -a \
     libnvidia-opticalflow.so.%{version} \
     libnvidia-ptxjitcompiler.so.%{version} \
 %ifarch x86_64 aarch64
+    libcudadebugger.so.%{version} \
     libnvidia-cfg.so.%{version} \
-%if 0%{?fedora} < 35
+%if 0%{?rhel}
     libnvidia-egl-gbm.so.1.1.0 \
 %endif
     libnvidia-ngx.so.%{version} \
@@ -520,7 +520,7 @@ fi ||:
 %{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
-%if 0%{?fedora} < 35
+%if 0%{?rhel}
 %{_libdir}/libnvidia-egl-gbm.so.1
 %{_libdir}/libnvidia-egl-gbm.so.1.1.0
 %endif
@@ -529,8 +529,6 @@ fi ||:
 %{_libdir}/libnvidia-rtcore.so.%{version}
 %{_libdir}/libnvidia-vulkan-producer.so.%{version}
 %{_libdir}/libnvidia-vulkan-producer.so
-# Fix f38 screw up
-%exclude %{_libdir}/libnvidia-vulkan-producer.so.515
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %ifarch x86_64
@@ -556,8 +554,6 @@ fi ||:
 %{_libdir}/libcuda.so
 %{_libdir}/libcuda.so.1
 %{_libdir}/libcuda.so.%{version}
-%{_libdir}/libcudadebugger.so.1
-%{_libdir}/libcudadebugger.so.%{version}
 %{_libdir}/libnvcuvid.so.1
 %{_libdir}/libnvcuvid.so.%{version}
 %ifnarch aarch64
@@ -578,6 +574,8 @@ fi ||:
 %{_libdir}/libnvidia-ptxjitcompiler.so.1
 %{_libdir}/libnvidia-ptxjitcompiler.so.%{version}
 %ifarch x86_64 aarch64
+%{_libdir}/libcudadebugger.so.1
+%{_libdir}/libcudadebugger.so.%{version}
 %{_modprobedir}/nvidia-uvm.conf
 %{_udevrulesdir}/60-nvidia-uvm.rules
 %endif
