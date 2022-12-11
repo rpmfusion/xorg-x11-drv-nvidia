@@ -10,7 +10,7 @@
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
 %if 0%{?fedora} || 0%{?rhel} > 7
-%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
+%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1 initcall_blacklist=simpledrm_platform_driver_init
 %else
 %global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
 %global        _modprobedir         %{_prefix}/lib/modprobe.d
@@ -26,7 +26,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         520.56.06
+Version:         525.60.11
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -252,6 +252,7 @@ cp -a \
     libnvidia-ptxjitcompiler.so.%{version} \
 %ifarch x86_64 aarch64
     libcudadebugger.so.%{version} \
+    libnvidia-api.so.1 \
     libnvidia-cfg.so.%{version} \
 %if 0%{?rhel}
     libnvidia-egl-gbm.so.1.1.0 \
@@ -414,7 +415,7 @@ install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
 # Firmware
 mkdir -p %{buildroot}%{_firmwarepath}/nvidia/%{version}/
-install -p -m 0644 firmware/gsp.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
+install -p -m 0644 firmware/gsp_{ad,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 
 %pre
 if [ "$1" -eq "1" ]; then
@@ -518,6 +519,7 @@ fi ||:
 %ifarch x86_64 aarch64
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
 %{_datadir}/vulkan/icd.d/nvidia_icd.json
+%{_libdir}/libnvidia-api.so.1
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
 %if 0%{?rhel}
@@ -529,6 +531,8 @@ fi ||:
 %{_libdir}/libnvidia-rtcore.so.%{version}
 %{_libdir}/libnvidia-vulkan-producer.so.%{version}
 %{_libdir}/libnvidia-vulkan-producer.so
+# Fix f38 screw up
+%exclude %{_libdir}/libnvidia-vulkan-producer.so.525
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %ifarch x86_64
@@ -625,6 +629,12 @@ fi ||:
 %endif
 
 %changelog
+* Mon Nov 28 2022 Leigh Scott <leigh123linux@gmail.com> - 3:525.60.11-1
+- Update to 525.60.11
+
+* Thu Nov 10 2022 Leigh Scott <leigh123linux@gmail.com> - 3:525.53-1
+- Update to 525.53 beta
+
 * Wed Oct 12 2022 Leigh Scott <leigh123linux@gmail.com> - 3:520.56.06-1
 - Update to 520.56.06
 
