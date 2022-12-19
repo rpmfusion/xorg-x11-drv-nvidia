@@ -26,14 +26,13 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         525.60.11
+Version:         525.47.04
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
 URL:             http://www.nvidia.com/
 Source0:         https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-Source1:         https://download.nvidia.com/XFree86/Linux-aarch64/%{version}/NVIDIA-Linux-aarch64-%{version}.run
 Source5:         alternate-install-present
 Source6:         nvidia.conf
 Source7:         60-nvidia.rules
@@ -48,7 +47,7 @@ Source15:        rhel_nvidia.conf
 Source16:        nvidia-power-management.conf
 Source17:        70-nvidia.preset
 
-ExclusiveArch: x86_64 i686 aarch64
+ExclusiveArch: x86_64 i686
 
 # Xorg with PrimaryGPU
 Requires:         Xorg >= 1.19.0-3
@@ -629,11 +628,8 @@ fi ||:
 %endif
 
 %changelog
-* Mon Nov 28 2022 Leigh Scott <leigh123linux@gmail.com> - 3:525.60.11-1
-- Update to 525.60.11
-
-* Thu Nov 10 2022 Leigh Scott <leigh123linux@gmail.com> - 3:525.53-1
-- Update to 525.53 beta
+* Mon Dec 19 2022 Nicolas Chauvet <kwizart@gmail.com> - 3:525.47.04-1
+- Update to 525.47.04 (vulkan-beta branch)
 
 * Wed Oct 12 2022 Leigh Scott <leigh123linux@gmail.com> - 3:520.56.06-1
 - Update to 520.56.06
