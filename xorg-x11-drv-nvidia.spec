@@ -26,12 +26,12 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         525.60.11
+Version:         525.78.01
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
-URL:             http://www.nvidia.com/
+URL:             https://www.nvidia.com/
 Source0:         https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
 Source1:         https://download.nvidia.com/XFree86/Linux-aarch64/%{version}/NVIDIA-Linux-aarch64-%{version}.run
 Source5:         alternate-install-present
@@ -629,6 +629,9 @@ fi ||:
 %endif
 
 %changelog
+* Thu Jan 05 2023 Leigh Scott <leigh123linux@gmail.com> - 3:525.78.01-1
+- Update to 525.78.01
+
 * Mon Nov 28 2022 Leigh Scott <leigh123linux@gmail.com> - 3:525.60.11-1
 - Update to 525.60.11
 
