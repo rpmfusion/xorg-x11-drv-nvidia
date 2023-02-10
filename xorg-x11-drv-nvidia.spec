@@ -26,7 +26,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         525.85.05
+Version:         525.89.02
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -558,11 +558,13 @@ fi ||:
 %{_libdir}/libcuda.so
 %{_libdir}/libcuda.so.1
 %{_libdir}/libcuda.so.%{version}
+%{_libdir}/libnvcuvid.so
 %{_libdir}/libnvcuvid.so.1
 %{_libdir}/libnvcuvid.so.%{version}
 %ifnarch aarch64
 %{_libdir}/libnvidia-compiler.so.%{version}
 %endif
+%{_libdir}/libnvidia-encode.so
 %{_libdir}/libnvidia-encode.so.1
 %{_libdir}/libnvidia-encode.so.%{version}
 %{_libdir}/libnvidia-ml.so
@@ -585,8 +587,6 @@ fi ||:
 %endif
 
 %files devel
-%{_libdir}/libnvcuvid.so
-%{_libdir}/libnvidia-encode.so
 
 %ifarch x86_64 aarch64
 %post power
@@ -629,6 +629,9 @@ fi ||:
 %endif
 
 %changelog
+* Thu Feb 09 2023 Leigh Scott <leigh123linux@gmail.com> - 3:525.89.02-1
+- Update to 525.89.02
+
 * Thu Jan 19 2023 Leigh Scott <leigh123linux@gmail.com> - 3:525.85.05-1
 - Update to 525.85.05
 
