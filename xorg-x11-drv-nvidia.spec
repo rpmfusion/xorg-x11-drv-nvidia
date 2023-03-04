@@ -415,7 +415,7 @@ install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
 # Firmware
 mkdir -p %{buildroot}%{_firmwarepath}/nvidia/%{version}/
-install -p -m 0644 firmware/gsp_{ad,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
+install -p -m 0644 firmware/gsp_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 
 %pre
 if [ "$1" -eq "1" ]; then
