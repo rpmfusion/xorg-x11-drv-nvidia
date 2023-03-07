@@ -10,9 +10,9 @@
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
 %if 0%{?fedora} || 0%{?rhel} > 7
-%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
+%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
 %else
-%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
+%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau
 %global        _modprobedir         %{_prefix}/lib/modprobe.d
 %endif
 %if 0%{?rhel}
@@ -27,7 +27,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         530.30.02
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -627,6 +627,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Mar 07 2023 Leigh Scott <leigh123linux@gmail.com> - 3:530.30.02-2
+- Remove modeset cmd option as it been default enabled in the kmod
+
 * Sat Mar 04 2023 Leigh Scott <leigh123linux@gmail.com> - 3:530.30.02-1
 - Update to 530.30.02 beta
 
