@@ -10,9 +10,9 @@
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
 %if 0%{?fedora} || 0%{?rhel} > 7
-%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1 initcall_blacklist=simpledrm_platform_driver_init
+%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
 %else
-%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
+%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau
 %global        _modprobedir         %{_prefix}/lib/modprobe.d
 %endif
 %if 0%{?rhel}
@@ -26,7 +26,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         525.89.02
+Version:         530.41.03
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -415,7 +415,7 @@ install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
 # Firmware
 mkdir -p %{buildroot}%{_firmwarepath}/nvidia/%{version}/
-install -p -m 0644 firmware/gsp_{ad,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
+install -p -m 0644 firmware/gsp_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 
 %pre
 if [ "$1" -eq "1" ]; then
@@ -532,7 +532,7 @@ fi ||:
 %{_libdir}/libnvidia-vulkan-producer.so.%{version}
 %{_libdir}/libnvidia-vulkan-producer.so
 # Fix f38 screw up
-%exclude %{_libdir}/libnvidia-vulkan-producer.so.525
+%exclude %{_libdir}/libnvidia-vulkan-producer.so.530
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %ifarch x86_64
@@ -629,6 +629,15 @@ fi ||:
 %endif
 
 %changelog
+* Thu Mar 23 2023 Leigh Scott <leigh123linux@gmail.com> - 3:530.41.03-1
+- Update to 530.41.03
+
+* Tue Mar 07 2023 Leigh Scott <leigh123linux@gmail.com> - 3:530.30.02-2
+- Remove modeset cmd option as it been default enabled in the kmod
+
+* Sat Mar 04 2023 Leigh Scott <leigh123linux@gmail.com> - 3:530.30.02-1
+- Update to 530.30.02 beta
+
 * Thu Feb 09 2023 Leigh Scott <leigh123linux@gmail.com> - 3:525.89.02-1
 - Update to 525.89.02
 
