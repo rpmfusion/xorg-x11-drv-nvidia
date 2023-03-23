@@ -26,8 +26,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         530.30.02
-Release:         2%{?dist}
+Version:         530.41.03
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -629,6 +629,9 @@ fi ||:
 %endif
 
 %changelog
+* Thu Mar 23 2023 Leigh Scott <leigh123linux@gmail.com> - 3:530.41.03-1
+- Update to 530.41.03
+
 * Tue Mar 07 2023 Leigh Scott <leigh123linux@gmail.com> - 3:530.30.02-2
 - Remove modeset cmd option as it been default enabled in the kmod
 
