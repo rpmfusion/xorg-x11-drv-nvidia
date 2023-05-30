@@ -26,7 +26,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         530.41.03
+Version:         535.43.02
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -258,6 +258,10 @@ cp -a \
     libnvidia-egl-gbm.so.1.1.0 \
 %endif
     libnvidia-ngx.so.%{version} \
+%ifnarch aarch64
+    libnvidia-pkcs11.so.%{version} \
+    libnvidia-pkcs11-openssl3.so.%{version} \
+%endif
     libnvidia-rtcore.so.%{version} \
     libnvidia-vulkan-producer.so.%{version} \
     libnvoptix.so.%{version} \
@@ -265,9 +269,6 @@ cp -a \
     %{buildroot}%{_libdir}/
 
 cp -af \
-%ifnarch aarch64
-    libnvidia-compiler.so.%{version} \
-%endif
     libnvidia-opencl.so.%{version} \
     libnvidia-tls.so.%{version} \
     %{buildroot}%{_libdir}/
@@ -354,6 +355,7 @@ install -p -m 0644 %{SOURCE5} %{buildroot}%{_alternate_dir}
 #install the NVIDIA supplied application profiles
 mkdir -p %{buildroot}%{_datadir}/nvidia
 install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} %{buildroot}%{_datadir}/nvidia
+install -p -m 0644 nvoptix.bin %{buildroot}%{_datadir}/nvidia
 ln -s nvidia-application-profiles-%{version}-rc %{buildroot}%{_datadir}/nvidia/nvidia-application-profiles-rc
 ln -s nvidia-application-profiles-%{version}-key-documentation %{buildroot}%{_datadir}/nvidia/nvidia-application-profiles-key-documentation
 
@@ -487,6 +489,7 @@ fi ||:
 #/no_multilib
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-*
+%{_datadir}/nvidia/nvoptix.bin
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
@@ -522,6 +525,10 @@ fi ||:
 %{_libdir}/libnvidia-api.so.1
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
+%ifnarch aarch64
+%{_libdir}/libnvidia-pkcs11.so.%{version}
+%{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
+%endif
 %if 0%{?rhel}
 %{_libdir}/libnvidia-egl-gbm.so.1
 %{_libdir}/libnvidia-egl-gbm.so.1.1.0
@@ -561,9 +568,6 @@ fi ||:
 %{_libdir}/libnvcuvid.so
 %{_libdir}/libnvcuvid.so.1
 %{_libdir}/libnvcuvid.so.%{version}
-%ifnarch aarch64
-%{_libdir}/libnvidia-compiler.so.%{version}
-%endif
 %{_libdir}/libnvidia-encode.so
 %{_libdir}/libnvidia-encode.so.1
 %{_libdir}/libnvidia-encode.so.%{version}
@@ -629,6 +633,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue May 30 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.43.02-1
+- Update to 535.43.02 beta
+
 * Thu Mar 23 2023 Leigh Scott <leigh123linux@gmail.com> - 3:530.41.03-1
 - Update to 530.41.03
 
