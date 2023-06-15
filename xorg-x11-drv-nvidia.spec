@@ -27,7 +27,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         535.54.03
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -642,6 +642,10 @@ fi ||:
 %endif
 
 %changelog
+* Thu Jun 15 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.54.03-2
+- Install firmware signature
+- Use openssl3 for fedora and el9
+
 * Wed Jun 14 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.54.03-1
 - Update to 535.54.03
 
