@@ -417,7 +417,9 @@ install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
 # Firmware
 mkdir -p %{buildroot}%{_firmwarepath}/nvidia/%{version}/
-install -p -m 0644 firmware/gsp_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
+install -p -m 0444 firmware/gsp_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
+mkdir -p %{buildroot}%{_datadir}/nvidia/rim/
+install -p -m 0444 RIM_GH100PROD.swidtag %{buildroot}%{_datadir}/nvidia/rim/
 
 %pre
 if [ "$1" -eq "1" ]; then
@@ -490,6 +492,7 @@ fi ||:
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-*
 %{_datadir}/nvidia/nvoptix.bin
+%{_datadir}/nvidia/rim/
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
