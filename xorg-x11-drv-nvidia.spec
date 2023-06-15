@@ -259,8 +259,11 @@ cp -a \
 %endif
     libnvidia-ngx.so.%{version} \
 %ifnarch aarch64
-    libnvidia-pkcs11.so.%{version} \
+%if 0%{?fedora} || 0%{?rhel} > 8
     libnvidia-pkcs11-openssl3.so.%{version} \
+%else
+    libnvidia-pkcs11.so.%{version} \
+%endif
 %endif
     libnvidia-rtcore.so.%{version} \
     libnvidia-vulkan-producer.so.%{version} \
@@ -529,8 +532,11 @@ fi ||:
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
 %ifnarch aarch64
-%{_libdir}/libnvidia-pkcs11.so.%{version}
+%if 0%{?fedora} || 0%{?rhel} > 8
 %{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
+%else
+%{_libdir}/libnvidia-pkcs11.so.%{version}
+%endif
 %endif
 %if 0%{?rhel}
 %{_libdir}/libnvidia-egl-gbm.so.1
