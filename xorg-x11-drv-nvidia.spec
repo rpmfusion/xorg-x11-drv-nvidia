@@ -10,7 +10,7 @@
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
 %if 0%{?fedora} || 0%{?rhel} > 7
-%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
+%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
 %else
 %global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau
 %global        _modprobedir         %{_prefix}/lib/modprobe.d
@@ -27,7 +27,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         535.98
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -437,7 +437,7 @@ if [ "$1" -eq "1" ]; then
   sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
 fi || :
 
-%triggerun -- xorg-x11-drv-nvidia < 3:515.43.04-5
+%triggerun -- xorg-x11-drv-nvidia < 3:535.98-2
 if [ -f %{_sysconfdir}/default/grub ] ; then
   sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
   . %{_sysconfdir}/default/grub
@@ -642,6 +642,9 @@ fi ||:
 %endif
 
 %changelog
+* Mon Aug 14 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.98-2
+- Add nvidia-drm.modeset=1 to cmdline
+
 * Tue Aug 08 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.98-1
 - Update to 535.98
 
