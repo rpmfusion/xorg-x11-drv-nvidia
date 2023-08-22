@@ -26,8 +26,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         535.98
-Release:         2%{?dist}
+Version:         535.104.05
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -642,6 +642,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Aug 22 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.104.05-1
+- Update to 535.104.05
+
 * Mon Aug 14 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.98-2
 - Add nvidia-drm.modeset=1 to cmdline
 
