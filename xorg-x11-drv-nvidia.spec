@@ -27,7 +27,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         535.129.03
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -88,7 +88,7 @@ Conflicts:       xorg-x11-drv-nvidia-340xx
 Conflicts:       xorg-x11-drv-nvidia-390xx
 
 %global         __provides_exclude ^(lib.*GL.*\\.so.*)$
-%global         __requires_exclude ^libglxserver_nvidia.so|^(lib.*GL.*\\.so.*)$
+%global         __requires_exclude ^libnvidia-vulkan-producer.so|^libglxserver_nvidia.so|^(lib.*GL.*\\.so.*)$
 
 
 %description
@@ -642,6 +642,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Nov 01 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.129.03-2
+- rebuilt
+
 * Tue Oct 31 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.129.03-1
 - Update to 535.129.03
 
