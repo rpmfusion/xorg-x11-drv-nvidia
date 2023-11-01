@@ -10,7 +10,7 @@
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
 %if 0%{?fedora} || 0%{?rhel} > 7
-%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
+%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
 %else
 %global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau
 %global        _modprobedir         %{_prefix}/lib/modprobe.d
@@ -246,7 +246,6 @@ cp -a \
     libnvidia-glcore.so.%{version} \
     libnvidia-glsi.so.%{version} \
     libnvidia-glvkspirv.so.%{version} \
-    libnvidia-gpucomp.so.%{version} \
     libnvidia-ml.so.%{version} \
     libnvidia-nvvm.so.%{version} \
     libnvidia-opticalflow.so.%{version} \
@@ -267,6 +266,7 @@ cp -a \
 %endif
 %endif
     libnvidia-rtcore.so.%{version} \
+    libnvidia-vulkan-producer.so.%{version} \
     libnvoptix.so.%{version} \
 %endif
     %{buildroot}%{_libdir}/
@@ -301,6 +301,7 @@ popd
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
 install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/
 install -p -m 0644 nvidia_layers.json %{buildroot}%{_datadir}/vulkan/implicit_layer.d/
+ln -sf libnvidia-vulkan-producer.so.%{version} %{buildroot}%{_libdir}/libnvidia-vulkan-producer.so
 
 # X DDX driver and GLX extension
 install -p -D -m 0755 libglxserver_nvidia.so.%{version} %{buildroot}%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
@@ -436,7 +437,7 @@ if [ "$1" -eq "1" ]; then
   sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
 fi || :
 
-%triggerun -- xorg-x11-drv-nvidia < 3:545.23.06-1
+%triggerun -- xorg-x11-drv-nvidia < 3:535.98-2
 if [ -f %{_sysconfdir}/default/grub ] ; then
   sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
   . %{_sysconfdir}/default/grub
@@ -520,7 +521,6 @@ fi ||:
 %{_libdir}/libnvidia-glcore.so.%{version}
 %{_libdir}/libnvidia-glsi.so.%{version}
 %{_libdir}/libnvidia-glvkspirv.so.%{version}
-%{_libdir}/libnvidia-gpucomp.so.%{version}
 %{_libdir}/libnvidia-tls.so.%{version}
 %{_libdir}/gbm/
 %{_libdir}/vdpau/libvdpau_nvidia.so.1
@@ -545,6 +545,10 @@ fi ||:
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
 %{_libdir}/libnvidia-rtcore.so.%{version}
+%{_libdir}/libnvidia-vulkan-producer.so.%{version}
+%{_libdir}/libnvidia-vulkan-producer.so
+# Fix f38 screw up
+%exclude %{_libdir}/libnvidia-vulkan-producer.so.535
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %ifarch x86_64
