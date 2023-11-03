@@ -22,7 +22,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         545.29.02
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -31,6 +31,7 @@ Source0:         https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVI
 Source1:         https://download.nvidia.com/XFree86/Linux-aarch64/%{version}/NVIDIA-Linux-aarch64-%{version}.run
 Source5:         alternate-install-present
 Source6:         nvidia.conf
+Source7:         80-nvidia-pm.rules
 Source8:         xorg-x11-drv-nvidia.metainfo.xml
 Source9:         parse-supported-gpus.py
 Source11:        nvidia-uvm.conf
@@ -379,6 +380,9 @@ install -m 0755 -d %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE13} %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE14} %{buildroot}%{_unitdir}
 
+# UDev rules for PCI-Express Runtime D3 (RTD3) Power Management
+install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
+
 # Systemd units and script for suspending/resuming
 mkdir %{buildroot}%{_systemd_util_dir}/system-{sleep,preset}/
 install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
@@ -451,6 +455,7 @@ fi ||:
 %ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
 %{_udevrulesdir}/10-nvidia.rules
+%{_udevrulesdir}/80-nvidia-pm.rules
 %{_unitdir}/nvidia-fallback.service
 %{_metainfodir}/%{name}.metainfo.xml
 %{_datadir}/pixmaps/%{name}.png
@@ -606,6 +611,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri Nov 03 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.02-4
+- Readd nvidia power management udev rules
+
 * Fri Nov 03 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.02-3
 - Add requires nvidia-modprobe to main package
 
