@@ -27,7 +27,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         545.29.02
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -36,10 +36,8 @@ Source0:         https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVI
 Source1:         https://download.nvidia.com/XFree86/Linux-aarch64/%{version}/NVIDIA-Linux-aarch64-%{version}.run
 Source5:         alternate-install-present
 Source6:         nvidia.conf
-Source7:         60-nvidia.rules
 Source8:         xorg-x11-drv-nvidia.metainfo.xml
 Source9:         parse-supported-gpus.py
-Source10:        60-nvidia-uvm.rules
 Source11:        nvidia-uvm.conf
 Source12:        99-nvidia-dracut.conf
 Source13:        10-nvidia.rules
@@ -124,14 +122,9 @@ Summary:         CUDA driver for %{name}
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        nvidia-persistenced%{?_isa} = %{?epoch}:%{version}
-%if 0%{?fedora} || 0%{?rhel} > 7
-Suggests:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
-# Boolean dependencies are only fedora
+Requires:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 %ifarch x86_64
 Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
-%endif
-%else
-Requires:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 %endif
 Requires:        ocl-icd%{?_isa}
 Requires:        opencl-filesystem
@@ -319,13 +312,6 @@ mkdir -p %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE11} %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE16} %{buildroot}%{_modprobedir}
 
-# UDev rules for nvidia
-install    -m 0755 -d          %{buildroot}%{_udevrulesdir}
-install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
-
-# UDev rules for nvidia-uvm
-install -p -m 0644 %{SOURCE10} %{buildroot}%{_udevrulesdir}
-
 %ifarch x86_64
 # Install dbus config
 install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
@@ -479,7 +465,6 @@ fi ||:
 %ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
 %{_udevrulesdir}/10-nvidia.rules
-%{_udevrulesdir}/60-nvidia.rules
 %{_unitdir}/nvidia-fallback.service
 %if 0%{?fedora} || 0%{?rhel} > 7
 %{_metainfodir}/%{name}.metainfo.xml
@@ -592,7 +577,6 @@ fi ||:
 %{_libdir}/libcudadebugger.so.1
 %{_libdir}/libcudadebugger.so.%{version}
 %{_modprobedir}/nvidia-uvm.conf
-%{_udevrulesdir}/60-nvidia-uvm.rules
 %endif
 
 %files devel
@@ -638,6 +622,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri Nov 03 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.02-2
+- Use nvidia-modprobe instead of udev rules (rfbz#6784)
+
 * Tue Oct 31 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.02-1
 - Update to 545.29.02 release
 
