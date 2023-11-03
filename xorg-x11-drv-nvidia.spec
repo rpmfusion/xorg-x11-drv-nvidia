@@ -9,12 +9,7 @@
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
-%if 0%{?fedora} || 0%{?rhel} > 7
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
-%else
-%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau
-%global        _modprobedir         %{_prefix}/lib/modprobe.d
-%endif
 %if 0%{?rhel}
 %global        _systemd_util_dir    %{_prefix}/lib/systemd
 %endif
@@ -57,7 +52,6 @@ Requires(post):   grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 Requires:         nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
-%if 0%{?fedora} || 0%{?rhel} > 7
 BuildRequires:    systemd-rpm-macros
 # AppStream metadata generation
 BuildRequires:    python3
@@ -70,10 +64,6 @@ Suggests:         vulkan-tools
 %ifarch x86_64
 Recommends:       %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Recommends:       %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
-%endif
-%else
-BuildRequires:    systemd
-Requires:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 %endif
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
@@ -165,7 +155,6 @@ Requires:        libglvnd-egl%{?_isa} >= 0.2
 Requires:        libglvnd-gles%{?_isa} >= 0.2
 Requires:        libglvnd-glx%{?_isa} >= 0.2
 Requires:        libglvnd-opengl%{?_isa} >= 0.2
-%if 0%{?fedora} || 0%{?rhel} > 7
 Requires:        vulkan-loader%{?_isa}
 %ifarch x86_64 aarch64
 # Fedora 35 has early XWayland support using recent egl-wayland
@@ -177,9 +166,6 @@ Requires:        egl-gbm%{?_isa}
 %ifarch x86_64
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
-%endif
-%else
-Requires:        vulkan-filesystem
 %endif
 Requires:        mesa-libEGL%{?_isa}
 Requires:        mesa-libGL%{?_isa}
@@ -381,13 +367,11 @@ cat > %{buildroot}%{rpmmacrodir}/macros.%{name}-kmodsrc<< EOF
 %nvidia_kmodsrc_version	%{version}
 EOF
 
-%if 0%{?fedora} || 0%{?rhel} > 7
 # install AppData and add modalias provides
 install -D -p -m 0644 %{SOURCE8} %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml
 %{SOURCE9} supported-gpus/supported-gpus.json | xargs appstream-util add-provide %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml modalias
 mkdir -p %{buildroot}%{_datadir}/pixmaps
 install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps/%{name}.png
-%endif
 
 # Install nvidia-fallback
 install -m 0755 -d %{buildroot}%{_unitdir}
@@ -468,10 +452,8 @@ fi ||:
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
 %{_udevrulesdir}/10-nvidia.rules
 %{_unitdir}/nvidia-fallback.service
-%if 0%{?fedora} || 0%{?rhel} > 7
 %{_metainfodir}/%{name}.metainfo.xml
 %{_datadir}/pixmaps/%{name}.png
-%endif
 %{_dracut_conf_d}/99-nvidia-dracut.conf
 %{_bindir}/nvidia-bug-report.sh
 # Xorg libs that do not need to be multilib
