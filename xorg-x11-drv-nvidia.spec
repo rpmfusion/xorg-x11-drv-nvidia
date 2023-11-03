@@ -27,7 +27,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         545.29.02
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -56,6 +56,7 @@ Requires(postun): ldconfig
 Requires(post):   grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
+Requires:         nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 %if 0%{?fedora} || 0%{?rhel} > 7
 BuildRequires:    systemd-rpm-macros
 # AppStream metadata generation
@@ -623,6 +624,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri Nov 03 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.02-3
+- Add requires nvidia-modprobe to main package
+
 * Fri Nov 03 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.02-2
 - Use nvidia-modprobe instead of udev rules (rfbz#6784)
 
