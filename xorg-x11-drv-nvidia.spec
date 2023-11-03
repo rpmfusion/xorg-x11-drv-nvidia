@@ -389,7 +389,8 @@ install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps/%{name}.png
 %endif
 
 # Install nvidia-fallback
-mkdir -p %{buildroot}%{_unitdir}
+install -m 0755 -d %{buildroot}%{_unitdir}
+install -m 0755 -d %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE13} %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE14} %{buildroot}%{_unitdir}
 
