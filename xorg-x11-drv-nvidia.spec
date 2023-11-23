@@ -9,12 +9,7 @@
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
-%if 0%{?fedora} || 0%{?rhel} > 7
-%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
-%else
-%global        _dracutopts          nouveau.modeset=0 rd.driver.blacklist=nouveau nvidia-drm.modeset=1
-%global        _modprobedir         %{_prefix}/lib/modprobe.d
-%endif
+%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
 %if 0%{?rhel}
 %global        _systemd_util_dir    %{_prefix}/lib/systemd
 %endif
@@ -26,7 +21,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         525.116.04
+Version:         545.29.06
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -36,10 +31,9 @@ Source0:         https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVI
 Source1:         https://download.nvidia.com/XFree86/Linux-aarch64/%{version}/NVIDIA-Linux-aarch64-%{version}.run
 Source5:         alternate-install-present
 Source6:         nvidia.conf
-Source7:         60-nvidia.rules
+Source7:         80-nvidia-pm.rules
 Source8:         xorg-x11-drv-nvidia.metainfo.xml
 Source9:         parse-supported-gpus.py
-Source10:        60-nvidia-uvm.rules
 Source11:        nvidia-uvm.conf
 Source12:        99-nvidia-dracut.conf
 Source13:        10-nvidia.rules
@@ -58,7 +52,7 @@ Requires(postun): ldconfig
 Requires(post):   grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
-%if 0%{?fedora} || 0%{?rhel} > 7
+Requires:         nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 BuildRequires:    systemd-rpm-macros
 # AppStream metadata generation
 BuildRequires:    python3
@@ -72,10 +66,6 @@ Suggests:         vulkan-tools
 Recommends:       %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Recommends:       %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
 %endif
-%else
-BuildRequires:    systemd
-Requires:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
-%endif
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
@@ -88,7 +78,7 @@ Conflicts:       xorg-x11-drv-nvidia-340xx
 Conflicts:       xorg-x11-drv-nvidia-390xx
 
 %global         __provides_exclude ^(lib.*GL.*\\.so.*)$
-%global         __requires_exclude ^libnvidia-vulkan-producer.so|^libglxserver_nvidia.so|^(lib.*GL.*\\.so.*)$
+%global         __requires_exclude ^libglxserver_nvidia.so|^(lib.*GL.*\\.so.*)$
 
 
 %description
@@ -124,14 +114,9 @@ Summary:         CUDA driver for %{name}
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        nvidia-persistenced%{?_isa} = %{?epoch}:%{version}
-%if 0%{?fedora} || 0%{?rhel} > 7
-Suggests:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
-# Boolean dependencies are only fedora
+Requires:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 %ifarch x86_64
 Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
-%endif
-%else
-Requires:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 %endif
 Requires:        ocl-icd%{?_isa}
 Requires:        opencl-filesystem
@@ -171,7 +156,6 @@ Requires:        libglvnd-egl%{?_isa} >= 0.2
 Requires:        libglvnd-gles%{?_isa} >= 0.2
 Requires:        libglvnd-glx%{?_isa} >= 0.2
 Requires:        libglvnd-opengl%{?_isa} >= 0.2
-%if 0%{?fedora} || 0%{?rhel} > 7
 Requires:        vulkan-loader%{?_isa}
 %ifarch x86_64 aarch64
 # Fedora 35 has early XWayland support using recent egl-wayland
@@ -183,9 +167,6 @@ Requires:        egl-gbm%{?_isa}
 %ifarch x86_64
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
-%endif
-%else
-Requires:        vulkan-filesystem
 %endif
 Requires:        mesa-libEGL%{?_isa}
 Requires:        mesa-libGL%{?_isa}
@@ -246,6 +227,7 @@ cp -a \
     libnvidia-glcore.so.%{version} \
     libnvidia-glsi.so.%{version} \
     libnvidia-glvkspirv.so.%{version} \
+    libnvidia-gpucomp.so.%{version} \
     libnvidia-ml.so.%{version} \
     libnvidia-nvvm.so.%{version} \
     libnvidia-opticalflow.so.%{version} \
@@ -258,16 +240,19 @@ cp -a \
     libnvidia-egl-gbm.so.1.1.0 \
 %endif
     libnvidia-ngx.so.%{version} \
+%ifnarch aarch64
+%if 0%{?fedora} || 0%{?rhel} > 8
+    libnvidia-pkcs11-openssl3.so.%{version} \
+%else
+    libnvidia-pkcs11.so.%{version} \
+%endif
+%endif
     libnvidia-rtcore.so.%{version} \
-    libnvidia-vulkan-producer.so.%{version} \
     libnvoptix.so.%{version} \
 %endif
     %{buildroot}%{_libdir}/
 
 cp -af \
-%ifnarch aarch64
-    libnvidia-compiler.so.%{version} \
-%endif
     libnvidia-opencl.so.%{version} \
     libnvidia-tls.so.%{version} \
     %{buildroot}%{_libdir}/
@@ -297,7 +282,6 @@ popd
 install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
 install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/
 install -p -m 0644 nvidia_layers.json %{buildroot}%{_datadir}/vulkan/implicit_layer.d/
-ln -sf libnvidia-vulkan-producer.so.%{version} %{buildroot}%{_libdir}/libnvidia-vulkan-producer.so
 
 # X DDX driver and GLX extension
 install -p -D -m 0755 libglxserver_nvidia.so.%{version} %{buildroot}%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
@@ -315,13 +299,6 @@ install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_
 mkdir -p %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE11} %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE16} %{buildroot}%{_modprobedir}
-
-# UDev rules for nvidia
-install    -m 0755 -d          %{buildroot}%{_udevrulesdir}
-install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
-
-# UDev rules for nvidia-uvm
-install -p -m 0644 %{SOURCE10} %{buildroot}%{_udevrulesdir}
 
 %ifarch x86_64
 # Install dbus config
@@ -354,6 +331,7 @@ install -p -m 0644 %{SOURCE5} %{buildroot}%{_alternate_dir}
 #install the NVIDIA supplied application profiles
 mkdir -p %{buildroot}%{_datadir}/nvidia
 install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} %{buildroot}%{_datadir}/nvidia
+install -p -m 0644 nvoptix.bin %{buildroot}%{_datadir}/nvidia
 ln -s nvidia-application-profiles-%{version}-rc %{buildroot}%{_datadir}/nvidia/nvidia-application-profiles-rc
 ln -s nvidia-application-profiles-%{version}-key-documentation %{buildroot}%{_datadir}/nvidia/nvidia-application-profiles-key-documentation
 
@@ -390,18 +368,20 @@ cat > %{buildroot}%{rpmmacrodir}/macros.%{name}-kmodsrc<< EOF
 %nvidia_kmodsrc_version	%{version}
 EOF
 
-%if 0%{?fedora} || 0%{?rhel} > 7
 # install AppData and add modalias provides
 install -D -p -m 0644 %{SOURCE8} %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml
 %{SOURCE9} supported-gpus/supported-gpus.json | xargs appstream-util add-provide %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml modalias
 mkdir -p %{buildroot}%{_datadir}/pixmaps
 install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps/%{name}.png
-%endif
 
 # Install nvidia-fallback
-mkdir -p %{buildroot}%{_unitdir}
+install -m 0755 -d %{buildroot}%{_unitdir}
+install -m 0755 -d %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE13} %{buildroot}%{_udevrulesdir}
 install -p -m 0644 %{SOURCE14} %{buildroot}%{_unitdir}
+
+# UDev rules for PCI-Express Runtime D3 (RTD3) Power Management
+install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
 
 # Systemd units and script for suspending/resuming
 mkdir %{buildroot}%{_systemd_util_dir}/system-{sleep,preset}/
@@ -415,7 +395,9 @@ install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
 # Firmware
 mkdir -p %{buildroot}%{_firmwarepath}/nvidia/%{version}/
-install -p -m 0644 firmware/gsp_{ad,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
+install -p -m 0444 firmware/gsp_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
+mkdir -p %{buildroot}%{_datadir}/nvidia/rim/
+install -p -m 0444 RIM_GH100PROD.swidtag %{buildroot}%{_datadir}/nvidia/rim/
 
 %pre
 if [ "$1" -eq "1" ]; then
@@ -430,7 +412,7 @@ if [ "$1" -eq "1" ]; then
   sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
 fi || :
 
-%triggerun -- xorg-x11-drv-nvidia < 3:515.43.04-5
+%triggerun -- xorg-x11-drv-nvidia < 3:545.23.06-1
 if [ -f %{_sysconfdir}/default/grub ] ; then
   sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
   . %{_sysconfdir}/default/grub
@@ -473,12 +455,10 @@ fi ||:
 %ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 %{_datadir}/X11/xorg.conf.d/nvidia.conf
 %{_udevrulesdir}/10-nvidia.rules
-%{_udevrulesdir}/60-nvidia.rules
+%{_udevrulesdir}/80-nvidia-pm.rules
 %{_unitdir}/nvidia-fallback.service
-%if 0%{?fedora} || 0%{?rhel} > 7
 %{_metainfodir}/%{name}.metainfo.xml
 %{_datadir}/pixmaps/%{name}.png
-%endif
 %{_dracut_conf_d}/99-nvidia-dracut.conf
 %{_bindir}/nvidia-bug-report.sh
 # Xorg libs that do not need to be multilib
@@ -487,6 +467,8 @@ fi ||:
 #/no_multilib
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-*
+%{_datadir}/nvidia/nvoptix.bin
+%{_datadir}/nvidia/rim/
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
@@ -512,6 +494,7 @@ fi ||:
 %{_libdir}/libnvidia-glcore.so.%{version}
 %{_libdir}/libnvidia-glsi.so.%{version}
 %{_libdir}/libnvidia-glvkspirv.so.%{version}
+%{_libdir}/libnvidia-gpucomp.so.%{version}
 %{_libdir}/libnvidia-tls.so.%{version}
 %{_libdir}/gbm/
 %{_libdir}/vdpau/libvdpau_nvidia.so.1
@@ -522,6 +505,13 @@ fi ||:
 %{_libdir}/libnvidia-api.so.1
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
+%ifnarch aarch64
+%if 0%{?fedora} || 0%{?rhel} > 8
+%{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
+%else
+%{_libdir}/libnvidia-pkcs11.so.%{version}
+%endif
+%endif
 %if 0%{?rhel}
 %{_libdir}/libnvidia-egl-gbm.so.1
 %{_libdir}/libnvidia-egl-gbm.so.1.1.0
@@ -529,10 +519,6 @@ fi ||:
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
 %{_libdir}/libnvidia-rtcore.so.%{version}
-%{_libdir}/libnvidia-vulkan-producer.so.%{version}
-%{_libdir}/libnvidia-vulkan-producer.so
-# Fix f38 screw up
-%exclude %{_libdir}/libnvidia-vulkan-producer.so.525
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %ifarch x86_64
@@ -558,11 +544,10 @@ fi ||:
 %{_libdir}/libcuda.so
 %{_libdir}/libcuda.so.1
 %{_libdir}/libcuda.so.%{version}
+%{_libdir}/libnvcuvid.so
 %{_libdir}/libnvcuvid.so.1
 %{_libdir}/libnvcuvid.so.%{version}
-%ifnarch aarch64
-%{_libdir}/libnvidia-compiler.so.%{version}
-%endif
+%{_libdir}/libnvidia-encode.so
 %{_libdir}/libnvidia-encode.so.1
 %{_libdir}/libnvidia-encode.so.%{version}
 %{_libdir}/libnvidia-ml.so
@@ -581,12 +566,9 @@ fi ||:
 %{_libdir}/libcudadebugger.so.1
 %{_libdir}/libcudadebugger.so.%{version}
 %{_modprobedir}/nvidia-uvm.conf
-%{_udevrulesdir}/60-nvidia-uvm.rules
 %endif
 
 %files devel
-%{_libdir}/libnvcuvid.so
-%{_libdir}/libnvidia-encode.so
 
 %ifarch x86_64 aarch64
 %post power
@@ -629,8 +611,64 @@ fi ||:
 %endif
 
 %changelog
-* Tue May 16 2023 Nicolas Chauvet <kwizart@gmail.com> - 3:525.116.04-1
-- Update to 525.116.04
+* Wed Nov 22 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.06-1
+- Update to 545.29.06 release
+
+* Fri Nov 03 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.02-4
+- Readd nvidia power management udev rules
+
+* Fri Nov 03 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.02-3
+- Add requires nvidia-modprobe to main package
+
+* Fri Nov 03 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.02-2
+- Use nvidia-modprobe instead of udev rules (rfbz#6784)
+
+* Tue Oct 31 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.02-1
+- Update to 545.29.02 release
+
+* Tue Oct 17 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.23.06-1
+- Update to 545.23.06 beta
+- Remove  nvidia-drm.modeset from boot options
+
+* Fri Sep 22 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.113.01-1
+- Update to 535.113.01
+
+* Tue Aug 22 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.104.05-1
+- Update to 535.104.05
+
+* Mon Aug 14 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.98-2
+- Add nvidia-drm.modeset=1 to cmdline
+
+* Tue Aug 08 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.98-1
+- Update to 535.98
+
+* Tue Jul 18 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.86.05-1
+- Update to 535.86.05
+
+* Thu Jun 15 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.54.03-2
+- Install firmware signature
+- Use openssl3 for fedora and el9
+
+* Wed Jun 14 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.54.03-1
+- Update to 535.54.03
+
+* Tue May 30 2023 Leigh Scott <leigh123linux@gmail.com> - 3:535.43.02-1
+- Update to 535.43.02 beta
+
+* Thu Mar 23 2023 Leigh Scott <leigh123linux@gmail.com> - 3:530.41.03-1
+- Update to 530.41.03
+
+* Tue Mar 07 2023 Leigh Scott <leigh123linux@gmail.com> - 3:530.30.02-2
+- Remove modeset cmd option as it been default enabled in the kmod
+
+* Sat Mar 04 2023 Leigh Scott <leigh123linux@gmail.com> - 3:530.30.02-1
+- Update to 530.30.02 beta
+
+* Thu Feb 09 2023 Leigh Scott <leigh123linux@gmail.com> - 3:525.89.02-1
+- Update to 525.89.02
+
+* Thu Jan 19 2023 Leigh Scott <leigh123linux@gmail.com> - 3:525.85.05-1
+- Update to 525.85.05
 
 * Thu Jan 05 2023 Leigh Scott <leigh123linux@gmail.com> - 3:525.78.01-1
 - Update to 525.78.01
