@@ -22,7 +22,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         545.29.06
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -393,6 +393,10 @@ install -p -m 0644 systemd/system/nvidia-powerd.service %{buildroot}%{_unitdir}
 install -p -m 0755 systemd/system-sleep/nvidia %{buildroot}%{_systemd_util_dir}/system-sleep/
 install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
+# Ignore powerd binary exiting if hardware is not present
+# We should check for information in the DMI table
+sed -i -e 's/ExecStart=/ExecStart=-/g' %{buildroot}%{_unitdir}/nvidia-powerd.service
+
 # Firmware
 mkdir -p %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 install -p -m 0444 firmware/gsp_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
@@ -611,6 +615,9 @@ fi ||:
 %endif
 
 %changelog
+* Mon Dec 18 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.06-2
+- Do not mark nvidia-powerd unit as failed if the binary exits
+
 * Wed Nov 22 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.06-1
 - Update to 545.29.06 release
 
