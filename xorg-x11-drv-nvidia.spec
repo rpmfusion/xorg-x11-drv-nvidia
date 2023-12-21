@@ -389,13 +389,12 @@ install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
 install -p -m 0644 systemd/system/nvidia-{hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
 %ifarch x86_64
 install -p -m 0644 systemd/system/nvidia-powerd.service %{buildroot}%{_unitdir}
-%endif
-install -p -m 0755 systemd/system-sleep/nvidia %{buildroot}%{_systemd_util_dir}/system-sleep/
-install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
-
 # Ignore powerd binary exiting if hardware is not present
 # We should check for information in the DMI table
 sed -i -e 's/ExecStart=/ExecStart=-/g' %{buildroot}%{_unitdir}/nvidia-powerd.service
+%endif
+install -p -m 0755 systemd/system-sleep/nvidia %{buildroot}%{_systemd_util_dir}/system-sleep/
+install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
 # Firmware
 mkdir -p %{buildroot}%{_firmwarepath}/nvidia/%{version}/
