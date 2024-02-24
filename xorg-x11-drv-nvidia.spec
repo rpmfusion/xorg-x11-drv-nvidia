@@ -21,8 +21,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         545.29.06
-Release:         2%{?dist}
+Version:         550.54.14
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -399,8 +399,6 @@ install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 # Firmware
 mkdir -p %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 install -p -m 0444 firmware/gsp_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
-mkdir -p %{buildroot}%{_datadir}/nvidia/rim/
-install -p -m 0444 RIM_GH100PROD.swidtag %{buildroot}%{_datadir}/nvidia/rim/
 
 %pre
 if [ "$1" -eq "1" ]; then
@@ -471,7 +469,6 @@ fi ||:
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-*
 %{_datadir}/nvidia/nvoptix.bin
-%{_datadir}/nvidia/rim/
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
@@ -614,6 +611,12 @@ fi ||:
 %endif
 
 %changelog
+* Fri Feb 23 2024 Leigh Scott <leigh123linux@gmail.com> - 3:550.54.14-1
+- Update to 550.54.14 release
+
+* Wed Jan 24 2024 Leigh Scott <leigh123linux@gmail.com> - 3:550.40.07-1
+- Update to 550.40.07 beta
+
 * Mon Dec 18 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.06-2
 - Do not mark nvidia-powerd unit as failed if the binary exits
 
