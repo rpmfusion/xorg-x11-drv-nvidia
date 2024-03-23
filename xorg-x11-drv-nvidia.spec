@@ -22,7 +22,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         550.67
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -49,7 +49,7 @@ Requires:         Xorg >= 1.19.0-3
 
 Requires(post):   ldconfig
 Requires(postun): ldconfig
-Requires(post):   grubby
+Requires(post):   /usr/sbin/grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 Requires:         nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
@@ -410,7 +410,9 @@ fi
 %post
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
-  sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
+  if [ -f %{_sysconfdir}/default/grub ] ; then
+    sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' %{_sysconfdir}/default/grub
+  fi
 fi || :
 
 %triggerun -- xorg-x11-drv-nvidia < 3:545.23.06-1
@@ -434,7 +436,9 @@ fi
 %preun
 if [ "$1" -eq "0" ]; then
   %{_grubby} --remove-args='%{_dracutopts}' &>/dev/null
-  sed -i -e 's/%{_dracutopts} //g' /etc/default/grub
+  if [ -f %{_sysconfdir}/default/grub ] ; then
+    sed -i -e 's/%{_dracutopts} //g' %{_sysconfdir}/default/grub
+  fi
   # Backup and disable previously used xorg.conf
   [ -f %{_sysconfdir}/X11/xorg.conf ] && mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.nvidia_uninstalled &>/dev/null
 fi ||:
@@ -611,6 +615,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri Mar 22 2024 Gary Buhrmaster <gary.buhrmaster@gmail.com> - 3:550.67-2
+- Add support for using systemd-boot (sd-boot) as boot manager
+
 * Wed Mar 20 2024 Leigh Scott <leigh123linux@gmail.com> - 3:550.67-1
 - Update to 550.67 release
 
