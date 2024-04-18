@@ -237,7 +237,7 @@ cp -a \
     libnvidia-api.so.1 \
     libnvidia-cfg.so.%{version} \
 %if 0%{?rhel}
-    libnvidia-egl-gbm.so.1.1.0 \
+    libnvidia-egl-gbm.so.1.1.1 \
 %endif
     libnvidia-ngx.so.%{version} \
 %ifnarch aarch64
@@ -514,7 +514,7 @@ fi ||:
 %endif
 %if 0%{?rhel}
 %{_libdir}/libnvidia-egl-gbm.so.1
-%{_libdir}/libnvidia-egl-gbm.so.1.1.0
+%{_libdir}/libnvidia-egl-gbm.so.1.1.1
 %endif
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
