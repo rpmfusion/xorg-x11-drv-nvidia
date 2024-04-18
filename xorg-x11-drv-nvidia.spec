@@ -21,7 +21,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         545.29.06
+Version:         550.76
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -237,7 +237,7 @@ cp -a \
     libnvidia-api.so.1 \
     libnvidia-cfg.so.%{version} \
 %if 0%{?rhel}
-    libnvidia-egl-gbm.so.1.1.0 \
+    libnvidia-egl-gbm.so.1.1.1 \
 %endif
     libnvidia-ngx.so.%{version} \
 %ifnarch aarch64
@@ -389,6 +389,9 @@ install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
 install -p -m 0644 systemd/system/nvidia-{hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
 %ifarch x86_64
 install -p -m 0644 systemd/system/nvidia-powerd.service %{buildroot}%{_unitdir}
+# Ignore powerd binary exiting if hardware is not present
+# We should check for information in the DMI table
+sed -i -e 's/ExecStart=/ExecStart=-/g' %{buildroot}%{_unitdir}/nvidia-powerd.service
 %endif
 install -p -m 0755 systemd/system-sleep/nvidia %{buildroot}%{_systemd_util_dir}/system-sleep/
 install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
@@ -396,8 +399,6 @@ install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 # Firmware
 mkdir -p %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 install -p -m 0444 firmware/gsp_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
-mkdir -p %{buildroot}%{_datadir}/nvidia/rim/
-install -p -m 0444 RIM_GH100PROD.swidtag %{buildroot}%{_datadir}/nvidia/rim/
 
 %pre
 if [ "$1" -eq "1" ]; then
@@ -468,7 +469,6 @@ fi ||:
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-*
 %{_datadir}/nvidia/nvoptix.bin
-%{_datadir}/nvidia/rim/
 
 %files kmodsrc
 %dir %{_datadir}/nvidia-kmod-%{version}
@@ -514,7 +514,7 @@ fi ||:
 %endif
 %if 0%{?rhel}
 %{_libdir}/libnvidia-egl-gbm.so.1
-%{_libdir}/libnvidia-egl-gbm.so.1.1.0
+%{_libdir}/libnvidia-egl-gbm.so.1.1.1
 %endif
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
@@ -611,6 +611,21 @@ fi ||:
 %endif
 
 %changelog
+* Wed Apr 17 2024 Leigh Scott <leigh123linux@gmail.com> - 3:550.76-1
+- Update to 550.76 release
+
+* Wed Mar 20 2024 Leigh Scott <leigh123linux@gmail.com> - 3:550.67-1
+- Update to 550.67 release
+
+* Fri Feb 23 2024 Leigh Scott <leigh123linux@gmail.com> - 3:550.54.14-1
+- Update to 550.54.14 release
+
+* Wed Jan 24 2024 Leigh Scott <leigh123linux@gmail.com> - 3:550.40.07-1
+- Update to 550.40.07 beta
+
+* Mon Dec 18 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.06-2
+- Do not mark nvidia-powerd unit as failed if the binary exits
+
 * Wed Nov 22 2023 Leigh Scott <leigh123linux@gmail.com> - 3:545.29.06-1
 - Update to 545.29.06 release
 
