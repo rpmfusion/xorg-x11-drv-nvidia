@@ -21,7 +21,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         550.76
+Version:         550.78
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -237,7 +237,7 @@ cp -a \
     libnvidia-api.so.1 \
     libnvidia-cfg.so.%{version} \
 %if 0%{?rhel}
-    libnvidia-egl-gbm.so.1.1.0 \
+    libnvidia-egl-gbm.so.1.1.1 \
 %endif
     libnvidia-ngx.so.%{version} \
 %ifnarch aarch64
@@ -514,7 +514,7 @@ fi ||:
 %endif
 %if 0%{?rhel}
 %{_libdir}/libnvidia-egl-gbm.so.1
-%{_libdir}/libnvidia-egl-gbm.so.1.1.0
+%{_libdir}/libnvidia-egl-gbm.so.1.1.1
 %endif
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
@@ -611,6 +611,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri Apr 26 2024 Leigh Scott <leigh123linux@gmail.com> - 3:550.78-1
+- Update to 550.78 release
+
 * Wed Apr 17 2024 Leigh Scott <leigh123linux@gmail.com> - 3:550.76-1
 - Update to 550.76 release
 
