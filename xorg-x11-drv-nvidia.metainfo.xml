@@ -46,4 +46,7 @@
   </keywords>
   <url type="bugtracker">https://bugzilla.rpmfusion.org</url>
   <update_contact>xorg-x11-drv-nvidia-owner@rpmfusion.org</update_contact>
+  <custom>
+    <value key="GnomeSoftware::requires-akmods-key">True</value>
+  </custom>
 </component>
