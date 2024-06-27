@@ -21,7 +21,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         550.90.07
+Version:         555.58
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -49,7 +49,7 @@ Requires:         Xorg >= 1.19.0-3
 
 Requires(post):   ldconfig
 Requires(postun): ldconfig
-Requires(post):   grubby
+Requires(post):   /usr/sbin/grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 Requires:         nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
@@ -611,8 +611,14 @@ fi ||:
 %endif
 
 %changelog
-* Wed Jun 05 2024 Leigh Scott <leigh123linux@gmail.com> - 3:550.90.07-1
-- Update to 550.90.07 release
+* Thu Jun 27 2024 Leigh Scott <leigh123linux@gmail.com> - 3:555.58-1
+- Update to 555.58 release
+
+* Wed Jun 05 2024 Leigh Scott <leigh123linux@gmail.com> - 3:555.52.04-1
+- Update to 555.52.04 beta
+
+* Tue May 21 2024 Leigh Scott <leigh123linux@gmail.com> - 3:555.42.02-1
+- Update to 555.42.02 beta
 
 * Fri Apr 26 2024 Leigh Scott <leigh123linux@gmail.com> - 3:550.78-1
 - Update to 550.78 release
