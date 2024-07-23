@@ -21,7 +21,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         555.58.02
+Version:         560.28.03
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -222,6 +222,8 @@ cp -a \
     libnvcuvid.so.%{version} \
     libnvidia-allocator.so.%{version} \
     libnvidia-eglcore.so.%{version} \
+    libnvidia-egl-xcb.so.1 \
+    libnvidia-egl-xlib.so.1 \
     libnvidia-encode.so.%{version} \
     libnvidia-fbc.so.%{version} \
     libnvidia-glcore.so.%{version} \
@@ -241,6 +243,7 @@ cp -a \
 %endif
     libnvidia-ngx.so.%{version} \
 %ifnarch aarch64
+    libnvidia-vksc-core.so.%{version} \
 %if 0%{?fedora} || 0%{?rhel} > 8
     libnvidia-pkcs11-openssl3.so.%{version} \
 %else
@@ -295,12 +298,19 @@ install -p -m 0644 nvidia.icd %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
 install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 
+# EGL config
+install -m 0755 -d %{buildroot}%{_datadir}/egl/egl_external_platform.d/
+install -pm 0644 20_nvidia_xcb.json 20_nvidia_xlib.json %{buildroot}%{_datadir}/egl/egl_external_platform.d/
+
 # Blacklist nouveau, autoload nvidia-uvm module after nvidia module
 mkdir -p %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE11} %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE16} %{buildroot}%{_modprobedir}
 
 %ifarch x86_64
+# Install VulkanSC config
+install    -m 0755 -d               %{buildroot}%{_sysconfdir}/vulkansc/icd.d/
+install -p -m 0644 nvidia_icd_vksc.json %{buildroot}%{_sysconfdir}/vulkansc/icd.d/
 # Install dbus config
 install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
 install -p -m 0644 nvidia-dbus.conf %{buildroot}%{_dbus_systemd_dir}
@@ -315,7 +325,7 @@ install -m 0755 -d %{buildroot}%{_bindir}
 install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater} \
   %{buildroot}%{_bindir}
 %ifarch x86_64
-install -p -m 0755 nvidia-powerd \
+install -p -m 0755 nvidia-powerd nvidia-pcc \
   %{buildroot}%{_bindir}
 %endif
 
@@ -446,10 +456,14 @@ fi ||:
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
+%ifarch x86_64
+%{_bindir}/nvidia-pcc
+%endif
 %{_firmwarepath}
 %dir %{_alternate_dir}
 %{_alternate_dir}/alternate-install-present
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
+%{_datadir}/egl/egl_external_platform.d/20_nvidia_*.json
 %dir %{_sysconfdir}/nvidia
 %ghost %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 %ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
@@ -489,6 +503,8 @@ fi ||:
 %{_libdir}/libnvidia-allocator.so.1
 %{_libdir}/libnvidia-allocator.so.%{version}
 %{_libdir}/libnvidia-eglcore.so.%{version}
+%{_libdir}/libnvidia-egl-xcb.so.1
+%{_libdir}/libnvidia-egl-xlib.so.1
 %{_libdir}/libnvidia-fbc.so.1
 %{_libdir}/libnvidia-fbc.so.%{version}
 %{_libdir}/libnvidia-glcore.so.%{version}
@@ -522,6 +538,9 @@ fi ||:
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %ifarch x86_64
+%{_sysconfdir}/vulkansc/icd.d/nvidia_icd_vksc.json
+%{_libdir}/libnvidia-vksc-core.so.%{version}
+%{_libdir}/libnvidia-vksc-core.so.1
 %{_winedir}/
 %endif
 %endif
@@ -611,6 +630,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Jul 23 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.28.03-1
+- Update to 560.28.03 beta
+
 * Mon Jul 01 2024 Leigh Scott <leigh123linux@gmail.com> - 3:555.58.02-1
 - Update to 555.58.02
 
