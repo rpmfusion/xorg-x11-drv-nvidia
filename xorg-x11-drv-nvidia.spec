@@ -157,16 +157,14 @@ Requires:        libglvnd-gles%{?_isa} >= 0.2
 Requires:        libglvnd-glx%{?_isa} >= 0.2
 Requires:        libglvnd-opengl%{?_isa} >= 0.2
 Requires:        vulkan-loader%{?_isa}
-%ifarch x86_64 aarch64
 # Fedora 35 has early XWayland support using recent egl-wayland
-Requires:        egl-wayland%{?_isa} %{?fc35: >= 1.1.9-2}
+Requires:        egl-wayland%{?_isa}
 %if 0%{?fedora}
 Requires:        egl-gbm%{?_isa}
 %endif
 # Boolean dependencies are only fedora and el8
 %ifarch x86_64
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
-%endif
 %endif
 Requires:        mesa-libEGL%{?_isa}
 Requires:        mesa-libGL%{?_isa}
