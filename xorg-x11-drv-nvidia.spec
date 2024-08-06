@@ -21,8 +21,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         560.28.03
-Release:         2%{?dist}
+Version:         560.31.02
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -306,8 +306,8 @@ install -p -m 0644 %{SOURCE16} %{buildroot}%{_modprobedir}
 
 %ifarch x86_64
 # Install VulkanSC config
-install    -m 0755 -d               %{buildroot}%{_sysconfdir}/vulkansc/icd.d/
-install -p -m 0644 nvidia_icd_vksc.json %{buildroot}%{_sysconfdir}/vulkansc/icd.d/
+install    -m 0755 -d               %{buildroot}%{_datadir}/vulkansc/icd.d/
+install -p -m 0644 nvidia_icd_vksc.json %{buildroot}%{_datadir}/vulkansc/icd.d/
 # Install dbus config
 install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
 install -p -m 0644 nvidia-dbus.conf %{buildroot}%{_dbus_systemd_dir}
@@ -535,7 +535,7 @@ fi ||:
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %ifarch x86_64
-%{_sysconfdir}/vulkansc/icd.d/nvidia_icd_vksc.json
+%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.json
 %{_libdir}/libnvidia-vksc-core.so.%{version}
 %{_libdir}/libnvidia-vksc-core.so.1
 %{_winedir}/
@@ -627,6 +627,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Aug 06 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.31.02-1
+- Update to 560.31.02 beta
+
 * Wed Jul 24 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.28.03-2
 - Use bundled egl-wayland and egl-gbm
 
