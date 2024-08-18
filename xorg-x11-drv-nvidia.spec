@@ -22,7 +22,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         560.31.02
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -160,10 +160,16 @@ Requires:        libglvnd-glx%{?_isa} >= 0.2
 Requires:        libglvnd-opengl%{?_isa} >= 0.2
 Requires:        vulkan-loader%{?_isa}
 
-Obsoletes:       egl-wayland < 1.1.15
-Obsoletes:       egl-gbm < 2:1.1.2
+%if 0%{?fedora}
+Requires:        egl-wayland%{?_isa} >= 1.1.15
+Requires:        egl-gbm%{?_isa} >= 2:1.1.2
+%else
+%ifnarch i686
+Requires:        egl-wayland%{?_isa} >= 1.1.15
+Requires:        egl-gbm%{?_isa} >= 2:1.1.2
+%endif
+%endif
 
-# Boolean dependencies are only fedora and el8
 %ifarch x86_64
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
@@ -221,8 +227,6 @@ cp -a \
     libnvcuvid.so.%{version} \
     libnvidia-allocator.so.%{version} \
     libnvidia-eglcore.so.%{version} \
-    libnvidia-egl-gbm.so.1.1.1 \
-    libnvidia-egl-wayland.so.1.1.13 \
     libnvidia-egl-xcb.so.1 \
     libnvidia-egl-xlib.so.1 \
     libnvidia-encode.so.%{version} \
@@ -242,11 +246,7 @@ cp -a \
     libnvidia-ngx.so.%{version} \
 %ifnarch aarch64
     libnvidia-vksc-core.so.%{version} \
-%if 0%{?fedora} || 0%{?rhel} > 8
     libnvidia-pkcs11-openssl3.so.%{version} \
-%else
-    libnvidia-pkcs11.so.%{version} \
-%endif
 %endif
     libnvidia-rtcore.so.%{version} \
     libnvoptix.so.%{version} \
@@ -298,7 +298,7 @@ install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_
 
 # EGL configs
 install -m 0755 -d %{buildroot}%{_datadir}/egl/egl_external_platform.d/
-install -pm 0644 10_nvidia_wayland.json 15_nvidia_gbm.json 20_nvidia_xcb.json 20_nvidia_xlib.json \
+install -pm 0644 20_nvidia_xcb.json 20_nvidia_xlib.json \
  %{buildroot}%{_datadir}/egl/egl_external_platform.d/
 
 # Blacklist nouveau, autoload nvidia-uvm module after nvidia module
@@ -462,7 +462,7 @@ fi ||:
 %dir %{_alternate_dir}
 %{_alternate_dir}/alternate-install-present
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
-%{_datadir}/egl/egl_external_platform.d/*.json
+%{_datadir}/egl/egl_external_platform.d/20_nvidia_*.json
 %dir %{_sysconfdir}/nvidia
 %ghost %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 %ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
@@ -502,10 +502,6 @@ fi ||:
 %{_libdir}/libnvidia-allocator.so.1
 %{_libdir}/libnvidia-allocator.so.%{version}
 %{_libdir}/libnvidia-eglcore.so.%{version}
-%{_libdir}/libnvidia-egl-gbm.so.1
-%{_libdir}/libnvidia-egl-gbm.so.1.1.1
-%{_libdir}/libnvidia-egl-wayland.so.1
-%{_libdir}/libnvidia-egl-wayland.so.1.1.13
 %{_libdir}/libnvidia-egl-xcb.so.1
 %{_libdir}/libnvidia-egl-xlib.so.1
 %{_libdir}/libnvidia-fbc.so.1
@@ -525,11 +521,7 @@ fi ||:
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
 %ifnarch aarch64
-%if 0%{?fedora} || 0%{?rhel} > 8
 %{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
-%else
-%{_libdir}/libnvidia-pkcs11.so.%{version}
-%endif
 %endif
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
@@ -629,6 +621,10 @@ fi ||:
 %endif
 
 %changelog
+* Sun Aug 18 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.31.02-3
+- Use system egl-wayland and egl-gbm
+- Remove old rhel conditionals
+
 * Mon Aug 12 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:560.31.02-2
 - Provides nvidia-open for cuda-12-6
 
