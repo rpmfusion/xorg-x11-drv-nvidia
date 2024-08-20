@@ -76,6 +76,7 @@ Provides:        %{_nvidia_serie}-kmod-common = %{?epoch}:%{version}
 Provides:        %{_nvidia_serie}-open-kmod-common = %{?epoch}:%{version}
 Conflicts:       xorg-x11-drv-nvidia-340xx
 Conflicts:       xorg-x11-drv-nvidia-390xx
+Conflicts:       xorg-x11-drv-nvidia-470xx
 
 %global         __provides_exclude ^(lib.*GL.*\\.so.*)$
 %global         __requires_exclude ^libglxserver_nvidia.so|^(lib.*GL.*\\.so.*)$
@@ -122,6 +123,8 @@ Requires:        ocl-icd%{?_isa}
 Requires:        opencl-filesystem
 
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
+Conflicts:       xorg-x11-drv-nvidia-390xx-cuda
+Conflicts:       xorg-x11-drv-nvidia-470xx-cuda
 
 #Don't put an epoch here
 Provides:        cuda-drivers-%(echo %{version} | cut -f 1 -d .) = %{version}
