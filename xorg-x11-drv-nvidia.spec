@@ -22,7 +22,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         560.31.02
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -625,6 +625,10 @@ fi ||:
 %endif
 
 %changelog
+* Tue Aug 20 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:560.31.02-4
+- Add nvidia-open-560
+- Add missing conflicts
+
 * Sun Aug 18 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.31.02-3
 - Use system egl-wayland and egl-gbm
 - Remove old rhel conditionals
