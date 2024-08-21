@@ -22,8 +22,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         560.31.02
-Release:         5%{?dist}
+Version:         560.35.03
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -609,6 +609,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Aug 21 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-1
+- Update to 560.35.03 Release
+
 * Wed Aug 21 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:560.31.02-5
 - Drop tweaks for /etc/default/grub - rfbz#7034
 - Add --remove-args for deprecated/old cmdline options in triggerin
