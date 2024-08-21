@@ -430,7 +430,7 @@ fi || :
 if [ -f %{_sysconfdir}/default/grub ] ; then
   sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
   . %{_sysconfdir}/default/grub
-  if [ -z "${GRUB_CMDLINE_LINUX+x}" ]; then
+  if [ -z "${GRUB_CMDLINE_LINUX}" ]; then
     echo -e GRUB_CMDLINE_LINUX=\"%{_dracutopts}\" >> %{_sysconfdir}/default/grub
   else
     for i in %{_dracutopts} ; do
