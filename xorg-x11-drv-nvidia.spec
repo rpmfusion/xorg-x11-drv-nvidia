@@ -10,6 +10,7 @@
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
+%global        _dracutopts_removed  initcall_blacklist=simpledrm_platform_driver_init nvidia-drm.modeset=1
 %if 0%{?rhel}
 %global        _systemd_util_dir    %{_prefix}/lib/systemd
 %endif
@@ -22,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         560.31.02
-Release:         4%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -423,31 +424,14 @@ fi
 %post
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
-  sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
 fi || :
 
-%triggerun -- xorg-x11-drv-nvidia < 3:545.23.06-1
-if [ -f %{_sysconfdir}/default/grub ] ; then
-  sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
-  . %{_sysconfdir}/default/grub
-  if [ -z "${GRUB_CMDLINE_LINUX}" ]; then
-    echo -e GRUB_CMDLINE_LINUX=\"%{_dracutopts}\" >> %{_sysconfdir}/default/grub
-  else
-    for i in %{_dracutopts} ; do
-      _has_string=$(echo ${GRUB_CMDLINE_LINUX} | grep -F -c $i)
-      if [ x"$_has_string" = x0 ] ; then
-        GRUB_CMDLINE_LINUX="${GRUB_CMDLINE_LINUX} ${i}"
-      fi
-    done
-    sed -i -e "s|^GRUB_CMDLINE_LINUX=.*|GRUB_CMDLINE_LINUX=\"${GRUB_CMDLINE_LINUX}\"|g" %{_sysconfdir}/default/grub
-  fi
-fi
-%{_grubby} --args='%{_dracutopts}' &>/dev/null || :
+%triggerun -- xorg-x11-drv-nvidia < 3:560.31.02-5
+%{_grubby} --remove-args='%{_dracutopts_remove}' &>/dev/null || :
 
 %preun
 if [ "$1" -eq "0" ]; then
   %{_grubby} --remove-args='%{_dracutopts}' &>/dev/null
-  sed -i -e 's/%{_dracutopts} //g' /etc/default/grub
   # Backup and disable previously used xorg.conf
   [ -f %{_sysconfdir}/X11/xorg.conf ] && mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.nvidia_uninstalled &>/dev/null
 fi ||:
@@ -625,6 +609,10 @@ fi ||:
 %endif
 
 %changelog
+* Wed Aug 21 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:560.31.02-5
+- Drop tweaks for /etc/default/grub - rfbz#7034
+- Add --remove-args for deprecated/old cmdline options in triggerin
+
 * Tue Aug 20 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:560.31.02-4
 - Add nvidia-open-560
 - Add missing conflicts
