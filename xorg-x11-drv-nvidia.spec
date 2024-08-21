@@ -10,6 +10,7 @@
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
+%global        _dracutopts_removed  initcall_blacklist=simpledrm_platform_driver_init nvidia-drm.modeset=1
 %if 0%{?rhel}
 %global        _systemd_util_dir    %{_prefix}/lib/systemd
 %endif
@@ -21,7 +22,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         555.58.02
+Version:         560.35.03
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -76,6 +77,7 @@ Provides:        %{_nvidia_serie}-kmod-common = %{?epoch}:%{version}
 Provides:        %{_nvidia_serie}-open-kmod-common = %{?epoch}:%{version}
 Conflicts:       xorg-x11-drv-nvidia-340xx
 Conflicts:       xorg-x11-drv-nvidia-390xx
+Conflicts:       xorg-x11-drv-nvidia-470xx
 
 %global         __provides_exclude ^(lib.*GL.*\\.so.*)$
 %global         __requires_exclude ^libglxserver_nvidia.so|^(lib.*GL.*\\.so.*)$
@@ -122,6 +124,8 @@ Requires:        ocl-icd%{?_isa}
 Requires:        opencl-filesystem
 
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
+Conflicts:       xorg-x11-drv-nvidia-390xx-cuda
+Conflicts:       xorg-x11-drv-nvidia-470xx-cuda
 
 #Don't put an epoch here
 Provides:        cuda-drivers-%(echo %{version} | cut -f 1 -d .) = %{version}
@@ -132,6 +136,9 @@ Provides:        nvidia-driver = %{?epoch}:%{version}-100
 Provides:        nvidia-driver%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-drivers = %{?epoch}:%{version}-100
 Provides:        nvidia-drivers%{?_isa} = %{?epoch}:%{version}-100
+Provides:        nvidia-open = %{?epoch}:%{version}-100
+Provides:        nvidia-open%{?_isa} = %{?epoch}:%{version}-100
+Provides:        nvidia-open-%(echo %{version} | cut -f 1 -d .) = %{version}
 
 %description cuda
 This package provides the CUDA driver.
@@ -157,16 +164,19 @@ Requires:        libglvnd-gles%{?_isa} >= 0.2
 Requires:        libglvnd-glx%{?_isa} >= 0.2
 Requires:        libglvnd-opengl%{?_isa} >= 0.2
 Requires:        vulkan-loader%{?_isa}
-%ifarch x86_64 aarch64
-# Fedora 35 has early XWayland support using recent egl-wayland
-Requires:        egl-wayland%{?_isa} %{?fc35: >= 1.1.9-2}
+
 %if 0%{?fedora}
-Requires:        egl-gbm%{?_isa}
+Requires:        egl-wayland%{?_isa} >= 1.1.15
+Requires:        egl-gbm%{?_isa} >= 2:1.1.2
+%else
+%ifnarch i686
+Requires:        egl-wayland%{?_isa} >= 1.1.15
+Requires:        egl-gbm%{?_isa} >= 2:1.1.2
 %endif
-# Boolean dependencies are only fedora and el8
+%endif
+
 %ifarch x86_64
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
-%endif
 %endif
 Requires:        mesa-libEGL%{?_isa}
 Requires:        mesa-libGL%{?_isa}
@@ -222,6 +232,8 @@ cp -a \
     libnvcuvid.so.%{version} \
     libnvidia-allocator.so.%{version} \
     libnvidia-eglcore.so.%{version} \
+    libnvidia-egl-xcb.so.1 \
+    libnvidia-egl-xlib.so.1 \
     libnvidia-encode.so.%{version} \
     libnvidia-fbc.so.%{version} \
     libnvidia-glcore.so.%{version} \
@@ -236,16 +248,10 @@ cp -a \
     libcudadebugger.so.%{version} \
     libnvidia-api.so.1 \
     libnvidia-cfg.so.%{version} \
-%if 0%{?rhel}
-    libnvidia-egl-gbm.so.1.1.1 \
-%endif
     libnvidia-ngx.so.%{version} \
 %ifnarch aarch64
-%if 0%{?fedora} || 0%{?rhel} > 8
+    libnvidia-vksc-core.so.%{version} \
     libnvidia-pkcs11-openssl3.so.%{version} \
-%else
-    libnvidia-pkcs11.so.%{version} \
-%endif
 %endif
     libnvidia-rtcore.so.%{version} \
     libnvoptix.so.%{version} \
@@ -295,12 +301,20 @@ install -p -m 0644 nvidia.icd %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
 install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 
+# EGL configs
+install -m 0755 -d %{buildroot}%{_datadir}/egl/egl_external_platform.d/
+install -pm 0644 20_nvidia_xcb.json 20_nvidia_xlib.json \
+ %{buildroot}%{_datadir}/egl/egl_external_platform.d/
+
 # Blacklist nouveau, autoload nvidia-uvm module after nvidia module
 mkdir -p %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE11} %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE16} %{buildroot}%{_modprobedir}
 
 %ifarch x86_64
+# Install VulkanSC config
+install    -m 0755 -d               %{buildroot}%{_datadir}/vulkansc/icd.d/
+install -p -m 0644 nvidia_icd_vksc.json %{buildroot}%{_datadir}/vulkansc/icd.d/
 # Install dbus config
 install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
 install -p -m 0644 nvidia-dbus.conf %{buildroot}%{_dbus_systemd_dir}
@@ -315,7 +329,7 @@ install -m 0755 -d %{buildroot}%{_bindir}
 install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater} \
   %{buildroot}%{_bindir}
 %ifarch x86_64
-install -p -m 0755 nvidia-powerd \
+install -p -m 0755 nvidia-powerd nvidia-pcc \
   %{buildroot}%{_bindir}
 %endif
 
@@ -410,31 +424,14 @@ fi
 %post
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
-  sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
 fi || :
 
-%triggerun -- xorg-x11-drv-nvidia < 3:545.23.06-1
-if [ -f %{_sysconfdir}/default/grub ] ; then
-  sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
-  . %{_sysconfdir}/default/grub
-  if [ -z "${GRUB_CMDLINE_LINUX+x}" ]; then
-    echo -e GRUB_CMDLINE_LINUX=\"%{_dracutopts}\" >> %{_sysconfdir}/default/grub
-  else
-    for i in %{_dracutopts} ; do
-      _has_string=$(echo ${GRUB_CMDLINE_LINUX} | grep -F -c $i)
-      if [ x"$_has_string" = x0 ] ; then
-        GRUB_CMDLINE_LINUX="${GRUB_CMDLINE_LINUX} ${i}"
-      fi
-    done
-    sed -i -e "s|^GRUB_CMDLINE_LINUX=.*|GRUB_CMDLINE_LINUX=\"${GRUB_CMDLINE_LINUX}\"|g" %{_sysconfdir}/default/grub
-  fi
-fi
-%{_grubby} --args='%{_dracutopts}' &>/dev/null || :
+%triggerun -- xorg-x11-drv-nvidia < 3:560.31.02-5
+%{_grubby} --remove-args='%{_dracutopts_remove}' &>/dev/null || :
 
 %preun
 if [ "$1" -eq "0" ]; then
   %{_grubby} --remove-args='%{_dracutopts}' &>/dev/null
-  sed -i -e 's/%{_dracutopts} //g' /etc/default/grub
   # Backup and disable previously used xorg.conf
   [ -f %{_sysconfdir}/X11/xorg.conf ] && mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.nvidia_uninstalled &>/dev/null
 fi ||:
@@ -446,10 +443,14 @@ fi ||:
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
+%ifarch x86_64
+%{_bindir}/nvidia-pcc
+%endif
 %{_firmwarepath}
 %dir %{_alternate_dir}
 %{_alternate_dir}/alternate-install-present
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
+%{_datadir}/egl/egl_external_platform.d/20_nvidia_*.json
 %dir %{_sysconfdir}/nvidia
 %ghost %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 %ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
@@ -489,6 +490,8 @@ fi ||:
 %{_libdir}/libnvidia-allocator.so.1
 %{_libdir}/libnvidia-allocator.so.%{version}
 %{_libdir}/libnvidia-eglcore.so.%{version}
+%{_libdir}/libnvidia-egl-xcb.so.1
+%{_libdir}/libnvidia-egl-xlib.so.1
 %{_libdir}/libnvidia-fbc.so.1
 %{_libdir}/libnvidia-fbc.so.%{version}
 %{_libdir}/libnvidia-glcore.so.%{version}
@@ -506,15 +509,7 @@ fi ||:
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
 %ifnarch aarch64
-%if 0%{?fedora} || 0%{?rhel} > 8
 %{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
-%else
-%{_libdir}/libnvidia-pkcs11.so.%{version}
-%endif
-%endif
-%if 0%{?rhel}
-%{_libdir}/libnvidia-egl-gbm.so.1
-%{_libdir}/libnvidia-egl-gbm.so.1.1.1
 %endif
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
@@ -522,6 +517,9 @@ fi ||:
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %ifarch x86_64
+%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.json
+%{_libdir}/libnvidia-vksc-core.so.%{version}
+%{_libdir}/libnvidia-vksc-core.so.1
 %{_winedir}/
 %endif
 %endif
@@ -611,6 +609,33 @@ fi ||:
 %endif
 
 %changelog
+* Wed Aug 21 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-1
+- Update to 560.35.03 Release
+
+* Wed Aug 21 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:560.31.02-5
+- Drop tweaks for /etc/default/grub - rfbz#7034
+- Add --remove-args for deprecated/old cmdline options in triggerin
+
+* Tue Aug 20 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:560.31.02-4
+- Add nvidia-open-560
+- Add missing conflicts
+
+* Sun Aug 18 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.31.02-3
+- Use system egl-wayland and egl-gbm
+- Remove old rhel conditionals
+
+* Mon Aug 12 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:560.31.02-2
+- Provides nvidia-open for cuda-12-6
+
+* Tue Aug 06 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.31.02-1
+- Update to 560.31.02 beta
+
+* Wed Jul 24 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.28.03-2
+- Use bundled egl-wayland and egl-gbm
+
+* Tue Jul 23 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.28.03-1
+- Update to 560.28.03 beta
+
 * Mon Jul 01 2024 Leigh Scott <leigh123linux@gmail.com> - 3:555.58.02-1
 - Update to 555.58.02
 
