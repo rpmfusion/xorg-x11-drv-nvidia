@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         560.35.03
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -427,7 +427,7 @@ if [ "$1" -eq "1" ]; then
 fi || :
 
 %triggerun -- xorg-x11-drv-nvidia < 3:560.31.02-5
-%{_grubby} --remove-args='%{_dracutopts_remove}' &>/dev/null || :
+%{_grubby} --remove-args='%{_dracutopts_removed}' &>/dev/null || :
 
 %preun
 if [ "$1" -eq "0" ]; then
@@ -609,6 +609,9 @@ fi ||:
 %endif
 
 %changelog
+* Thu Aug 22 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-2
+- Fix trigger scriptlet
+
 * Wed Aug 21 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-1
 - Update to 560.35.03 Release
 
