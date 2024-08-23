@@ -326,6 +326,10 @@ install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps
 install -p -m 0644 -D nvidia_icd_vksc.json %{buildroot}%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
 sed -i -e 's|libnvidia-vksc-core|%{_libdir}/libnvidia-vksc-core|g' %{buildroot}%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
 install -p -m 0755 nvidia-pcc %{buildroot}%{_bindir}
+
+#Install wine dll
+mkdir -p %{buildroot}%{_winedir}
+install -p -m 0644 _nvngx.dll nvngx.dll %{buildroot}%{_winedir}
 %endif
 
 # Install man pages
@@ -360,11 +364,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/nvidia
 #Install the nvidia kernel modules sources archive
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
 tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open
-%ifarch x86_64
-#Install wine dll
-mkdir -p %{buildroot}%{_winedir}
-install -p -m 0644 _nvngx.dll nvngx.dll %{buildroot}%{_winedir}
-%endif
 
 #RPM Macros support
 mkdir -p %{buildroot}%{rpmmacrodir}
