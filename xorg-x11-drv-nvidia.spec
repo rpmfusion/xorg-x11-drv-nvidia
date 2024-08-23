@@ -314,9 +314,6 @@ install -p -m 0644 %{SOURCE16} %{buildroot}%{_modprobedir}
 # Install VulkanSC config
 install    -m 0755 -d               %{buildroot}%{_datadir}/vulkansc/icd.d/
 install -p -m 0644 nvidia_icd_vksc.json %{buildroot}%{_datadir}/vulkansc/icd.d/
-# Install dbus config
-install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
-install -p -m 0644 nvidia-dbus.conf %{buildroot}%{_dbus_systemd_dir}
 %endif
 
 # dracut.conf.d file, nvidia modules must never be in the initrd
@@ -325,10 +322,10 @@ install -p -m 0644 %{SOURCE12} %{buildroot}%{_dracut_conf_d}/
 
 # Install binaries
 install -m 0755 -d %{buildroot}%{_bindir}
-install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater} \
+install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater,powerd} \
   %{buildroot}%{_bindir}
 %ifarch x86_64
-install -p -m 0755 nvidia-powerd nvidia-pcc \
+install -p -m 0755 nvidia-pcc \
   %{buildroot}%{_bindir}
 %endif
 
@@ -396,12 +393,13 @@ install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
 mkdir %{buildroot}%{_systemd_util_dir}/system-{sleep,preset}/
 install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
 install -p -m 0644 systemd/system/nvidia-{hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
-%ifarch x86_64
 install -p -m 0644 systemd/system/nvidia-powerd.service %{buildroot}%{_unitdir}
+# Install dbus config
+install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
+install -p -m 0644 nvidia-dbus.conf %{buildroot}%{_dbus_systemd_dir}
 # Ignore powerd binary exiting if hardware is not present
 # We should check for information in the DMI table
 sed -i -e 's/ExecStart=/ExecStart=-/g' %{buildroot}%{_unitdir}/nvidia-powerd.service
-%endif
 install -p -m 0755 systemd/system-sleep/nvidia %{buildroot}%{_systemd_util_dir}/system-sleep/
 install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
@@ -566,35 +564,27 @@ fi ||:
 %ifarch x86_64 aarch64
 %post power
 %systemd_post nvidia-hibernate.service
-%ifarch x86_64
 %systemd_post nvidia-powerd.service
-%endif
 %systemd_post nvidia-resume.service
 %systemd_post nvidia-suspend.service
 
 %preun power
 %systemd_preun nvidia-hibernate.service
-%ifarch x86_64
 %systemd_preun nvidia-powerd.service
-%endif
 %systemd_preun nvidia-resume.service
 %systemd_preun nvidia-suspend.service
 
 %postun power
 %systemd_postun nvidia-hibernate.service
-%ifarch x86_64
 %systemd_postun nvidia-powerd.service
-%endif
 %systemd_postun nvidia-resume.service
 %systemd_postun nvidia-suspend.service
 
 %files power
 %config %{_modprobedir}/nvidia-power-management.conf
-%ifarch x86_64
 %{_bindir}/nvidia-powerd
 %{_unitdir}/nvidia-powerd.service
 %{_dbus_systemd_dir}/nvidia-dbus.conf
-%endif
 %{_bindir}/nvidia-sleep.sh
 %{_systemd_util_dir}/system-preset/70-nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
