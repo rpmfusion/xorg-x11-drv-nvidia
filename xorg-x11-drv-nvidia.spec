@@ -282,11 +282,13 @@ ln -sf ../libnvidia-allocator.so.%{version} %{buildroot}%{_libdir}/gbm/nvidia-dr
 popd
 %endif
 
+# Vulkan loader
+install -p -m 0644 -D nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+sed -i -e 's|libGLX_nvidia|%{_libdir}/libGLX_nvidia|g' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+
 %ifarch x86_64 aarch64
-# Vulkan config and symlink
-install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
-install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/
-install -p -m 0644 nvidia_layers.json %{buildroot}%{_datadir}/vulkan/implicit_layer.d/
+# Vulkan layer
+install -p -m 0644 -D nvidia_layers.json %{buildroot}%{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
 
 # X DDX driver and GLX extension
 install -p -D -m 0755 libglxserver_nvidia.so.%{version} %{buildroot}%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
@@ -310,12 +312,6 @@ mkdir -p %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE11} %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE16} %{buildroot}%{_modprobedir}
 
-%ifarch x86_64
-# Install VulkanSC config
-install    -m 0755 -d               %{buildroot}%{_datadir}/vulkansc/icd.d/
-install -p -m 0644 nvidia_icd_vksc.json %{buildroot}%{_datadir}/vulkansc/icd.d/
-%endif
-
 # dracut.conf.d file, nvidia modules must never be in the initrd
 install -p -m 0755 -d          %{buildroot}%{_dracut_conf_d}/
 install -p -m 0644 %{SOURCE12} %{buildroot}%{_dracut_conf_d}/
@@ -324,9 +320,13 @@ install -p -m 0644 %{SOURCE12} %{buildroot}%{_dracut_conf_d}/
 install -m 0755 -d %{buildroot}%{_bindir}
 install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater,powerd} \
   %{buildroot}%{_bindir}
+
 %ifarch x86_64
-install -p -m 0755 nvidia-pcc \
-  %{buildroot}%{_bindir}
+# Install VulkanSC config
+# Vulkan SC loader and compiler
+install -p -m 0644 -D nvidia_icd_vksc.json %{buildroot}%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
+sed -i -e 's|libnvidia-vksc-core|%{_libdir}/libnvidia-vksc-core|g' %{buildroot}%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
+install -p -m 0755 nvidia-pcc %{buildroot}%{_bindir}
 %endif
 
 # Install man pages
@@ -495,9 +495,9 @@ fi ||:
 %{_libdir}/gbm/
 %{_libdir}/vdpau/libvdpau_nvidia.so.1
 %{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
+%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 %ifarch x86_64 aarch64
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
-%{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{_libdir}/libnvidia-api.so.1
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
@@ -510,7 +510,7 @@ fi ||:
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %ifarch x86_64
-%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.json
+%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
 %{_libdir}/libnvidia-vksc-core.so.%{version}
 %{_libdir}/libnvidia-vksc-core.so.1
 %{_winedir}/
