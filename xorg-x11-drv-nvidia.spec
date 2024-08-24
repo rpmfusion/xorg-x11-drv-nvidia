@@ -10,7 +10,7 @@
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
-%global        _dracutopts_removed  initcall_blacklist=simpledrm_platform_driver_init nvidia-drm.modeset=1
+%global        _dracutopts_removed  initcall_blacklist=simpledrm_platform_driver_init nvidia-drm.modeset=1 nvidia-drm.fbdev=1
 %if 0%{?rhel}
 %global        _systemd_util_dir    %{_prefix}/lib/systemd
 %endif
@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         560.35.03
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -39,7 +39,6 @@ Source11:        nvidia-uvm.conf
 Source12:        99-nvidia-dracut.conf
 Source13:        10-nvidia.rules
 Source14:        nvidia-fallback.service
-Source15:        rhel_nvidia.conf
 Source16:        nvidia-power-management.conf
 Source17:        70-nvidia.preset
 
@@ -283,11 +282,21 @@ ln -sf ../libnvidia-allocator.so.%{version} %{buildroot}%{_libdir}/gbm/nvidia-dr
 popd
 %endif
 
+# Vulkan loader
+install -p -m 0644 -D nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+sed -i -e 's|libGLX_nvidia|%{_libdir}/libGLX_nvidia|g' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+
+# EGL config for libglvnd
+install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
+install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
+
+# EGL configs
+install -m 0755 -d %{buildroot}%{_datadir}/egl/egl_external_platform.d/
+install -pm 0644 20_nvidia_xcb.json 20_nvidia_xlib.json %{buildroot}%{_datadir}/egl/egl_external_platform.d/
+
 %ifarch x86_64 aarch64
-# Vulkan config and symlink
-install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
-install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/
-install -p -m 0644 nvidia_layers.json %{buildroot}%{_datadir}/vulkan/implicit_layer.d/
+# Vulkan layer
+install -p -m 0644 -D nvidia_layers.json %{buildroot}%{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
 
 # X DDX driver and GLX extension
 install -p -D -m 0755 libglxserver_nvidia.so.%{version} %{buildroot}%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
@@ -297,28 +306,10 @@ install -D -p -m 0755 nvidia_drv.so %{buildroot}%{_libdir}/xorg/modules/drivers/
 install    -m 0755         -d %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 install -p -m 0644 nvidia.icd %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 
-# EGL config for libglvnd
-install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
-install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
-
-# EGL configs
-install -m 0755 -d %{buildroot}%{_datadir}/egl/egl_external_platform.d/
-install -pm 0644 20_nvidia_xcb.json 20_nvidia_xlib.json \
- %{buildroot}%{_datadir}/egl/egl_external_platform.d/
-
 # Blacklist nouveau, autoload nvidia-uvm module after nvidia module
 mkdir -p %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE11} %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE16} %{buildroot}%{_modprobedir}
-
-%ifarch x86_64
-# Install VulkanSC config
-install    -m 0755 -d               %{buildroot}%{_datadir}/vulkansc/icd.d/
-install -p -m 0644 nvidia_icd_vksc.json %{buildroot}%{_datadir}/vulkansc/icd.d/
-# Install dbus config
-install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
-install -p -m 0644 nvidia-dbus.conf %{buildroot}%{_dbus_systemd_dir}
-%endif
 
 # dracut.conf.d file, nvidia modules must never be in the initrd
 install -p -m 0755 -d          %{buildroot}%{_dracut_conf_d}/
@@ -326,11 +317,19 @@ install -p -m 0644 %{SOURCE12} %{buildroot}%{_dracut_conf_d}/
 
 # Install binaries
 install -m 0755 -d %{buildroot}%{_bindir}
-install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater} \
+install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater,powerd} \
   %{buildroot}%{_bindir}
+
 %ifarch x86_64
-install -p -m 0755 nvidia-powerd nvidia-pcc \
-  %{buildroot}%{_bindir}
+# Install VulkanSC config
+# Vulkan SC loader and compiler
+install -p -m 0644 -D nvidia_icd_vksc.json %{buildroot}%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
+sed -i -e 's|libnvidia-vksc-core|%{_libdir}/libnvidia-vksc-core|g' %{buildroot}%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
+install -p -m 0755 nvidia-pcc %{buildroot}%{_bindir}
+
+#Install wine dll
+mkdir -p %{buildroot}%{_winedir}
+install -p -m 0644 _nvngx.dll nvngx.dll %{buildroot}%{_winedir}
 %endif
 
 # Install man pages
@@ -352,11 +351,7 @@ ln -s nvidia-application-profiles-%{version}-key-documentation %{buildroot}%{_da
 #Install the Xorg configuration files
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 mkdir -p %{buildroot}%{_datadir}/X11/xorg.conf.d
-%if 0%{?fedora}
 install -pm 0644 %{SOURCE6} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
-%else
-install -pm 0644 %{SOURCE15} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
-%endif
 
 #Ghost Xorg nvidia.conf files
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
@@ -369,11 +364,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/nvidia
 #Install the nvidia kernel modules sources archive
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
 tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open
-%ifarch x86_64
-#Install wine dll
-mkdir -p %{buildroot}%{_winedir}
-install -p -m 0644 _nvngx.dll nvngx.dll %{buildroot}%{_winedir}
-%endif
 
 #RPM Macros support
 mkdir -p %{buildroot}%{rpmmacrodir}
@@ -401,12 +391,13 @@ install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
 mkdir %{buildroot}%{_systemd_util_dir}/system-{sleep,preset}/
 install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
 install -p -m 0644 systemd/system/nvidia-{hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
-%ifarch x86_64
 install -p -m 0644 systemd/system/nvidia-powerd.service %{buildroot}%{_unitdir}
+# Install dbus config
+install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
+install -p -m 0644 nvidia-dbus.conf %{buildroot}%{_dbus_systemd_dir}
 # Ignore powerd binary exiting if hardware is not present
 # We should check for information in the DMI table
 sed -i -e 's/ExecStart=/ExecStart=-/g' %{buildroot}%{_unitdir}/nvidia-powerd.service
-%endif
 install -p -m 0755 systemd/system-sleep/nvidia %{buildroot}%{_systemd_util_dir}/system-sleep/
 install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
@@ -426,7 +417,7 @@ if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
 fi || :
 
-%triggerun -- xorg-x11-drv-nvidia < 3:560.31.02-5
+%triggerun -- xorg-x11-drv-nvidia < 3:560.35.03-2
 %{_grubby} --remove-args='%{_dracutopts_removed}' &>/dev/null || :
 
 %preun
@@ -449,8 +440,6 @@ fi ||:
 %{_firmwarepath}
 %dir %{_alternate_dir}
 %{_alternate_dir}/alternate-install-present
-%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
-%{_datadir}/egl/egl_external_platform.d/20_nvidia_*.json
 %dir %{_sysconfdir}/nvidia
 %ghost %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
 %ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
@@ -502,9 +491,11 @@ fi ||:
 %{_libdir}/gbm/
 %{_libdir}/vdpau/libvdpau_nvidia.so.1
 %{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
+%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
+%{_datadir}/egl/egl_external_platform.d/20_nvidia_*.json
+%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 %ifarch x86_64 aarch64
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
-%{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{_libdir}/libnvidia-api.so.1
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
@@ -517,7 +508,7 @@ fi ||:
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %ifarch x86_64
-%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.json
+%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
 %{_libdir}/libnvidia-vksc-core.so.%{version}
 %{_libdir}/libnvidia-vksc-core.so.1
 %{_winedir}/
@@ -571,35 +562,27 @@ fi ||:
 %ifarch x86_64 aarch64
 %post power
 %systemd_post nvidia-hibernate.service
-%ifarch x86_64
 %systemd_post nvidia-powerd.service
-%endif
 %systemd_post nvidia-resume.service
 %systemd_post nvidia-suspend.service
 
 %preun power
 %systemd_preun nvidia-hibernate.service
-%ifarch x86_64
 %systemd_preun nvidia-powerd.service
-%endif
 %systemd_preun nvidia-resume.service
 %systemd_preun nvidia-suspend.service
 
 %postun power
 %systemd_postun nvidia-hibernate.service
-%ifarch x86_64
 %systemd_postun nvidia-powerd.service
-%endif
 %systemd_postun nvidia-resume.service
 %systemd_postun nvidia-suspend.service
 
 %files power
 %config %{_modprobedir}/nvidia-power-management.conf
-%ifarch x86_64
 %{_bindir}/nvidia-powerd
 %{_unitdir}/nvidia-powerd.service
 %{_dbus_systemd_dir}/nvidia-dbus.conf
-%endif
 %{_bindir}/nvidia-sleep.sh
 %{_systemd_util_dir}/system-preset/70-nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
@@ -609,6 +592,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri Aug 23 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-3
+- Various packaging fixes
+
 * Thu Aug 22 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-2
 - Fix trigger scriptlet
 
