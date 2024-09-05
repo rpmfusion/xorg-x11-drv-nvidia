@@ -167,10 +167,13 @@ Requires:        vulkan-loader%{?_isa}
 %if 0%{?fedora}
 Requires:        egl-wayland%{?_isa} >= 1.1.15
 Requires:        egl-gbm%{?_isa} >= 2:1.1.2
+Requires:        egl-x11%{?_isa}
 %else
 %ifnarch i686
+# RHEL doesn't provide i686 libs
 Requires:        egl-wayland%{?_isa} >= 1.1.15
 Requires:        egl-gbm%{?_isa} >= 2:1.1.2
+Requires:        egl-x11%{?_isa}
 %endif
 %endif
 
@@ -231,8 +234,6 @@ cp -a \
     libnvcuvid.so.%{version} \
     libnvidia-allocator.so.%{version} \
     libnvidia-eglcore.so.%{version} \
-    libnvidia-egl-xcb.so.1 \
-    libnvidia-egl-xlib.so.1 \
     libnvidia-encode.so.%{version} \
     libnvidia-fbc.so.%{version} \
     libnvidia-glcore.so.%{version} \
@@ -289,10 +290,6 @@ sed -i -e 's|libGLX_nvidia|%{_libdir}/libGLX_nvidia|g' %{buildroot}%{_datadir}/v
 # EGL config for libglvnd
 install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
 install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
-
-# EGL configs
-install -m 0755 -d %{buildroot}%{_datadir}/egl/egl_external_platform.d/
-install -pm 0644 20_nvidia_xcb.json 20_nvidia_xlib.json %{buildroot}%{_datadir}/egl/egl_external_platform.d/
 
 %ifarch x86_64 aarch64
 # Vulkan layer
@@ -479,8 +476,6 @@ fi ||:
 %{_libdir}/libnvidia-allocator.so.1
 %{_libdir}/libnvidia-allocator.so.%{version}
 %{_libdir}/libnvidia-eglcore.so.%{version}
-%{_libdir}/libnvidia-egl-xcb.so.1
-%{_libdir}/libnvidia-egl-xlib.so.1
 %{_libdir}/libnvidia-fbc.so.1
 %{_libdir}/libnvidia-fbc.so.%{version}
 %{_libdir}/libnvidia-glcore.so.%{version}
@@ -492,7 +487,6 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.so.1
 %{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
-%{_datadir}/egl/egl_external_platform.d/20_nvidia_*.json
 %{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 %ifarch x86_64 aarch64
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
