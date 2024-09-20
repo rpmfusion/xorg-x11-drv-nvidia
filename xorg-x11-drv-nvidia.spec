@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         560.35.03
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -62,10 +62,9 @@ Suggests:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 # nvidia-bug-report.sh requires needed to provide extra info
 Suggests:         acpica-tools
 Suggests:         vulkan-tools
-%ifarch x86_64
 Recommends:       %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Recommends:       %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
-%endif
+Requires:         (%{name}-xorg-libs%{?_isa} = %{?epoch}:%{version}-%{release} if xorg-x11-server-Xorg%{?_isa})
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
@@ -187,6 +186,14 @@ Requires:        mesa-libGLES%{?_isa}
 
 %description libs
 This package provides the shared libraries for %{name}.
+
+%package xorg-libs
+Summary:        Xorg Libraries for %{name}
+Requires:       %{name}%{?_isa} = %{?epoch}:%{version}
+Requires:       xorg-x11-server-Xorg%{?_isa}
+
+%description xorg-libs
+This package provides the Xorg libraries for %{name}.
 
 %package power
 Summary:          Advanced  power management
@@ -438,10 +445,6 @@ fi ||:
 %dir %{_alternate_dir}
 %{_alternate_dir}/alternate-install-present
 %dir %{_sysconfdir}/nvidia
-%ghost %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
-%ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
-%ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
-%{_datadir}/X11/xorg.conf.d/nvidia.conf
 %{_udevrulesdir}/10-nvidia.rules
 %{_udevrulesdir}/80-nvidia-pm.rules
 %{_unitdir}/nvidia-fallback.service
@@ -449,10 +452,6 @@ fi ||:
 %{_datadir}/pixmaps/%{name}.png
 %{_dracut_conf_d}/99-nvidia-dracut.conf
 %{_bindir}/nvidia-bug-report.sh
-# Xorg libs that do not need to be multilib
-%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
-%{_libdir}/xorg/modules/drivers/nvidia_drv.so
-#/no_multilib
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-*
 %{_datadir}/nvidia/nvoptix.bin
@@ -510,6 +509,14 @@ fi ||:
 %endif
 
 %ifarch x86_64 aarch64
+%files xorg-libs
+%ghost %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
+%ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
+%ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
+%{_datadir}/X11/xorg.conf.d/nvidia.conf
+%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
+%{_libdir}/xorg/modules/drivers/nvidia_drv.so
+
 %files cuda
 %license nvidiapkg/LICENSE
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
@@ -586,6 +593,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri Sep 20 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-4
+- Split xorg libs
+
 * Fri Aug 23 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-3
 - Various packaging fixes
 
