@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         560.35.03
-Release:         4%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -43,9 +43,6 @@ Source16:        nvidia-power-management.conf
 Source17:        70-nvidia.preset
 
 ExclusiveArch: x86_64 i686 aarch64
-
-# Xorg with PrimaryGPU
-Requires:         Xorg >= 1.19.0-3
 
 Requires(post):   ldconfig
 Requires(postun): ldconfig
@@ -593,6 +590,9 @@ fi ||:
 %endif
 
 %changelog
+* Sat Sep 21 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-5
+- Fix requires
+
 * Fri Sep 20 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-4
 - Split xorg libs
 
