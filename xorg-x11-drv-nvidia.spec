@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         560.35.03
-Release:         3%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -44,9 +44,6 @@ Source17:        70-nvidia.preset
 
 ExclusiveArch: x86_64 i686 aarch64
 
-# Xorg with PrimaryGPU
-Requires:         Xorg >= 1.19.0-3
-
 Requires(post):   ldconfig
 Requires(postun): ldconfig
 Requires(post):   /usr/sbin/grubby
@@ -57,15 +54,12 @@ BuildRequires:    systemd-rpm-macros
 # AppStream metadata generation
 BuildRequires:    python3
 BuildRequires:    libappstream-glib >= 0.6.3
-# Needed so nvidia-settings can write broken configs
-Suggests:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 # nvidia-bug-report.sh requires needed to provide extra info
 Suggests:         acpica-tools
 Suggests:         vulkan-tools
-%ifarch x86_64
 Recommends:       %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Recommends:       %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
-%endif
+Requires:         (%{name}-xorg-libs%{?_isa} = %{?epoch}:%{version}-%{release} if xorg-x11-server-Xorg%{?_isa})
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
@@ -167,10 +161,13 @@ Requires:        vulkan-loader%{?_isa}
 %if 0%{?fedora}
 Requires:        egl-wayland%{?_isa} >= 1.1.15
 Requires:        egl-gbm%{?_isa} >= 2:1.1.2
+Requires:        egl-x11%{?_isa}
 %else
 %ifnarch i686
+# RHEL doesn't provide i686 libs
 Requires:        egl-wayland%{?_isa} >= 1.1.15
 Requires:        egl-gbm%{?_isa} >= 2:1.1.2
+Requires:        egl-x11%{?_isa}
 %endif
 %endif
 
@@ -184,6 +181,16 @@ Requires:        mesa-libGLES%{?_isa}
 
 %description libs
 This package provides the shared libraries for %{name}.
+
+%package xorg-libs
+Summary:        Xorg Libraries for %{name}
+Requires:       %{name}%{?_isa} = %{?epoch}:%{version}
+Requires:       xorg-x11-server-Xorg%{?_isa}
+# Needed so nvidia-settings can write broken configs
+Suggests:       nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
+
+%description xorg-libs
+This package provides the Xorg libraries for %{name}.
 
 %package power
 Summary:          Advanced  power management
@@ -231,8 +238,6 @@ cp -a \
     libnvcuvid.so.%{version} \
     libnvidia-allocator.so.%{version} \
     libnvidia-eglcore.so.%{version} \
-    libnvidia-egl-xcb.so.1 \
-    libnvidia-egl-xlib.so.1 \
     libnvidia-encode.so.%{version} \
     libnvidia-fbc.so.%{version} \
     libnvidia-glcore.so.%{version} \
@@ -289,10 +294,6 @@ sed -i -e 's|libGLX_nvidia|%{_libdir}/libGLX_nvidia|g' %{buildroot}%{_datadir}/v
 # EGL config for libglvnd
 install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
 install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
-
-# EGL configs
-install -m 0755 -d %{buildroot}%{_datadir}/egl/egl_external_platform.d/
-install -pm 0644 20_nvidia_xcb.json 20_nvidia_xlib.json %{buildroot}%{_datadir}/egl/egl_external_platform.d/
 
 %ifarch x86_64 aarch64
 # Vulkan layer
@@ -441,10 +442,6 @@ fi ||:
 %dir %{_alternate_dir}
 %{_alternate_dir}/alternate-install-present
 %dir %{_sysconfdir}/nvidia
-%ghost %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
-%ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
-%ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
-%{_datadir}/X11/xorg.conf.d/nvidia.conf
 %{_udevrulesdir}/10-nvidia.rules
 %{_udevrulesdir}/80-nvidia-pm.rules
 %{_unitdir}/nvidia-fallback.service
@@ -452,10 +449,6 @@ fi ||:
 %{_datadir}/pixmaps/%{name}.png
 %{_dracut_conf_d}/99-nvidia-dracut.conf
 %{_bindir}/nvidia-bug-report.sh
-# Xorg libs that do not need to be multilib
-%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
-%{_libdir}/xorg/modules/drivers/nvidia_drv.so
-#/no_multilib
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-*
 %{_datadir}/nvidia/nvoptix.bin
@@ -479,8 +472,6 @@ fi ||:
 %{_libdir}/libnvidia-allocator.so.1
 %{_libdir}/libnvidia-allocator.so.%{version}
 %{_libdir}/libnvidia-eglcore.so.%{version}
-%{_libdir}/libnvidia-egl-xcb.so.1
-%{_libdir}/libnvidia-egl-xlib.so.1
 %{_libdir}/libnvidia-fbc.so.1
 %{_libdir}/libnvidia-fbc.so.%{version}
 %{_libdir}/libnvidia-glcore.so.%{version}
@@ -492,7 +483,6 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.so.1
 %{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
-%{_datadir}/egl/egl_external_platform.d/20_nvidia_*.json
 %{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 %ifarch x86_64 aarch64
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
@@ -516,6 +506,14 @@ fi ||:
 %endif
 
 %ifarch x86_64 aarch64
+%files xorg-libs
+%ghost %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
+%ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
+%ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
+%{_datadir}/X11/xorg.conf.d/nvidia.conf
+%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
+%{_libdir}/xorg/modules/drivers/nvidia_drv.so
+
 %files cuda
 %license nvidiapkg/LICENSE
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
@@ -592,6 +590,12 @@ fi ||:
 %endif
 
 %changelog
+* Sat Sep 21 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-5
+- Fix requires
+
+* Fri Sep 20 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-4
+- Split xorg libs
+
 * Fri Aug 23 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-3
 - Various packaging fixes
 
