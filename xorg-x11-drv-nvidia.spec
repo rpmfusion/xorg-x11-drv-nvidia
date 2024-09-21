@@ -54,8 +54,6 @@ BuildRequires:    systemd-rpm-macros
 # AppStream metadata generation
 BuildRequires:    python3
 BuildRequires:    libappstream-glib >= 0.6.3
-# Needed so nvidia-settings can write broken configs
-Suggests:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 # nvidia-bug-report.sh requires needed to provide extra info
 Suggests:         acpica-tools
 Suggests:         vulkan-tools
@@ -188,6 +186,8 @@ This package provides the shared libraries for %{name}.
 Summary:        Xorg Libraries for %{name}
 Requires:       %{name}%{?_isa} = %{?epoch}:%{version}
 Requires:       xorg-x11-server-Xorg%{?_isa}
+# Needed so nvidia-settings can write broken configs
+Suggests:       nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 
 %description xorg-libs
 This package provides the Xorg libraries for %{name}.
