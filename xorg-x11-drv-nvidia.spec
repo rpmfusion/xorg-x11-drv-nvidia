@@ -22,8 +22,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         560.35.03
-Release:         5%{?dist}
+Version:         565.57.01
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -256,6 +256,7 @@ cp -a \
 %ifnarch aarch64
     libnvidia-vksc-core.so.%{version} \
     libnvidia-pkcs11-openssl3.so.%{version} \
+    libnvidia-sandboxutils.so.%{version} \
 %endif
     libnvidia-rtcore.so.%{version} \
     libnvoptix.so.%{version} \
@@ -489,9 +490,6 @@ fi ||:
 %{_libdir}/libnvidia-api.so.1
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
-%ifnarch aarch64
-%{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
-%endif
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
 %{_libdir}/libnvidia-rtcore.so.%{version}
@@ -501,6 +499,9 @@ fi ||:
 %{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
 %{_libdir}/libnvidia-vksc-core.so.%{version}
 %{_libdir}/libnvidia-vksc-core.so.1
+%{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
+%{_libdir}/libnvidia-sandboxutils.so.1
+%{_libdir}/libnvidia-sandboxutils.so.%{version}
 %{_winedir}/
 %endif
 %endif
@@ -590,6 +591,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Oct 22 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.57.01-1
+- Update to 565.57.01 beta
+
 * Sat Sep 21 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-5
 - Fix requires
 
