@@ -583,7 +583,7 @@ fi ||:
 %files power
 %config %{_modprobedir}/nvidia-power-management.conf
 %{_bindir}/nvidia-powerd
-%{_unitdir}/systemd-suspend.service.d/disable_freeze_user_session.conf
+%{_unitdir}/systemd-suspend.service.d/
 %{_unitdir}/nvidia-powerd.service
 %{_dbus_systemd_dir}/nvidia-dbus.conf
 %{_bindir}/nvidia-sleep.sh
