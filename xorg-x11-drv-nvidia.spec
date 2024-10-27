@@ -133,6 +133,7 @@ Provides:        nvidia-drivers%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-open = %{?epoch}:%{version}-100
 Provides:        nvidia-open%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-open-%(echo %{version} | cut -f 1 -d .) = %{version}
+Provides:        nvidia-open-560 = %{version}
 
 %description cuda
 This package provides the CUDA driver.
