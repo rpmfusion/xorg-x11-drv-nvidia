@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         565.57.01
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -596,6 +596,9 @@ fi ||:
 %endif
 
 %changelog
+* Sun Oct 27 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:565.57.01-3
+- Add nvidia-open-560
+
 * Sun Oct 27 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.57.01-2
 - Add systemd conf to disable freeze user session (rfbz#7090)
 
