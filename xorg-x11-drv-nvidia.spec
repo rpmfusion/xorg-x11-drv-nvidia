@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         565.57.01
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -41,6 +41,7 @@ Source13:        10-nvidia.rules
 Source14:        nvidia-fallback.service
 Source16:        nvidia-power-management.conf
 Source17:        70-nvidia.preset
+Source18:        disable_freeze_user_session.conf
 
 ExclusiveArch: x86_64 i686 aarch64
 
@@ -391,7 +392,9 @@ install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
 
 # Systemd units and script for suspending/resuming
 mkdir %{buildroot}%{_systemd_util_dir}/system-{sleep,preset}/
+mkdir %{buildroot}%{_unitdir}/systemd-suspend.service.d/
 install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
+install -p -m 0644 %{SOURCE18} %{buildroot}%{_unitdir}/systemd-suspend.service.d/
 install -p -m 0644 systemd/system/nvidia-{hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
 install -p -m 0644 systemd/system/nvidia-powerd.service %{buildroot}%{_unitdir}
 # Install dbus config
@@ -580,6 +583,7 @@ fi ||:
 %files power
 %config %{_modprobedir}/nvidia-power-management.conf
 %{_bindir}/nvidia-powerd
+%{_unitdir}/systemd-suspend.service.d/disable_freeze_user_session.conf
 %{_unitdir}/nvidia-powerd.service
 %{_dbus_systemd_dir}/nvidia-dbus.conf
 %{_bindir}/nvidia-sleep.sh
@@ -591,6 +595,9 @@ fi ||:
 %endif
 
 %changelog
+* Sun Oct 27 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.57.01-2
+- Add systemd conf to disable freeze user session (rfbz#7090)
+
 * Tue Oct 22 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.57.01-1
 - Update to 565.57.01 beta
 
