@@ -22,8 +22,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         560.35.03
-Release:         5%{?dist}
+Version:         565.77
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -41,6 +41,7 @@ Source13:        10-nvidia.rules
 Source14:        nvidia-fallback.service
 Source16:        nvidia-power-management.conf
 Source17:        70-nvidia.preset
+Source18:        disable_freeze_user_session.conf
 
 ExclusiveArch: x86_64 i686 aarch64
 
@@ -132,6 +133,7 @@ Provides:        nvidia-drivers%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-open = %{?epoch}:%{version}-100
 Provides:        nvidia-open%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-open-%(echo %{version} | cut -f 1 -d .) = %{version}
+Provides:        nvidia-open-560 = %{version}
 
 %description cuda
 This package provides the CUDA driver.
@@ -256,6 +258,7 @@ cp -a \
 %ifnarch aarch64
     libnvidia-vksc-core.so.%{version} \
     libnvidia-pkcs11-openssl3.so.%{version} \
+    libnvidia-sandboxutils.so.%{version} \
 %endif
     libnvidia-rtcore.so.%{version} \
     libnvoptix.so.%{version} \
@@ -390,7 +393,9 @@ install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
 
 # Systemd units and script for suspending/resuming
 mkdir %{buildroot}%{_systemd_util_dir}/system-{sleep,preset}/
+mkdir %{buildroot}%{_unitdir}/systemd-suspend.service.d/
 install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
+install -p -m 0644 %{SOURCE18} %{buildroot}%{_unitdir}/systemd-suspend.service.d/
 install -p -m 0644 systemd/system/nvidia-{hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
 install -p -m 0644 systemd/system/nvidia-powerd.service %{buildroot}%{_unitdir}
 # Install dbus config
@@ -489,9 +494,6 @@ fi ||:
 %{_libdir}/libnvidia-api.so.1
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
-%ifnarch aarch64
-%{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
-%endif
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
 %{_libdir}/libnvidia-rtcore.so.%{version}
@@ -501,6 +503,9 @@ fi ||:
 %{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
 %{_libdir}/libnvidia-vksc-core.so.%{version}
 %{_libdir}/libnvidia-vksc-core.so.1
+%{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
+%{_libdir}/libnvidia-sandboxutils.so.1
+%{_libdir}/libnvidia-sandboxutils.so.%{version}
 %{_winedir}/
 %endif
 %endif
@@ -579,6 +584,7 @@ fi ||:
 %files power
 %config %{_modprobedir}/nvidia-power-management.conf
 %{_bindir}/nvidia-powerd
+%{_unitdir}/systemd-suspend.service.d/
 %{_unitdir}/nvidia-powerd.service
 %{_dbus_systemd_dir}/nvidia-dbus.conf
 %{_bindir}/nvidia-sleep.sh
@@ -590,6 +596,18 @@ fi ||:
 %endif
 
 %changelog
+* Thu Dec 05 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.77-1
+- Update to 565.77 release
+
+* Sun Oct 27 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:565.57.01-3
+- Add nvidia-open-560
+
+* Sun Oct 27 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.57.01-2
+- Add systemd conf to disable freeze user session (rfbz#7090)
+
+* Tue Oct 22 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.57.01-1
+- Update to 565.57.01 beta
+
 * Sat Sep 21 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-5
 - Fix requires
 
