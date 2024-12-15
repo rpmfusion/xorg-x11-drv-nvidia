@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         565.77
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -114,7 +114,7 @@ Requires:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 %ifarch x86_64
 Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
-Requires:        (ocl-icd%{?_isa} or OpenCL-ICD-Loader%{?_isa})
+Requires:        libOpenCL.so.1()(64bit)
 Requires:        opencl-filesystem
 
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
@@ -596,6 +596,9 @@ fi ||:
 %endif
 
 %changelog
+* Sun Dec 15 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.77-3
+- Boolean 'or' statements still breaks mash
+
 * Sun Dec 15 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.77-2
 - Adapt for new OpenCL-ICD-Loader package
 
