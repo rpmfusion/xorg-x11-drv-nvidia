@@ -22,8 +22,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         565.77
-Release:         3%{?dist}
+Version:         570.86.10
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -333,7 +333,7 @@ install -p -m 0755 nvidia-pcc %{buildroot}%{_bindir}
 
 #Install wine dll
 mkdir -p %{buildroot}%{_winedir}
-install -p -m 0644 _nvngx.dll nvngx.dll %{buildroot}%{_winedir}
+install -p -m 0644 _nvngx.dll nvngx.dll nvngx_dlssg.dll %{buildroot}%{_winedir}
 %endif
 
 # Install man pages
@@ -596,6 +596,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri Jan 24 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.10-1
+- Update to 570.86.10 cuda release
+
 * Sun Dec 15 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.77-3
 - Boolean 'or' statements still breaks mash
 
