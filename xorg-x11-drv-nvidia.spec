@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         570.86.16
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -133,7 +133,7 @@ Provides:        nvidia-drivers%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-open = %{?epoch}:%{version}-100
 Provides:        nvidia-open%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-open-%(echo %{version} | cut -f 1 -d .) = %{version}
-Provides:        nvidia-open-560 = %{version}
+Provides:        nvidia-open-570 = %{version}
 
 %description cuda
 This package provides the CUDA driver.
@@ -197,7 +197,7 @@ This package provides the Xorg libraries for %{name}.
 %package power
 Summary:          Advanced  power management
 Requires:         %{name}%{?_isa} = %{?epoch}:%{version}
-Requires:         systemd = 248
+Requires:         systemd >= 248.9
 # Mash can't handle noach package
 #BuildArch:        noarch
 
@@ -606,6 +606,9 @@ fi ||:
 %endif
 
 %changelog
+* Thu Jan 30 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-2
+- Fix requires and provides
+
 * Thu Jan 30 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-1
 - Update to 570.86.16 beta
 
