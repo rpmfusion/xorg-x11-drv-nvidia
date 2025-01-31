@@ -6,7 +6,11 @@
 
 %global        _dbus_systemd_dir    %{_datadir}/dbus-1/system.d
 %global        _dracut_conf_d       %{_prefix}/lib/dracut/dracut.conf.d
-%global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
+%if 0%{?fedora} && 0%{?fedora} > 41
+%global        _grubby              /usr/bin/grubby --update-kernel=ALL
+%else
+%global        _grubby              /usr/sbin/grubby --update-kernel=ALL
+%endif
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
