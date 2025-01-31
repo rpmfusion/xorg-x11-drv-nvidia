@@ -47,11 +47,7 @@ ExclusiveArch: x86_64 i686 aarch64
 
 Requires(post):   ldconfig
 Requires(postun): ldconfig
-%if 0%{?fedora} && 0%{?fedora} > 41
-Requires(post):   /usr/bin/grubby
-%else
-Requires(post):   /usr/sbin/grubby
-%endif
+Requires(post):   %{_sbindir}/grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 Requires:         nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
