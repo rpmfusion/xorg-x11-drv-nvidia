@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         570.86.16
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -47,7 +47,7 @@ ExclusiveArch: x86_64 i686 aarch64
 
 Requires(post):   ldconfig
 Requires(postun): ldconfig
-Requires(post):   /usr/sbin/grubby
+Requires(post):   %{_sbindir}/grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 Requires:         nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
@@ -606,6 +606,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri Jan 31 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-3
+- fix sbin merge issue
+
 * Thu Jan 30 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-2
 - Fix requires and provides
 
