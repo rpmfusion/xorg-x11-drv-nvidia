@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         570.86.16
-Release:         4%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -606,6 +606,9 @@ fi ||:
 %endif
 
 %changelog
+* Sat Feb 08 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-5
+- Revert last change
+
 * Sat Feb 08 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-4
 - Revert vulkan icd name change
 
