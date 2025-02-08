@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         570.86.16
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -289,8 +289,7 @@ popd
 %endif
 
 # Vulkan loader
-install -p -m 0644 -D nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
-sed -i -e 's|libGLX_nvidia|%{_libdir}/libGLX_nvidia|g' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+install -p -m 0644 -D nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.json
 
 # EGL config for libglvnd
 install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
@@ -325,8 +324,7 @@ install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps
 %ifarch x86_64
 # Install VulkanSC config
 # Vulkan SC loader and compiler
-install -p -m 0644 -D nvidia_icd_vksc.json %{buildroot}%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
-sed -i -e 's|libnvidia-vksc-core|%{_libdir}/libnvidia-vksc-core|g' %{buildroot}%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
+install -p -m 0644 -D nvidia_icd_vksc.json %{buildroot}%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.json
 install -p -m 0755 nvidia-pcc %{buildroot}%{_bindir}
 
 #Install wine dll
@@ -491,7 +489,6 @@ fi ||:
 %{_libdir}/vdpau/libvdpau_nvidia.so.1
 %{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
 %{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
-%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 %ifarch x86_64 aarch64
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
 %{_libdir}/libnvidia-api.so.1
@@ -503,7 +500,8 @@ fi ||:
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %ifarch x86_64
-%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
+%{_datadir}/vulkan/icd.d/nvidia_icd.json
+%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.json
 %{_libdir}/libnvidia-vksc-core.so.%{version}
 %{_libdir}/libnvidia-vksc-core.so.1
 %{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
@@ -606,6 +604,9 @@ fi ||:
 %endif
 
 %changelog
+* Sat Feb 08 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-4
+- Revert vulkan icd name change
+
 * Fri Jan 31 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-3
 - fix sbin merge issue
 
