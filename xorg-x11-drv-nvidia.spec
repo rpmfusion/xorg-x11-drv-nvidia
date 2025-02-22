@@ -22,8 +22,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         565.77
-Release:         3%{?dist}
+Version:         570.86.16
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -47,7 +47,7 @@ ExclusiveArch: x86_64 i686 aarch64
 
 Requires(post):   ldconfig
 Requires(postun): ldconfig
-Requires(post):   /usr/sbin/grubby
+Requires(post):   %{_sbindir}/grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 Requires:         nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
@@ -133,7 +133,7 @@ Provides:        nvidia-drivers%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-open = %{?epoch}:%{version}-100
 Provides:        nvidia-open%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-open-%(echo %{version} | cut -f 1 -d .) = %{version}
-Provides:        nvidia-open-560 = %{version}
+Provides:        nvidia-open-570 = %{version}
 
 %description cuda
 This package provides the CUDA driver.
@@ -197,9 +197,7 @@ This package provides the Xorg libraries for %{name}.
 %package power
 Summary:          Advanced  power management
 Requires:         %{name}%{?_isa} = %{?epoch}:%{version}
-Requires(post):   systemd
-Requires(preun):  systemd
-Requires(postun): systemd
+Requires:         systemd >= 248.9
 # Mash can't handle noach package
 #BuildArch:        noarch
 
@@ -333,7 +331,7 @@ install -p -m 0755 nvidia-pcc %{buildroot}%{_bindir}
 
 #Install wine dll
 mkdir -p %{buildroot}%{_winedir}
-install -p -m 0644 _nvngx.dll nvngx.dll %{buildroot}%{_winedir}
+install -p -m 0644 _nvngx.dll nvngx.dll nvngx_dlssg.dll %{buildroot}%{_winedir}
 %endif
 
 # Install man pages
@@ -345,16 +343,21 @@ install -p -m 0644 nvidia-{cuda-mps-control,smi}.1.gz \
 mkdir -p %{buildroot}%{_alternate_dir}
 install -p -m 0644 %{SOURCE5} %{buildroot}%{_alternate_dir}
 
+#install the NVIDIA sandboxutils-filelist.json
+mkdir -p %{buildroot}%{_datadir}/nvidia/files.d/
+install -p -m 0644 sandboxutils-filelist.json %{buildroot}%{_datadir}/nvidia/files.d/
+
+#install the NVIDIA nvoptix.bin
+install -p -m 0644 nvoptix.bin %{buildroot}%{_datadir}/nvidia/
+
 #install the NVIDIA supplied application profiles
-mkdir -p %{buildroot}%{_datadir}/nvidia
-install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} %{buildroot}%{_datadir}/nvidia
-install -p -m 0644 nvoptix.bin %{buildroot}%{_datadir}/nvidia
+install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} %{buildroot}%{_datadir}/nvidia/
 ln -s nvidia-application-profiles-%{version}-rc %{buildroot}%{_datadir}/nvidia/nvidia-application-profiles-rc
 ln -s nvidia-application-profiles-%{version}-key-documentation %{buildroot}%{_datadir}/nvidia/nvidia-application-profiles-key-documentation
 
 #Install the Xorg configuration files
-mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
-mkdir -p %{buildroot}%{_datadir}/X11/xorg.conf.d
+mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/
+mkdir -p %{buildroot}%{_datadir}/X11/xorg.conf.d/
 install -pm 0644 %{SOURCE6} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
 
 #Ghost Xorg nvidia.conf files
@@ -363,10 +366,10 @@ touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 
 #Create the default nvidia config directory
-mkdir -p %{buildroot}%{_sysconfdir}/nvidia
+mkdir -p %{buildroot}%{_sysconfdir}/nvidia/
 
 #Install the nvidia kernel modules sources archive
-mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
+mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}/
 tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open
 
 #RPM Macros support
@@ -396,7 +399,7 @@ mkdir %{buildroot}%{_systemd_util_dir}/system-{sleep,preset}/
 mkdir %{buildroot}%{_unitdir}/systemd-suspend.service.d/
 install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
 install -p -m 0644 %{SOURCE18} %{buildroot}%{_unitdir}/systemd-suspend.service.d/
-install -p -m 0644 systemd/system/nvidia-{hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
+install -p -m 0644 systemd/system/nvidia-{hibernate,suspend-then-hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
 install -p -m 0644 systemd/system/nvidia-powerd.service %{buildroot}%{_unitdir}
 # Install dbus config
 install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
@@ -504,8 +507,6 @@ fi ||:
 %{_libdir}/libnvidia-vksc-core.so.%{version}
 %{_libdir}/libnvidia-vksc-core.so.1
 %{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
-%{_libdir}/libnvidia-sandboxutils.so.1
-%{_libdir}/libnvidia-sandboxutils.so.%{version}
 %{_winedir}/
 %endif
 %endif
@@ -527,6 +528,7 @@ fi ||:
 %{_bindir}/nvidia-debugdump
 %{_bindir}/nvidia-ngx-updater
 %{_bindir}/nvidia-smi
+%{_datadir}/nvidia/files.d/
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
 %{_mandir}/man1/nvidia-smi.*
 %endif
@@ -558,6 +560,10 @@ fi ||:
 %{_libdir}/libcudadebugger.so.1
 %{_libdir}/libcudadebugger.so.%{version}
 %{_modprobedir}/nvidia-uvm.conf
+%ifarch x86_64
+%{_libdir}/libnvidia-sandboxutils.so.1
+%{_libdir}/libnvidia-sandboxutils.so.%{version}
+%endif
 %endif
 
 %files devel
@@ -565,18 +571,21 @@ fi ||:
 %ifarch x86_64 aarch64
 %post power
 %systemd_post nvidia-hibernate.service
+%systemd_post nvidia-suspend-then-hibernate.service
 %systemd_post nvidia-powerd.service
 %systemd_post nvidia-resume.service
 %systemd_post nvidia-suspend.service
 
 %preun power
 %systemd_preun nvidia-hibernate.service
+%systemd_preun nvidia-suspend-then-hibernate.service
 %systemd_preun nvidia-powerd.service
 %systemd_preun nvidia-resume.service
 %systemd_preun nvidia-suspend.service
 
 %postun power
 %systemd_postun nvidia-hibernate.service
+%systemd_postun nvidia-suspend-then-hibernate.service
 %systemd_postun nvidia-powerd.service
 %systemd_postun nvidia-resume.service
 %systemd_postun nvidia-suspend.service
@@ -591,11 +600,33 @@ fi ||:
 %{_systemd_util_dir}/system-preset/70-nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
 %{_unitdir}/nvidia-hibernate.service
+%{_unitdir}/nvidia-suspend-then-hibernate.service
 %{_unitdir}/nvidia-resume.service
 %{_unitdir}/nvidia-suspend.service
 %endif
 
 %changelog
+* Sat Feb 08 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-5
+- Revert last change
+
+* Sat Feb 08 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-4
+- Revert vulkan icd name change
+
+* Fri Jan 31 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-3
+- fix sbin merge issue
+
+* Thu Jan 30 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-2
+- Fix requires and provides
+
+* Thu Jan 30 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-1
+- Update to 570.86.16 beta
+
+* Fri Jan 24 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.10-2
+- Add changes for 570.86.10
+
+* Fri Jan 24 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.10-1
+- Update to 570.86.10 cuda release
+
 * Sun Dec 15 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.77-3
 - Boolean 'or' statements still breaks mash
 
