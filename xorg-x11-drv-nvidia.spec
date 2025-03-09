@@ -128,6 +128,8 @@ Provides:        cuda-drivers%{?_isa} = %{version}.100
 Obsoletes:       cuda-drivers < %{version}.100
 Provides:        nvidia-driver = %{?epoch}:%{version}-100
 Provides:        nvidia-driver%{?_isa} = %{?epoch}:%{version}-100
+Provides:        nvidia-driver-cuda = %{?epoch}:%{version}-100
+Provides:        nvidia-driver-cuda%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-drivers = %{?epoch}:%{version}-100
 Provides:        nvidia-drivers%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-open = %{?epoch}:%{version}-100
