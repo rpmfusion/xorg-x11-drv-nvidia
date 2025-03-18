@@ -22,7 +22,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         570.124.04
+Version:         570.133.07
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -128,6 +128,8 @@ Provides:        cuda-drivers%{?_isa} = %{version}.100
 Obsoletes:       cuda-drivers < %{version}.100
 Provides:        nvidia-driver = %{?epoch}:%{version}-100
 Provides:        nvidia-driver%{?_isa} = %{?epoch}:%{version}-100
+Provides:        nvidia-driver-cuda = %{?epoch}:%{version}-100
+Provides:        nvidia-driver-cuda%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-drivers = %{?epoch}:%{version}-100
 Provides:        nvidia-drivers%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-open = %{?epoch}:%{version}-100
@@ -606,6 +608,12 @@ fi ||:
 %endif
 
 %changelog
+* Tue Mar 18 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.133.07-1
+- Update to 570.133.07 release
+
+* Sun Mar 09 2025 Nicolas Chauvet <kwizart@gmail.com> - 3:570.124.04-2
+- Add nvidia-driver-cuda - rhbz#7196
+
 * Thu Feb 27 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.124.04-1
 - Update to 570.124.04 release
 
