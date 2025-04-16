@@ -22,14 +22,14 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         570.133.07
+Version:         575.51.02
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
 URL:             https://www.nvidia.com/
-Source0:         https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-Source1:         https://download.nvidia.com/XFree86/Linux-aarch64/%{version}/NVIDIA-Linux-aarch64-%{version}.run
+Source0:         https://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source1:         https://us.download.nvidia.com/XFree86/aarch64/%{version}/NVIDIA-Linux-aarch64-%{version}.run
 Source5:         alternate-install-present
 Source6:         nvidia.conf
 Source7:         80-nvidia-pm.rules
@@ -259,6 +259,7 @@ cp -a \
 %ifnarch aarch64
     libnvidia-vksc-core.so.%{version} \
     libnvidia-pkcs11-openssl3.so.%{version} \
+    libnvidia-present.so.%{version} \
     libnvidia-sandboxutils.so.%{version} \
 %endif
     libnvidia-rtcore.so.%{version} \
@@ -510,6 +511,7 @@ fi ||:
 %{_libdir}/libnvidia-vksc-core.so.%{version}
 %{_libdir}/libnvidia-vksc-core.so.1
 %{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
+%{_libdir}/libnvidia-present.so.%{version}
 %{_winedir}/
 %endif
 %endif
@@ -609,6 +611,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Apr 16 2025 Leigh Scott <leigh123linux@gmail.com> - 3:575.51.02-1
+- Update to 575.51.02 beta
+
 * Tue Mar 18 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.133.07-1
 - Update to 570.133.07 release
 
