@@ -256,6 +256,7 @@ cp -a \
     libnvidia-api.so.1 \
     libnvidia-cfg.so.%{version} \
     libnvidia-ngx.so.%{version} \
+    libnvidia-nvvm70.so.4 \
 %ifnarch aarch64
     libnvidia-vksc-core.so.%{version} \
     libnvidia-pkcs11-openssl3.so.%{version} \
@@ -552,6 +553,7 @@ fi ||:
 %{_libdir}/libnvidia-ml.so
 %{_libdir}/libnvidia-ml.so.1
 %{_libdir}/libnvidia-ml.so.%{version}
+%{_libdir}/libnvidia-nvvm70.so.4
 %{_libdir}/libnvidia-nvvm.so
 %{_libdir}/libnvidia-nvvm.so.4
 %{_libdir}/libnvidia-nvvm.so.%{version}
