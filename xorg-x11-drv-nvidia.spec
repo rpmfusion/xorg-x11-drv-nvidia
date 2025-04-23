@@ -553,7 +553,6 @@ fi ||:
 %{_libdir}/libnvidia-ml.so
 %{_libdir}/libnvidia-ml.so.1
 %{_libdir}/libnvidia-ml.so.%{version}
-%{_libdir}/libnvidia-nvvm70.so.4
 %{_libdir}/libnvidia-nvvm.so
 %{_libdir}/libnvidia-nvvm.so.4
 %{_libdir}/libnvidia-nvvm.so.%{version}
@@ -564,6 +563,7 @@ fi ||:
 %{_libdir}/libnvidia-ptxjitcompiler.so.1
 %{_libdir}/libnvidia-ptxjitcompiler.so.%{version}
 %ifarch x86_64 aarch64
+%{_libdir}/libnvidia-nvvm70.so.4
 %{_libdir}/libcudadebugger.so.1
 %{_libdir}/libcudadebugger.so.%{version}
 %{_modprobedir}/nvidia-uvm.conf
