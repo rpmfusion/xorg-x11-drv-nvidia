@@ -35,6 +35,7 @@ Source6:         nvidia.conf
 Source7:         80-nvidia-pm.rules
 Source8:         xorg-x11-drv-nvidia.metainfo.xml
 Source9:         parse-supported-gpus.py
+Source10:        parse-kernel-noopen-gpus.py
 Source11:        nvidia-uvm.conf
 Source12:        99-nvidia-dracut.conf
 Source13:        10-nvidia.rules
