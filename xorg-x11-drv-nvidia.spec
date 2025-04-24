@@ -35,6 +35,7 @@ Source6:         nvidia.conf
 Source7:         80-nvidia-pm.rules
 Source8:         xorg-x11-drv-nvidia.metainfo.xml
 Source9:         parse-supported-gpus.py
+Source10:        parse-kernel-noopen-gpus.py
 Source11:        nvidia-uvm.conf
 Source12:        99-nvidia-dracut.conf
 Source13:        10-nvidia.rules
@@ -219,6 +220,9 @@ sh %{SOURCE1} \
 %endif
 %endif
 
+python3 %{SOURCE10} nvidiapkg/supported-gpus/supported-gpus.json > \
+  nvidiapkg/supported-gpus/nvidia-kmod-noopen-pciids.txt
+
 %build
 # Nothing to build
 echo "Nothing to build"
@@ -375,7 +379,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/nvidia/
 
 #Install the nvidia kernel modules sources archive
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}/
-tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open
+tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open nvidiapkg/supported-gpus/
 
 #RPM Macros support
 mkdir -p %{buildroot}%{rpmmacrodir}
