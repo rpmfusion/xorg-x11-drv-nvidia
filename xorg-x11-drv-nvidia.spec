@@ -49,6 +49,7 @@ ExclusiveArch: x86_64 i686 aarch64
 Requires(post):   ldconfig
 Requires(postun): ldconfig
 Requires(post):   %{_sbindir}/grubby
+Requires:         pciutils
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 Requires:         nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
