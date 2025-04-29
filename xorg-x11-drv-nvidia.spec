@@ -380,7 +380,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/nvidia/
 
 #Install the nvidia kernel modules sources archive
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}/
-tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open nvidiapkg/supported-gpus/
+tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open supported-gpus
 
 #RPM Macros support
 mkdir -p %{buildroot}%{rpmmacrodir}
