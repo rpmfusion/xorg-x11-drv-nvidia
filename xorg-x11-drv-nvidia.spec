@@ -9,7 +9,7 @@
 %global        _grubby              %{_sbindir}/grubby --update-kernel=ALL
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
-%global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
+%global        _dracutopts          rd.driver.blacklist=nouveau,nova_core modprobe.blacklist=nouveau,nova_core
 %global        _dracutopts_removed  initcall_blacklist=simpledrm_platform_driver_init nvidia-drm.modeset=1 nvidia-drm.fbdev=1
 %if 0%{?rhel}
 %global        _systemd_util_dir    %{_prefix}/lib/systemd
@@ -22,19 +22,20 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         570.153.02
+Version:         575.57.08
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
 URL:             https://www.nvidia.com/
-Source0:         https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
-Source1:         https://download.nvidia.com/XFree86/Linux-aarch64/%{version}/NVIDIA-Linux-aarch64-%{version}.run
+Source0:         https://us.download.nvidia.com/XFree86/Linux-x86_64/%{version}/NVIDIA-Linux-x86_64-%{version}.run
+Source1:         https://us.download.nvidia.com/XFree86/aarch64/%{version}/NVIDIA-Linux-aarch64-%{version}.run
 Source5:         alternate-install-present
 Source6:         nvidia.conf
 Source7:         80-nvidia-pm.rules
 Source8:         xorg-x11-drv-nvidia.metainfo.xml
 Source9:         parse-supported-gpus.py
+Source10:        parse-kernel-noopen-gpus.py
 Source11:        nvidia-uvm.conf
 Source12:        99-nvidia-dracut.conf
 Source13:        10-nvidia.rules
@@ -48,6 +49,7 @@ ExclusiveArch: x86_64 i686 aarch64
 Requires(post):   ldconfig
 Requires(postun): ldconfig
 Requires(post):   %{_sbindir}/grubby
+Requires:         pciutils
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 Requires:         nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
@@ -219,6 +221,9 @@ sh %{SOURCE1} \
 %endif
 %endif
 
+python3 %{SOURCE10} nvidiapkg/supported-gpus/supported-gpus.json > \
+  nvidiapkg/supported-gpus/nvidia-kmod-noopen-pciids.txt
+
 %build
 # Nothing to build
 echo "Nothing to build"
@@ -256,9 +261,11 @@ cp -a \
     libnvidia-api.so.1 \
     libnvidia-cfg.so.%{version} \
     libnvidia-ngx.so.%{version} \
+    libnvidia-nvvm70.so.4 \
 %ifnarch aarch64
     libnvidia-vksc-core.so.%{version} \
     libnvidia-pkcs11-openssl3.so.%{version} \
+    libnvidia-present.so.%{version} \
     libnvidia-sandboxutils.so.%{version} \
 %endif
     libnvidia-rtcore.so.%{version} \
@@ -373,7 +380,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/nvidia/
 
 #Install the nvidia kernel modules sources archive
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}/
-tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open
+tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open supported-gpus
 
 #RPM Macros support
 mkdir -p %{buildroot}%{rpmmacrodir}
@@ -510,6 +517,7 @@ fi ||:
 %{_libdir}/libnvidia-vksc-core.so.%{version}
 %{_libdir}/libnvidia-vksc-core.so.1
 %{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
+%{_libdir}/libnvidia-present.so.%{version}
 %{_winedir}/
 %endif
 %endif
@@ -560,6 +568,7 @@ fi ||:
 %{_libdir}/libnvidia-ptxjitcompiler.so.1
 %{_libdir}/libnvidia-ptxjitcompiler.so.%{version}
 %ifarch x86_64 aarch64
+%{_libdir}/libnvidia-nvvm70.so.4
 %{_libdir}/libcudadebugger.so.1
 %{_libdir}/libcudadebugger.so.%{version}
 %{_modprobedir}/nvidia-uvm.conf
@@ -609,11 +618,14 @@ fi ||:
 %endif
 
 %changelog
-* Mon May 19 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.153.02-1
-- Update to 570.153.02 release
+* Thu May 29 2025 Leigh Scott <leigh123linux@gmail.com> - 3:575.57.08-1
+- Update to 575.57.08 release
 
-* Sat Apr 19 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.144-1
-- Update to 570.144 release
+* Tue Apr 29 2025 Nicolas Chauvet <kwizart@gmail.com> - 3:575.51.02-2
+- Add nvidia-open auto-detection script
+
+* Wed Apr 16 2025 Leigh Scott <leigh123linux@gmail.com> - 3:575.51.02-1
+- Update to 575.51.02 beta
 
 * Tue Mar 18 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.133.07-1
 - Update to 570.133.07 release
