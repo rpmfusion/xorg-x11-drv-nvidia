@@ -42,7 +42,6 @@ Source13:        10-nvidia.rules
 Source14:        nvidia-fallback.service
 Source16:        nvidia-power-management.conf
 Source17:        70-nvidia.preset
-Source18:        disable_freeze_user_session.conf
 
 ExclusiveArch: x86_64 i686 aarch64
 
@@ -406,9 +405,7 @@ install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
 
 # Systemd units and script for suspending/resuming
 mkdir %{buildroot}%{_systemd_util_dir}/system-{sleep,preset}/
-mkdir %{buildroot}%{_unitdir}/systemd-suspend.service.d/
 install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
-install -p -m 0644 %{SOURCE18} %{buildroot}%{_unitdir}/systemd-suspend.service.d/
 install -p -m 0644 systemd/system/nvidia-{hibernate,suspend-then-hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
 install -p -m 0644 systemd/system/nvidia-powerd.service %{buildroot}%{_unitdir}
 # Install dbus config
@@ -605,7 +602,6 @@ fi ||:
 %files power
 %config %{_modprobedir}/nvidia-power-management.conf
 %{_bindir}/nvidia-powerd
-%{_unitdir}/systemd-suspend.service.d/
 %{_unitdir}/nvidia-powerd.service
 %{_dbus_systemd_dir}/nvidia-dbus.conf
 %{_bindir}/nvidia-sleep.sh
