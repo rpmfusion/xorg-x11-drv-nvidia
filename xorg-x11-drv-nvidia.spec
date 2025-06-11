@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         575.57.08
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -433,8 +433,8 @@ if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
 fi || :
 
-%triggerun -- xorg-x11-drv-nvidia < 3:560.35.03-2
-%{_grubby} --remove-args='%{_dracutopts_removed}' &>/dev/null || :
+%triggerun -- xorg-x11-drv-nvidia < 3:575.57.08-2
+%{_grubby} --args='%{_dracutopts}' &>/dev/null || :
 
 %preun
 if [ "$1" -eq "0" ]; then
@@ -614,6 +614,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Jun 11 2025 Leigh Scott <leigh123linux@gmail.com> - 3:575.57.08-2
+- Update scriptlets to blacklist nova-core
+
 * Thu May 29 2025 Leigh Scott <leigh123linux@gmail.com> - 3:575.57.08-1
 - Update to 575.57.08 release
 
