@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         575.57.08
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -42,7 +42,6 @@ Source13:        10-nvidia.rules
 Source14:        nvidia-fallback.service
 Source16:        nvidia-power-management.conf
 Source17:        70-nvidia.preset
-Source18:        disable_freeze_user_session.conf
 
 ExclusiveArch: x86_64 i686 aarch64
 
@@ -406,9 +405,7 @@ install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
 
 # Systemd units and script for suspending/resuming
 mkdir %{buildroot}%{_systemd_util_dir}/system-{sleep,preset}/
-mkdir %{buildroot}%{_unitdir}/systemd-suspend.service.d/
 install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
-install -p -m 0644 %{SOURCE18} %{buildroot}%{_unitdir}/systemd-suspend.service.d/
 install -p -m 0644 systemd/system/nvidia-{hibernate,suspend-then-hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
 install -p -m 0644 systemd/system/nvidia-powerd.service %{buildroot}%{_unitdir}
 # Install dbus config
@@ -436,8 +433,8 @@ if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
 fi || :
 
-%triggerun -- xorg-x11-drv-nvidia < 3:560.35.03-2
-%{_grubby} --remove-args='%{_dracutopts_removed}' &>/dev/null || :
+%triggerun -- xorg-x11-drv-nvidia < 3:575.57.08-2
+%{_grubby} --args='%{_dracutopts}' &>/dev/null || :
 
 %preun
 if [ "$1" -eq "0" ]; then
@@ -605,7 +602,6 @@ fi ||:
 %files power
 %config %{_modprobedir}/nvidia-power-management.conf
 %{_bindir}/nvidia-powerd
-%{_unitdir}/systemd-suspend.service.d/
 %{_unitdir}/nvidia-powerd.service
 %{_dbus_systemd_dir}/nvidia-dbus.conf
 %{_bindir}/nvidia-sleep.sh
@@ -618,6 +614,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Jun 11 2025 Leigh Scott <leigh123linux@gmail.com> - 3:575.57.08-2
+- Update scriptlets to blacklist nova-core
+
 * Thu May 29 2025 Leigh Scott <leigh123linux@gmail.com> - 3:575.57.08-1
 - Update to 575.57.08 release
 
