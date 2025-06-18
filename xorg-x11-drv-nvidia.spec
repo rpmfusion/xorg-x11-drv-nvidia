@@ -10,6 +10,7 @@
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
 %global        _dracutopts          rd.driver.blacklist=nouveau modprobe.blacklist=nouveau
+%global        _dracutopts_removed  initcall_blacklist=simpledrm_platform_driver_init nvidia-drm.modeset=1 nvidia-drm.fbdev=1
 %if 0%{?rhel}
 %global        _systemd_util_dir    %{_prefix}/lib/systemd
 %endif
@@ -21,7 +22,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         550.144.03
+Version:         570.153.02
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -38,18 +39,15 @@ Source11:        nvidia-uvm.conf
 Source12:        99-nvidia-dracut.conf
 Source13:        10-nvidia.rules
 Source14:        nvidia-fallback.service
-Source15:        rhel_nvidia.conf
 Source16:        nvidia-power-management.conf
 Source17:        70-nvidia.preset
+Source18:        disable_freeze_user_session.conf
 
 ExclusiveArch: x86_64 i686 aarch64
 
-# Xorg with PrimaryGPU
-Requires:         Xorg >= 1.19.0-3
-
 Requires(post):   ldconfig
 Requires(postun): ldconfig
-Requires(post):   grubby
+Requires(post):   %{_sbindir}/grubby
 Requires:         which
 Requires:         nvidia-settings%{?_isa} = %{?epoch}:%{version}
 Requires:         nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
@@ -57,15 +55,12 @@ BuildRequires:    systemd-rpm-macros
 # AppStream metadata generation
 BuildRequires:    python3
 BuildRequires:    libappstream-glib >= 0.6.3
-# Needed so nvidia-settings can write broken configs
-Suggests:         nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
 # nvidia-bug-report.sh requires needed to provide extra info
 Suggests:         acpica-tools
 Suggests:         vulkan-tools
-%ifarch x86_64
 Recommends:       %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Recommends:       %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
-%endif
+Requires:         (%{name}-xorg-libs%{?_isa} = %{?epoch}:%{version}-%{release} if xorg-x11-server-Xorg%{?_isa})
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
@@ -76,6 +71,7 @@ Provides:        %{_nvidia_serie}-kmod-common = %{?epoch}:%{version}
 Provides:        %{_nvidia_serie}-open-kmod-common = %{?epoch}:%{version}
 Conflicts:       xorg-x11-drv-nvidia-340xx
 Conflicts:       xorg-x11-drv-nvidia-390xx
+Conflicts:       xorg-x11-drv-nvidia-470xx
 
 %global         __provides_exclude ^(lib.*GL.*\\.so.*)$
 %global         __requires_exclude ^libglxserver_nvidia.so|^(lib.*GL.*\\.so.*)$
@@ -118,10 +114,12 @@ Requires:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 %ifarch x86_64
 Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
-Requires:        ocl-icd%{?_isa}
+Requires:        libOpenCL.so.1()(64bit)
 Requires:        opencl-filesystem
 
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
+Conflicts:       xorg-x11-drv-nvidia-390xx-cuda
+Conflicts:       xorg-x11-drv-nvidia-470xx-cuda
 
 #Don't put an epoch here
 Provides:        cuda-drivers-%(echo %{version} | cut -f 1 -d .) = %{version}
@@ -130,8 +128,14 @@ Provides:        cuda-drivers%{?_isa} = %{version}.100
 Obsoletes:       cuda-drivers < %{version}.100
 Provides:        nvidia-driver = %{?epoch}:%{version}-100
 Provides:        nvidia-driver%{?_isa} = %{?epoch}:%{version}-100
+Provides:        nvidia-driver-cuda = %{?epoch}:%{version}-100
+Provides:        nvidia-driver-cuda%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-drivers = %{?epoch}:%{version}-100
 Provides:        nvidia-drivers%{?_isa} = %{?epoch}:%{version}-100
+Provides:        nvidia-open = %{?epoch}:%{version}-100
+Provides:        nvidia-open%{?_isa} = %{?epoch}:%{version}-100
+Provides:        nvidia-open-%(echo %{version} | cut -f 1 -d .) = %{version}
+Provides:        nvidia-open-570 = %{version}
 
 %description cuda
 This package provides the CUDA driver.
@@ -157,16 +161,22 @@ Requires:        libglvnd-gles%{?_isa} >= 0.2
 Requires:        libglvnd-glx%{?_isa} >= 0.2
 Requires:        libglvnd-opengl%{?_isa} >= 0.2
 Requires:        vulkan-loader%{?_isa}
-%ifarch x86_64 aarch64
-# Fedora 35 has early XWayland support using recent egl-wayland
-Requires:        egl-wayland%{?_isa} %{?fc35: >= 1.1.9-2}
+
 %if 0%{?fedora}
-Requires:        egl-gbm%{?_isa}
+Requires:        egl-wayland%{?_isa} >= 1.1.15
+Requires:        egl-gbm%{?_isa} >= 2:1.1.2
+Requires:        egl-x11%{?_isa}
+%else
+%ifnarch i686
+# RHEL doesn't provide i686 libs
+Requires:        egl-wayland%{?_isa} >= 1.1.15
+Requires:        egl-gbm%{?_isa} >= 2:1.1.2
+Requires:        egl-x11%{?_isa}
 %endif
-# Boolean dependencies are only fedora and el8
+%endif
+
 %ifarch x86_64
 Requires:        (%{name}-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
-%endif
 %endif
 Requires:        mesa-libEGL%{?_isa}
 Requires:        mesa-libGL%{?_isa}
@@ -176,12 +186,21 @@ Requires:        mesa-libGLES%{?_isa}
 %description libs
 This package provides the shared libraries for %{name}.
 
+%package xorg-libs
+Summary:        Xorg Libraries for %{name}
+Requires:       %{name}%{?_isa} = %{?epoch}:%{version}
+Requires:       xorg-x11-server-Xorg%{?_isa}
+Requires:       xorg-x11-xinit%{?_isa}
+# Needed so nvidia-settings can write broken configs
+Suggests:       nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
+
+%description xorg-libs
+This package provides the Xorg libraries for %{name}.
+
 %package power
 Summary:          Advanced  power management
 Requires:         %{name}%{?_isa} = %{?epoch}:%{version}
-Requires(post):   systemd
-Requires(preun):  systemd
-Requires(postun): systemd
+Requires:         systemd >= 248.9
 # Mash can't handle noach package
 #BuildArch:        noarch
 
@@ -236,16 +255,11 @@ cp -a \
     libcudadebugger.so.%{version} \
     libnvidia-api.so.1 \
     libnvidia-cfg.so.%{version} \
-%if 0%{?rhel}
-    libnvidia-egl-gbm.so.1.1.1 \
-%endif
     libnvidia-ngx.so.%{version} \
 %ifnarch aarch64
-%if 0%{?fedora} || 0%{?rhel} > 8
+    libnvidia-vksc-core.so.%{version} \
     libnvidia-pkcs11-openssl3.so.%{version} \
-%else
-    libnvidia-pkcs11.so.%{version} \
-%endif
+    libnvidia-sandboxutils.so.%{version} \
 %endif
     libnvidia-rtcore.so.%{version} \
     libnvoptix.so.%{version} \
@@ -277,11 +291,17 @@ ln -sf ../libnvidia-allocator.so.%{version} %{buildroot}%{_libdir}/gbm/nvidia-dr
 popd
 %endif
 
+# Vulkan loader
+install -p -m 0644 -D nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+sed -i -e 's|libGLX_nvidia|%{_libdir}/libGLX_nvidia|g' %{buildroot}%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
+
+# EGL config for libglvnd
+install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
+install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
+
 %ifarch x86_64 aarch64
-# Vulkan config and symlink
-install    -m 0755         -d %{buildroot}%{_datadir}/vulkan/{icd.d,implicit_layer.d}/
-install -p -m 0644 nvidia_icd.json %{buildroot}%{_datadir}/vulkan/icd.d/
-install -p -m 0644 nvidia_layers.json %{buildroot}%{_datadir}/vulkan/implicit_layer.d/
+# Vulkan layer
+install -p -m 0644 -D nvidia_layers.json %{buildroot}%{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
 
 # X DDX driver and GLX extension
 install -p -D -m 0755 libglxserver_nvidia.so.%{version} %{buildroot}%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
@@ -291,20 +311,10 @@ install -D -p -m 0755 nvidia_drv.so %{buildroot}%{_libdir}/xorg/modules/drivers/
 install    -m 0755         -d %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 install -p -m 0644 nvidia.icd %{buildroot}%{_sysconfdir}/OpenCL/vendors/
 
-# EGL config for libglvnd
-install    -m 0755         -d %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
-install -p -m 0644 10_nvidia.json %{buildroot}%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
-
 # Blacklist nouveau, autoload nvidia-uvm module after nvidia module
 mkdir -p %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE11} %{buildroot}%{_modprobedir}
 install -p -m 0644 %{SOURCE16} %{buildroot}%{_modprobedir}
-
-%ifarch x86_64
-# Install dbus config
-install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
-install -p -m 0644 nvidia-dbus.conf %{buildroot}%{_dbus_systemd_dir}
-%endif
 
 # dracut.conf.d file, nvidia modules must never be in the initrd
 install -p -m 0755 -d          %{buildroot}%{_dracut_conf_d}/
@@ -312,11 +322,19 @@ install -p -m 0644 %{SOURCE12} %{buildroot}%{_dracut_conf_d}/
 
 # Install binaries
 install -m 0755 -d %{buildroot}%{_bindir}
-install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater} \
+install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater,powerd} \
   %{buildroot}%{_bindir}
+
 %ifarch x86_64
-install -p -m 0755 nvidia-powerd \
-  %{buildroot}%{_bindir}
+# Install VulkanSC config
+# Vulkan SC loader and compiler
+install -p -m 0644 -D nvidia_icd_vksc.json %{buildroot}%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
+sed -i -e 's|libnvidia-vksc-core|%{_libdir}/libnvidia-vksc-core|g' %{buildroot}%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
+install -p -m 0755 nvidia-pcc %{buildroot}%{_bindir}
+
+#Install wine dll
+mkdir -p %{buildroot}%{_winedir}
+install -p -m 0644 _nvngx.dll nvngx.dll nvngx_dlssg.dll %{buildroot}%{_winedir}
 %endif
 
 # Install man pages
@@ -328,21 +346,22 @@ install -p -m 0644 nvidia-{cuda-mps-control,smi}.1.gz \
 mkdir -p %{buildroot}%{_alternate_dir}
 install -p -m 0644 %{SOURCE5} %{buildroot}%{_alternate_dir}
 
+#install the NVIDIA sandboxutils-filelist.json
+mkdir -p %{buildroot}%{_datadir}/nvidia/files.d/
+install -p -m 0644 sandboxutils-filelist.json %{buildroot}%{_datadir}/nvidia/files.d/
+
+#install the NVIDIA nvoptix.bin
+install -p -m 0644 nvoptix.bin %{buildroot}%{_datadir}/nvidia/
+
 #install the NVIDIA supplied application profiles
-mkdir -p %{buildroot}%{_datadir}/nvidia
-install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} %{buildroot}%{_datadir}/nvidia
-install -p -m 0644 nvoptix.bin %{buildroot}%{_datadir}/nvidia
+install -p -m 0644 nvidia-application-profiles-%{version}-{rc,key-documentation} %{buildroot}%{_datadir}/nvidia/
 ln -s nvidia-application-profiles-%{version}-rc %{buildroot}%{_datadir}/nvidia/nvidia-application-profiles-rc
 ln -s nvidia-application-profiles-%{version}-key-documentation %{buildroot}%{_datadir}/nvidia/nvidia-application-profiles-key-documentation
 
 #Install the Xorg configuration files
-mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
-mkdir -p %{buildroot}%{_datadir}/X11/xorg.conf.d
-%if 0%{?fedora}
+mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/
+mkdir -p %{buildroot}%{_datadir}/X11/xorg.conf.d/
 install -pm 0644 %{SOURCE6} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
-%else
-install -pm 0644 %{SOURCE15} %{buildroot}%{_datadir}/X11/xorg.conf.d/nvidia.conf
-%endif
 
 #Ghost Xorg nvidia.conf files
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
@@ -350,16 +369,11 @@ touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 
 #Create the default nvidia config directory
-mkdir -p %{buildroot}%{_sysconfdir}/nvidia
+mkdir -p %{buildroot}%{_sysconfdir}/nvidia/
 
 #Install the nvidia kernel modules sources archive
-mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}
+mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}/
 tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open
-%ifarch x86_64
-#Install wine dll
-mkdir -p %{buildroot}%{_winedir}
-install -p -m 0644 _nvngx.dll nvngx.dll %{buildroot}%{_winedir}
-%endif
 
 #RPM Macros support
 mkdir -p %{buildroot}%{rpmmacrodir}
@@ -385,14 +399,17 @@ install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
 
 # Systemd units and script for suspending/resuming
 mkdir %{buildroot}%{_systemd_util_dir}/system-{sleep,preset}/
+mkdir %{buildroot}%{_unitdir}/systemd-suspend.service.d/
 install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
-install -p -m 0644 systemd/system/nvidia-{hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
-%ifarch x86_64
+install -p -m 0644 %{SOURCE18} %{buildroot}%{_unitdir}/systemd-suspend.service.d/
+install -p -m 0644 systemd/system/nvidia-{hibernate,suspend-then-hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
 install -p -m 0644 systemd/system/nvidia-powerd.service %{buildroot}%{_unitdir}
+# Install dbus config
+install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
+install -p -m 0644 nvidia-dbus.conf %{buildroot}%{_dbus_systemd_dir}
 # Ignore powerd binary exiting if hardware is not present
 # We should check for information in the DMI table
 sed -i -e 's/ExecStart=/ExecStart=-/g' %{buildroot}%{_unitdir}/nvidia-powerd.service
-%endif
 install -p -m 0755 systemd/system-sleep/nvidia %{buildroot}%{_systemd_util_dir}/system-sleep/
 install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 
@@ -410,31 +427,14 @@ fi
 %post
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
-  sed -i -e 's/GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="%{_dracutopts} /g' /etc/default/grub
 fi || :
 
-%triggerun -- xorg-x11-drv-nvidia < 3:545.23.06-1
-if [ -f %{_sysconfdir}/default/grub ] ; then
-  sed -i -e '/GRUB_GFXPAYLOAD_LINUX=text/d' %{_sysconfdir}/default/grub
-  . %{_sysconfdir}/default/grub
-  if [ -z "${GRUB_CMDLINE_LINUX+x}" ]; then
-    echo -e GRUB_CMDLINE_LINUX=\"%{_dracutopts}\" >> %{_sysconfdir}/default/grub
-  else
-    for i in %{_dracutopts} ; do
-      _has_string=$(echo ${GRUB_CMDLINE_LINUX} | grep -F -c $i)
-      if [ x"$_has_string" = x0 ] ; then
-        GRUB_CMDLINE_LINUX="${GRUB_CMDLINE_LINUX} ${i}"
-      fi
-    done
-    sed -i -e "s|^GRUB_CMDLINE_LINUX=.*|GRUB_CMDLINE_LINUX=\"${GRUB_CMDLINE_LINUX}\"|g" %{_sysconfdir}/default/grub
-  fi
-fi
-%{_grubby} --args='%{_dracutopts}' &>/dev/null || :
+%triggerun -- xorg-x11-drv-nvidia < 3:560.35.03-2
+%{_grubby} --remove-args='%{_dracutopts_removed}' &>/dev/null || :
 
 %preun
 if [ "$1" -eq "0" ]; then
   %{_grubby} --remove-args='%{_dracutopts}' &>/dev/null
-  sed -i -e 's/%{_dracutopts} //g' /etc/default/grub
   # Backup and disable previously used xorg.conf
   [ -f %{_sysconfdir}/X11/xorg.conf ] && mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.nvidia_uninstalled &>/dev/null
 fi ||:
@@ -446,15 +446,13 @@ fi ||:
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
+%ifarch x86_64
+%{_bindir}/nvidia-pcc
+%endif
 %{_firmwarepath}
 %dir %{_alternate_dir}
 %{_alternate_dir}/alternate-install-present
-%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
 %dir %{_sysconfdir}/nvidia
-%ghost %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
-%ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
-%ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
-%{_datadir}/X11/xorg.conf.d/nvidia.conf
 %{_udevrulesdir}/10-nvidia.rules
 %{_udevrulesdir}/80-nvidia-pm.rules
 %{_unitdir}/nvidia-fallback.service
@@ -462,10 +460,6 @@ fi ||:
 %{_datadir}/pixmaps/%{name}.png
 %{_dracut_conf_d}/99-nvidia-dracut.conf
 %{_bindir}/nvidia-bug-report.sh
-# Xorg libs that do not need to be multilib
-%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
-%{_libdir}/xorg/modules/drivers/nvidia_drv.so
-#/no_multilib
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-*
 %{_datadir}/nvidia/nvoptix.bin
@@ -499,34 +493,36 @@ fi ||:
 %{_libdir}/gbm/
 %{_libdir}/vdpau/libvdpau_nvidia.so.1
 %{_libdir}/vdpau/libvdpau_nvidia.so.%{version}
+%{_datadir}/glvnd/egl_vendor.d/10_nvidia.json
+%{_datadir}/vulkan/icd.d/nvidia_icd.%{_target_cpu}.json
 %ifarch x86_64 aarch64
 %{_datadir}/vulkan/implicit_layer.d/nvidia_layers.json
-%{_datadir}/vulkan/icd.d/nvidia_icd.json
 %{_libdir}/libnvidia-api.so.1
 %{_libdir}/libnvidia-cfg.so.1
 %{_libdir}/libnvidia-cfg.so.%{version}
-%ifnarch aarch64
-%if 0%{?fedora} || 0%{?rhel} > 8
-%{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
-%else
-%{_libdir}/libnvidia-pkcs11.so.%{version}
-%endif
-%endif
-%if 0%{?rhel}
-%{_libdir}/libnvidia-egl-gbm.so.1
-%{_libdir}/libnvidia-egl-gbm.so.1.1.1
-%endif
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
 %{_libdir}/libnvidia-rtcore.so.%{version}
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
 %ifarch x86_64
+%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
+%{_libdir}/libnvidia-vksc-core.so.%{version}
+%{_libdir}/libnvidia-vksc-core.so.1
+%{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
 %{_winedir}/
 %endif
 %endif
 
 %ifarch x86_64 aarch64
+%files xorg-libs
+%ghost %{_sysconfdir}/X11/xorg.conf.d/00-avoid-glamor.conf
+%ghost %{_sysconfdir}/X11/xorg.conf.d/99-nvidia.conf
+%ghost %{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
+%{_datadir}/X11/xorg.conf.d/nvidia.conf
+%{_libdir}/xorg/modules/extensions/libglxserver_nvidia.so
+%{_libdir}/xorg/modules/drivers/nvidia_drv.so
+
 %files cuda
 %license nvidiapkg/LICENSE
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
@@ -535,6 +531,7 @@ fi ||:
 %{_bindir}/nvidia-debugdump
 %{_bindir}/nvidia-ngx-updater
 %{_bindir}/nvidia-smi
+%{_datadir}/nvidia/files.d/
 %{_mandir}/man1/nvidia-cuda-mps-control.1.*
 %{_mandir}/man1/nvidia-smi.*
 %endif
@@ -566,6 +563,10 @@ fi ||:
 %{_libdir}/libcudadebugger.so.1
 %{_libdir}/libcudadebugger.so.%{version}
 %{_modprobedir}/nvidia-uvm.conf
+%ifarch x86_64
+%{_libdir}/libnvidia-sandboxutils.so.1
+%{_libdir}/libnvidia-sandboxutils.so.%{version}
+%endif
 %endif
 
 %files devel
@@ -573,55 +574,145 @@ fi ||:
 %ifarch x86_64 aarch64
 %post power
 %systemd_post nvidia-hibernate.service
-%ifarch x86_64
+%systemd_post nvidia-suspend-then-hibernate.service
 %systemd_post nvidia-powerd.service
-%endif
 %systemd_post nvidia-resume.service
 %systemd_post nvidia-suspend.service
 
 %preun power
 %systemd_preun nvidia-hibernate.service
-%ifarch x86_64
+%systemd_preun nvidia-suspend-then-hibernate.service
 %systemd_preun nvidia-powerd.service
-%endif
 %systemd_preun nvidia-resume.service
 %systemd_preun nvidia-suspend.service
 
 %postun power
 %systemd_postun nvidia-hibernate.service
-%ifarch x86_64
+%systemd_postun nvidia-suspend-then-hibernate.service
 %systemd_postun nvidia-powerd.service
-%endif
 %systemd_postun nvidia-resume.service
 %systemd_postun nvidia-suspend.service
 
 %files power
 %config %{_modprobedir}/nvidia-power-management.conf
-%ifarch x86_64
 %{_bindir}/nvidia-powerd
+%{_unitdir}/systemd-suspend.service.d/
 %{_unitdir}/nvidia-powerd.service
 %{_dbus_systemd_dir}/nvidia-dbus.conf
-%endif
 %{_bindir}/nvidia-sleep.sh
 %{_systemd_util_dir}/system-preset/70-nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
 %{_unitdir}/nvidia-hibernate.service
+%{_unitdir}/nvidia-suspend-then-hibernate.service
 %{_unitdir}/nvidia-resume.service
 %{_unitdir}/nvidia-suspend.service
 %endif
 
 %changelog
-* Wed Jan 29 2025 Nicolas Chauvet <kwizart@gmail.com> - 3:550.144.03-1
-- Update to 550.144.03
+* Mon May 19 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.153.02-1
+- Update to 570.153.02 release
 
-* Tue Oct 29 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:550.127.05-1
-- Update to 550.127.05
+* Sat Apr 19 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.144-1
+- Update to 570.144 release
 
-* Fri Aug 30 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:550.107.02-1
-- Update to 550.107.02
+* Tue Mar 18 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.133.07-1
+- Update to 570.133.07 release
 
-* Fri Jul 19 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:550.100-1
-- Update to 550.100
+* Sun Mar 09 2025 Nicolas Chauvet <kwizart@gmail.com> - 3:570.124.04-2
+- Add nvidia-driver-cuda - rhbz#7196
+
+* Thu Feb 27 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.124.04-1
+- Update to 570.124.04 release
+
+* Sat Feb 08 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-5
+- Revert last change
+
+* Sat Feb 08 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-4
+- Revert vulkan icd name change
+
+* Fri Jan 31 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-3
+- fix sbin merge issue
+
+* Thu Jan 30 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-2
+- Fix requires and provides
+
+* Thu Jan 30 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.16-1
+- Update to 570.86.16 beta
+
+* Fri Jan 24 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.10-2
+- Add changes for 570.86.10
+
+* Fri Jan 24 2025 Leigh Scott <leigh123linux@gmail.com> - 3:570.86.10-1
+- Update to 570.86.10 cuda release
+
+* Sun Dec 15 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.77-3
+- Boolean 'or' statements still breaks mash
+
+* Sun Dec 15 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.77-2
+- Adapt for new OpenCL-ICD-Loader package
+
+* Thu Dec 05 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.77-1
+- Update to 565.77 release
+
+* Sun Oct 27 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:565.57.01-3
+- Add nvidia-open-560
+
+* Sun Oct 27 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.57.01-2
+- Add systemd conf to disable freeze user session (rfbz#7090)
+
+* Tue Oct 22 2024 Leigh Scott <leigh123linux@gmail.com> - 3:565.57.01-1
+- Update to 565.57.01 beta
+
+* Sat Sep 21 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-5
+- Fix requires
+
+* Fri Sep 20 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-4
+- Split xorg libs
+
+* Fri Aug 23 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-3
+- Various packaging fixes
+
+* Thu Aug 22 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-2
+- Fix trigger scriptlet
+
+* Wed Aug 21 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.35.03-1
+- Update to 560.35.03 Release
+
+* Wed Aug 21 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:560.31.02-5
+- Drop tweaks for /etc/default/grub - rfbz#7034
+- Add --remove-args for deprecated/old cmdline options in triggerin
+
+* Tue Aug 20 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:560.31.02-4
+- Add nvidia-open-560
+- Add missing conflicts
+
+* Sun Aug 18 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.31.02-3
+- Use system egl-wayland and egl-gbm
+- Remove old rhel conditionals
+
+* Mon Aug 12 2024 Nicolas Chauvet <kwizart@gmail.com> - 3:560.31.02-2
+- Provides nvidia-open for cuda-12-6
+
+* Tue Aug 06 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.31.02-1
+- Update to 560.31.02 beta
+
+* Wed Jul 24 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.28.03-2
+- Use bundled egl-wayland and egl-gbm
+
+* Tue Jul 23 2024 Leigh Scott <leigh123linux@gmail.com> - 3:560.28.03-1
+- Update to 560.28.03 beta
+
+* Mon Jul 01 2024 Leigh Scott <leigh123linux@gmail.com> - 3:555.58.02-1
+- Update to 555.58.02
+
+* Thu Jun 27 2024 Leigh Scott <leigh123linux@gmail.com> - 3:555.58-1
+- Update to 555.58 release
+
+* Wed Jun 05 2024 Leigh Scott <leigh123linux@gmail.com> - 3:555.52.04-1
+- Update to 555.52.04 beta
+
+* Tue May 21 2024 Leigh Scott <leigh123linux@gmail.com> - 3:555.42.02-1
+- Update to 555.42.02 beta
 
 * Fri Apr 26 2024 Leigh Scott <leigh123linux@gmail.com> - 3:550.78-1
 - Update to 550.78 release

@@ -2,6 +2,7 @@
 # file:///usr/share/doc/nvidia-driver/html/powermanagement.html
 
 enable nvidia-hibernate.service
+enable nvidia-suspend-then-hibernate.service
 enable nvidia-resume.service
 enable nvidia-suspend.service
 
