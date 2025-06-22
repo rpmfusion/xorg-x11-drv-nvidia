@@ -191,6 +191,7 @@ This package provides the shared libraries for %{name}.
 Summary:        Xorg Libraries for %{name}
 Requires:       %{name}%{?_isa} = %{?epoch}:%{version}
 Requires:       xorg-x11-server-Xorg%{?_isa}
+Requires:       xserver-abi(videodrv-25)
 Requires:       xorg-x11-xinit%{?_isa}
 # Needed so nvidia-settings can write broken configs
 Suggests:       nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
