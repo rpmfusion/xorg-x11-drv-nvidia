@@ -22,7 +22,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         575.64
+Version:         575.64.03
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -191,6 +191,7 @@ This package provides the shared libraries for %{name}.
 Summary:        Xorg Libraries for %{name}
 Requires:       %{name}%{?_isa} = %{?epoch}:%{version}
 Requires:       xorg-x11-server-Xorg%{?_isa}
+Requires:       xserver-abi(videodrv-25)
 Requires:       xorg-x11-xinit%{?_isa}
 # Needed so nvidia-settings can write broken configs
 Suggests:       nvidia-xconfig%{?_isa} = %{?epoch}:%{version}
@@ -614,6 +615,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Jul 01 2025 Leigh Scott <leigh123linux@gmail.com> - 3:575.64.03-1
+- Update to 575.64.03 release
+
 * Tue Jun 17 2025 Leigh Scott <leigh123linux@gmail.com> - 3:575.64-1
 - Update to 575.64 release
 
