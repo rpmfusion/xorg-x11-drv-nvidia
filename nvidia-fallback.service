@@ -2,7 +2,7 @@
 Description=Fallback to nouveau as nvidia did not load
 After=akmods.service
 Before=display-manager.service
-ConditionKernelCommandLine=rd.driver.blacklist=nouveau
+ConditionKernelCommandLine=rd.driver.blacklist=nouveau,nova_core
 ConditionPathExists=!/sys/module/nvidia
 
 
