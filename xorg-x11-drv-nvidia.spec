@@ -204,7 +204,7 @@ This package provides the Xorg libraries for %{name}.
 %package power
 Summary:          Advanced  power management
 Requires:         %{name}%{?_isa} = %{?epoch}:%{version}
-Requires:         systemd >= 248.9
+Requires:         systemd
 # Mash can't handle noach package
 #BuildArch:        noarch
 
