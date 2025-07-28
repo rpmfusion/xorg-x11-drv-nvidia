@@ -168,10 +168,14 @@ Requires:        egl-gbm%{?_isa} >= 2:1.1.2
 Requires:        egl-x11%{?_isa}
 %else
 %ifnarch i686
-# RHEL doesn't provide i686 libs
-Requires:        egl-wayland%{?_isa} >= 1.1.15
-Requires:        egl-gbm%{?_isa} >= 2:1.1.2
+# EPEL doesn't provide i686 libs
+# Loosen dependency version, don't bother supporting wayland there until fixed.
+Requires:        egl-wayland%{?_isa}
+Requires:        egl-gbm%{?_isa}
+%if 0%{?rhel} > 9
+# Needed for better Xwayland support
 Requires:        egl-x11%{?_isa}
+%endif
 %endif
 %endif
 
