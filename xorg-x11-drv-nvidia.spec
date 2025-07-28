@@ -436,6 +436,14 @@ fi
 %post
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
+# EL8 still requires a grub2-mkconfig call
+%if 0%{?rhel} && 0%{?rhel} <= 8
+  if [ -f /boot/efi/EFI/fedora/grub.cfg ]; then
+     /sbin/grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
+  elif [ -f /boot/grub2/grub.cfg ]; then
+     /sbin/grub2-mkconfig -o /boot/grub2/grub.cfg
+  fi
+%endif
 fi || :
 
 %triggerun -- xorg-x11-drv-nvidia < 3:575.57.08-2
