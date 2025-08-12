@@ -22,8 +22,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         575.64.05
-Release:         2%{?dist}
+Version:         580.76.05
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -169,10 +169,14 @@ Requires:        egl-gbm%{?_isa} >= 2:1.1.2
 Requires:        egl-x11%{?_isa}
 %else
 %ifnarch i686
-# RHEL doesn't provide i686 libs
-Requires:        egl-wayland%{?_isa} >= 1.1.15
-Requires:        egl-gbm%{?_isa} >= 2:1.1.2
+# EPEL doesn't provide i686 libs
+# Loosen dependency version, don't bother supporting wayland there until fixed.
+Requires:        egl-wayland%{?_isa}
+Requires:        egl-gbm%{?_isa}
+%if 0%{?rhel} > 9
+# Needed for better Xwayland support
 Requires:        egl-x11%{?_isa}
+%endif
 %endif
 %endif
 
@@ -202,7 +206,7 @@ This package provides the Xorg libraries for %{name}.
 %package power
 Summary:          Advanced  power management
 Requires:         %{name}%{?_isa} = %{?epoch}:%{version}
-Requires:         systemd >= 248.9
+Requires:         systemd
 # Mash can't handle noach package
 #BuildArch:        noarch
 
@@ -432,6 +436,14 @@ fi
 %post
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
+# EL8 still requires a grub2-mkconfig call
+%if 0%{?rhel} && 0%{?rhel} <= 8
+  if [ -f /boot/efi/EFI/fedora/grub.cfg ]; then
+     /sbin/grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
+  elif [ -f /boot/grub2/grub.cfg ]; then
+     /sbin/grub2-mkconfig -o /boot/grub2/grub.cfg
+  fi
+%endif
 fi || :
 
 %triggerun -- xorg-x11-drv-nvidia < 3:575.57.08-2
@@ -442,6 +454,14 @@ if [ "$1" -eq "0" ]; then
   %{_grubby} --remove-args='%{_dracutopts}' &>/dev/null
   # Backup and disable previously used xorg.conf
   [ -f %{_sysconfdir}/X11/xorg.conf ] && mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.nvidia_uninstalled &>/dev/null
+  # EL8 still requires a grub2-mkconfig call
+%if 0%{?rhel} && 0%{?rhel} <= 8
+  if [ -f /boot/efi/EFI/fedora/grub.cfg ]; then
+     /sbin/grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
+  elif [ -f /boot/grub2/grub.cfg ]; then
+     /sbin/grub2-mkconfig -o /boot/grub2/grub.cfg
+  fi
+%endif
 fi ||:
 
 
@@ -615,6 +635,12 @@ fi ||:
 %endif
 
 %changelog
+* Tue Aug 12 2025 Leigh Scott <leigh123linux@gmail.com> - 3:580.76.05-1
+- Update to 580.76.05 release
+
+* Tue Aug 05 2025 Leigh Scott <leigh123linux@gmail.com> - 3:580.65.06-1
+- Update to 580.65.06 beta
+
 * Thu Jul 24 2025 Nicolas Chauvet <kwizart@gmail.com> - 3:575.64.05-2
 - Add missing nova_core to nvidia-fallback
 
