@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         580.76.05
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -640,6 +640,9 @@ fi ||:
 %endif
 
 %changelog
+* Mon Aug 25 2025 Nicolas Chauvet <kwizart@gmail.com> - 3:580.76.05-2
+-  Do not depend on a given opencl implementation - rhbz#2375547
+
 * Tue Aug 12 2025 Leigh Scott <leigh123linux@gmail.com> - 3:580.76.05-1
 - Update to 580.76.05 release
 
