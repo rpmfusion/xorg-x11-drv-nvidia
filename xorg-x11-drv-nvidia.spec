@@ -22,7 +22,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         580.76.05
+Version:         580.82.07
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -115,7 +115,6 @@ Requires:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 %ifarch x86_64
 Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
-Requires:        libOpenCL.so.1()(64bit)
 Requires:        opencl-filesystem
 
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
@@ -143,6 +142,12 @@ This package provides the CUDA driver.
 
 %package cuda-libs
 Summary:         CUDA libraries for %{name}
+# Don't depend on any ICD-LOADER implementation - rhbz#2375547#c2
+%if 0%{?__isa_bits} == 64
+Requires:        libOpenCL.so.1()(64bit)
+%else
+Requires:        libOpenCL.so.1
+%endif
 
 %description cuda-libs
 This package provides the CUDA driver libraries.
@@ -635,6 +640,12 @@ fi ||:
 %endif
 
 %changelog
+* Tue Sep 02 2025 Leigh Scott <leigh123linux@gmail.com> - 3:580.82.07-1
+- Update to 580.82.07 release
+
+* Mon Aug 25 2025 Nicolas Chauvet <kwizart@gmail.com> - 3:580.76.05-2
+-  Do not depend on a given opencl implementation - rhbz#2375547
+
 * Tue Aug 12 2025 Leigh Scott <leigh123linux@gmail.com> - 3:580.76.05-1
 - Update to 580.76.05 release
 
