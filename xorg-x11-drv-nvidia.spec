@@ -141,12 +141,10 @@ This package provides the CUDA driver tools.
 
 %package cuda-libs
 Summary:         CUDA libraries for %{name}
+%ifarch x86_64 aarch64
 Requires:        opencl-filesystem
 # Don't depend on any ICD-LOADER implementation - rhbz#2375547#c2
-%if 0%{?__isa_bits} == 64
 Requires:        libOpenCL.so.1()(64bit)
-%else
-Requires:        libOpenCL.so.1
 %endif
 
 %description cuda-libs
@@ -568,7 +566,6 @@ fi ||:
 
 %ldconfig_scriptlets cuda-libs
 %files cuda-libs
-%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_libdir}/libcuda.so
 %{_libdir}/libcuda.so.1
 %{_libdir}/libcuda.so.%{version}
@@ -591,6 +588,7 @@ fi ||:
 %{_libdir}/libnvidia-ptxjitcompiler.so.1
 %{_libdir}/libnvidia-ptxjitcompiler.so.%{version}
 %ifarch x86_64 aarch64
+%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_libdir}/libnvidia-nvvm70.so.4
 %{_libdir}/libcudadebugger.so.1
 %{_libdir}/libcudadebugger.so.%{version}
