@@ -107,7 +107,7 @@ Provides:        nvidia-drivers-devel%{?_isa} = %{?epoch}:%{version}-100
 This package provides the development files of the %{name} package.
 
 %package cuda
-Summary:         CUDA driver for %{name}
+Summary:         CUDA driver tools for %{name}
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        nvidia-persistenced%{?_isa} = %{?epoch}:%{version}
@@ -115,7 +115,6 @@ Requires:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 %ifarch x86_64
 Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
-Requires:        opencl-filesystem
 
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 Conflicts:       xorg-x11-drv-nvidia-390xx-cuda
@@ -138,10 +137,11 @@ Provides:        nvidia-open-%(echo %{version} | cut -f 1 -d .) = %{version}
 Provides:        nvidia-open-570 = %{version}
 
 %description cuda
-This package provides the CUDA driver.
+This package provides the CUDA driver tools.
 
 %package cuda-libs
 Summary:         CUDA libraries for %{name}
+Requires:        opencl-filesystem
 # Don't depend on any ICD-LOADER implementation - rhbz#2375547#c2
 %if 0%{?__isa_bits} == 64
 Requires:        libOpenCL.so.1()(64bit)
@@ -556,7 +556,6 @@ fi ||:
 
 %files cuda
 %license nvidiapkg/LICENSE
-%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_bindir}/nvidia-cuda-mps-control
 %{_bindir}/nvidia-cuda-mps-server
 %{_bindir}/nvidia-debugdump
@@ -569,6 +568,7 @@ fi ||:
 
 %ldconfig_scriptlets cuda-libs
 %files cuda-libs
+%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_libdir}/libcuda.so
 %{_libdir}/libcuda.so.1
 %{_libdir}/libcuda.so.%{version}
@@ -1426,4 +1426,3 @@ fi ||:
 
 * Fri Nov 18 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.20-1
 - Update to 375.20 release
-
