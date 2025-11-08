@@ -62,6 +62,8 @@ Suggests:         vulkan-tools
 Recommends:       %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Recommends:       %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:         (%{name}-xorg-libs%{?_isa} = %{?epoch}:%{version}-%{release} if xorg-x11-server-Xorg%{?_isa})
+Requires:         (%{name}-cuda = %{?epoch}:%{version}-%{release} if cuda)
+Requires:         (%{name}-cuda = %{?epoch}:%{version}-%{release} if cuda-toolkit)
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
