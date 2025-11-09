@@ -10,7 +10,7 @@
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
 %global        _dracutopts          rd.driver.blacklist=nouveau,nova_core modprobe.blacklist=nouveau,nova_core
-%global        _dracutopts_removed  initcall_blacklist=simpledrm_platform_driver_init nvidia-drm.modeset=1 nvidia-drm.fbdev=1
+%global        _dracutopts_removed  initcall_blacklist=simpledrm_platform_driver_init
 %if 0%{?rhel}
 %global        _systemd_util_dir    %{_prefix}/lib/systemd
 %endif
