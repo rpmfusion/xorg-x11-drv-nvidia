@@ -22,7 +22,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         580.95.05
+Version:         580.105.08
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -62,6 +62,8 @@ Suggests:         vulkan-tools
 Recommends:       %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Recommends:       %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:         (%{name}-xorg-libs%{?_isa} = %{?epoch}:%{version}-%{release} if xorg-x11-server-Xorg%{?_isa})
+Requires:         (%{name}-cuda = %{?epoch}:%{version}-%{release} if cuda)
+Requires:         (%{name}-cuda = %{?epoch}:%{version}-%{release} if cuda-toolkit)
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
@@ -107,7 +109,7 @@ Provides:        nvidia-drivers-devel%{?_isa} = %{?epoch}:%{version}-100
 This package provides the development files of the %{name} package.
 
 %package cuda
-Summary:         CUDA driver for %{name}
+Summary:         CUDA driver tools for %{name}
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        nvidia-persistenced%{?_isa} = %{?epoch}:%{version}
@@ -115,7 +117,6 @@ Requires:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 %ifarch x86_64
 Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
-Requires:        opencl-filesystem
 
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 Conflicts:       xorg-x11-drv-nvidia-390xx-cuda
@@ -138,15 +139,14 @@ Provides:        nvidia-open-%(echo %{version} | cut -f 1 -d .) = %{version}
 Provides:        nvidia-open-570 = %{version}
 
 %description cuda
-This package provides the CUDA driver.
+This package provides the CUDA driver tools.
 
 %package cuda-libs
 Summary:         CUDA libraries for %{name}
+%ifarch x86_64 aarch64
+Requires:        opencl-filesystem
 # Don't depend on any ICD-LOADER implementation - rhbz#2375547#c2
-%if 0%{?__isa_bits} == 64
 Requires:        libOpenCL.so.1()(64bit)
-%else
-Requires:        libOpenCL.so.1
 %endif
 
 %description cuda-libs
@@ -556,7 +556,6 @@ fi ||:
 
 %files cuda
 %license nvidiapkg/LICENSE
-%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_bindir}/nvidia-cuda-mps-control
 %{_bindir}/nvidia-cuda-mps-server
 %{_bindir}/nvidia-debugdump
@@ -591,6 +590,7 @@ fi ||:
 %{_libdir}/libnvidia-ptxjitcompiler.so.1
 %{_libdir}/libnvidia-ptxjitcompiler.so.%{version}
 %ifarch x86_64 aarch64
+%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_libdir}/libnvidia-nvvm70.so.4
 %{_libdir}/libcudadebugger.so.1
 %{_libdir}/libcudadebugger.so.%{version}
@@ -640,6 +640,9 @@ fi ||:
 %endif
 
 %changelog
+* Sat Nov 08 2025 Leigh Scott <leigh123linux@gmail.com> - 3:580.105.08-1
+- Update to 580.105.08 release
+
 * Tue Sep 30 2025 Leigh Scott <leigh123linux@gmail.com> - 3:580.95.05-1
 - Update to 580.95.05 release
 
@@ -1426,4 +1429,3 @@ fi ||:
 
 * Fri Nov 18 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.20-1
 - Update to 375.20 release
-
