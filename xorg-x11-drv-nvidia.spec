@@ -22,7 +22,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         580.105.08
+Version:         590.44.01
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -75,6 +75,7 @@ Provides:        %{_nvidia_serie}-open-kmod-common = %{?epoch}:%{version}
 Conflicts:       xorg-x11-drv-nvidia-340xx
 Conflicts:       xorg-x11-drv-nvidia-390xx
 Conflicts:       xorg-x11-drv-nvidia-470xx
+Conflicts:       xorg-x11-drv-nvidia-580xx
 
 %global         __provides_exclude ^(lib.*GL.*\\.so.*)$
 %global         __requires_exclude ^libglxserver_nvidia.so|^(lib.*GL.*\\.so.*)$
@@ -121,6 +122,7 @@ Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 Conflicts:       xorg-x11-drv-nvidia-390xx-cuda
 Conflicts:       xorg-x11-drv-nvidia-470xx-cuda
+Conflicts:       xorg-x11-drv-nvidia-580xx-cuda
 
 #Don't put an epoch here
 Provides:        cuda-drivers-%(echo %{version} | cut -f 1 -d .) = %{version}
@@ -169,6 +171,7 @@ Requires:        libglvnd-opengl%{?_isa} >= 0.2
 Requires:        vulkan-loader%{?_isa}
 
 %if 0%{?fedora}
+Requires:        egl-wayland2%{?_isa} >= 1.0.1
 Requires:        egl-wayland%{?_isa} >= 1.1.15
 Requires:        egl-gbm%{?_isa} >= 2:1.1.2
 Requires:        egl-x11%{?_isa}
@@ -176,6 +179,7 @@ Requires:        egl-x11%{?_isa}
 %ifnarch i686
 # EPEL doesn't provide i686 libs
 # Loosen dependency version, don't bother supporting wayland there until fixed.
+Requires:        egl-wayland2%{?_isa}
 Requires:        egl-wayland%{?_isa}
 Requires:        egl-gbm%{?_isa}
 %if 0%{?rhel} > 9
@@ -265,6 +269,7 @@ cp -a \
     libnvidia-nvvm.so.%{version} \
     libnvidia-opticalflow.so.%{version} \
     libnvidia-ptxjitcompiler.so.%{version} \
+    libnvidia-tileiras.so.%{version} \
 %ifarch x86_64 aarch64
     libcudadebugger.so.%{version} \
     libnvidia-api.so.1 \
@@ -451,7 +456,7 @@ if [ "$1" -eq "1" ]; then
 %endif
 fi || :
 
-%triggerun -- xorg-x11-drv-nvidia < 3:575.57.08-2
+%triggerun -- xorg-x11-drv-nvidia < 3:590.44.01-1
 %{_grubby} --args='%{_dracutopts}' &>/dev/null || :
 
 %preun
@@ -589,6 +594,7 @@ fi ||:
 %{_libdir}/libnvidia-opticalflow.so.%{version}
 %{_libdir}/libnvidia-ptxjitcompiler.so.1
 %{_libdir}/libnvidia-ptxjitcompiler.so.%{version}
+%{_libdir}/libnvidia-tileiras.so.%{version}
 %ifarch x86_64 aarch64
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_libdir}/libnvidia-nvvm70.so.4
@@ -640,6 +646,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Dec 03 2025 Leigh Scott <leigh123linux@gmail.com> - 3:590.44.01-1
+- Update to 590.44.01 beta
+
 * Sat Nov 08 2025 Leigh Scott <leigh123linux@gmail.com> - 3:580.105.08-1
 - Update to 580.105.08 release
 
