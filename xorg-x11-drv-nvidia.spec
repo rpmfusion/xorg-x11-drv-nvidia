@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         590.44.01
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -171,7 +171,7 @@ Requires:        libglvnd-opengl%{?_isa} >= 0.2
 Requires:        vulkan-loader%{?_isa}
 
 %if 0%{?fedora}
-Requires:        egl-wayland2%{?_isa} >= 1.0.1
+Requires:        egl-wayland2%{?_isa} > 1.0.0
 Requires:        egl-wayland%{?_isa} >= 1.1.15
 Requires:        egl-gbm%{?_isa} >= 2:1.1.2
 Requires:        egl-x11%{?_isa}
@@ -646,6 +646,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Dec 03 2025 Leigh Scott <leigh123linux@gmail.com> - 3:590.44.01-2
+- Reduce egl-wayland2 requires version
+
 * Wed Dec 03 2025 Leigh Scott <leigh123linux@gmail.com> - 3:590.44.01-1
 - Update to 590.44.01 beta
 
