@@ -22,8 +22,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         590.44.01
-Release:         2%{?dist}
+Version:         590.48.01
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -646,6 +646,9 @@ fi ||:
 %endif
 
 %changelog
+* Thu Dec 18 2025 Leigh Scott <leigh123linux@gmail.com> - 3:590.48.01-1
+- Update to 590.48.01 release
+
 * Wed Dec 03 2025 Leigh Scott <leigh123linux@gmail.com> - 3:590.44.01-2
 - Reduce egl-wayland2 requires version
 
