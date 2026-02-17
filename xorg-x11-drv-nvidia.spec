@@ -443,7 +443,7 @@ if [ "$1" -eq "1" ]; then
   fi
 fi
 
-%post
+%posttrans
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
 # EL8 still requires a grub2-mkconfig call
@@ -455,9 +455,6 @@ if [ "$1" -eq "1" ]; then
   fi
 %endif
 fi || :
-
-%triggerun -- xorg-x11-drv-nvidia < 3:590.44.01-1
-%{_grubby} --args='%{_dracutopts}' &>/dev/null || :
 
 %preun
 if [ "$1" -eq "0" ]; then
