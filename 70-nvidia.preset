@@ -1,10 +1,10 @@
-# Enable complete power management. From:
+# Disable complete power management. From:
 # file:///usr/share/doc/nvidia-driver/html/powermanagement.html
 
-enable nvidia-hibernate.service
-enable nvidia-suspend-then-hibernate.service
-enable nvidia-resume.service
-enable nvidia-suspend.service
+disable nvidia-hibernate.service
+disable nvidia-suspend-then-hibernate.service
+disable nvidia-resume.service
+disable nvidia-suspend.service
 
 # Enable Dynamic Boost. From:
 # file:///usr/share/doc/nvidia-driver/html/dynamicboost.html

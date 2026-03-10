@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         595.45.04
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -392,6 +392,9 @@ touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 #Create the default nvidia config directory
 mkdir -p %{buildroot}%{_sysconfdir}/nvidia/
 
+#Create the directory in the buildroot so RPM can "own" it
+mkdir -p %{buildroot}%{_localstatedir}/lib/nvidia
+
 #Install the nvidia kernel modules sources archive
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}/
 tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open supported-gpus
@@ -422,6 +425,12 @@ install -p -m 0644 %{SOURCE7} %{buildroot}%{_udevrulesdir}
 mkdir %{buildroot}%{_systemd_util_dir}/system-{sleep,preset}/
 install -p -m 0644 %{SOURCE17} %{buildroot}%{_systemd_util_dir}/system-preset/
 install -p -m 0644 systemd/system/nvidia-{hibernate,suspend-then-hibernate,resume,suspend}.service %{buildroot}%{_unitdir}
+for service in hibernate hybrid-sleep suspend suspend-then-hibernate; do
+    mkdir %{buildroot}%{_unitdir}/systemd-${service}.service.d/
+    install -D -p -m 0644 \
+        systemd/system/systemd-${service}.service.d/nvidia-suspend-nofreeze.conf \
+        %{buildroot}%{_unitdir}/systemd-${service}.service.d/nvidia-suspend-nofreeze.conf
+done
 install -p -m 0644 systemd/system/nvidia-powerd.service %{buildroot}%{_unitdir}
 # Install dbus config
 install    -m 0755 -d               %{buildroot}%{_dbus_systemd_dir}
@@ -614,6 +623,15 @@ fi ||:
 %systemd_post nvidia-resume.service
 %systemd_post nvidia-suspend.service
 
+if [ ! -f %{_localstatedir}/lib/nvidia/migration-595-done ]; then
+    /usr/bin/mkdir -p %{_localstatedir}/lib/nvidia
+
+    /usr/bin/systemctl stop nvidia-suspend.service nvidia-suspend-then-hibernate.service nvidia-hibernate.service nvidia-resume.service >/dev/null 2>&1 || :
+    /usr/bin/systemctl disable nvidia-suspend.service nvidia-suspend-then-hibernate.service nvidia-hibernate.service nvidia-resume.service >/dev/null 2>&1 || :
+
+    /usr/bin/touch %{_localstatedir}/lib/nvidia/migration-595-done
+fi
+
 %preun power
 %systemd_preun nvidia-hibernate.service
 %systemd_preun nvidia-suspend-then-hibernate.service
@@ -628,21 +646,40 @@ fi ||:
 %systemd_postun nvidia-resume.service
 %systemd_postun nvidia-suspend.service
 
+if [ $1 -eq 0 ]; then
+    rm -f %{_localstatedir}/lib/nvidia/migration-595-done
+    rmdir %{_localstatedir}/lib/nvidia >/dev/null 2>&1 || :
+fi
+
 %files power
 %config %{_modprobedir}/nvidia-power-management.conf
 %{_bindir}/nvidia-powerd
-%{_unitdir}/nvidia-powerd.service
 %{_dbus_systemd_dir}/nvidia-dbus.conf
 %{_bindir}/nvidia-sleep.sh
 %{_systemd_util_dir}/system-preset/70-nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
+%{_unitdir}/nvidia-powerd.service
 %{_unitdir}/nvidia-hibernate.service
 %{_unitdir}/nvidia-suspend-then-hibernate.service
 %{_unitdir}/nvidia-resume.service
 %{_unitdir}/nvidia-suspend.service
+%dir %{_unitdir}/systemd-suspend.service.d
+%{_unitdir}/systemd-suspend.service.d/nvidia-suspend-nofreeze.conf
+%dir %{_unitdir}/systemd-hibernate.service.d
+%{_unitdir}/systemd-hibernate.service.d/nvidia-suspend-nofreeze.conf
+%dir %{_unitdir}/systemd-suspend-then-hibernate.service.d
+%{_unitdir}/systemd-suspend-then-hibernate.service.d/nvidia-suspend-nofreeze.conf
+%dir %{_unitdir}/systemd-hybrid-sleep.service.d
+%{_unitdir}/systemd-hybrid-sleep.service.d/nvidia-suspend-nofreeze.conf
+%dir %{_localstatedir}/lib/nvidia
+%ghost %{_localstatedir}/lib/nvidia/migration-595-done
 %endif
 
 %changelog
+* Tue Mar 10 2026 Leigh Scott <leigh123linux@gmail.com> - 3:595.45.04-2
+- Enable kernel suspend notifiers for open modules
+- Disable old systemd suspend services
+
 * Thu Mar 05 2026 Leigh Scott <leigh123linux@gmail.com> - 3:595.45.04-1
 - Update to 595.45.04 beta
 
