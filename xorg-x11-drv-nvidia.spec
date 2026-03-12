@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         595.45.04
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -42,6 +42,8 @@ Source13:        10-nvidia.rules
 Source14:        nvidia-fallback.service
 Source16:        nvidia-power-management.conf
 Source17:        70-nvidia.preset
+
+Patch0:          systemd.patch
 
 ExclusiveArch: x86_64 i686 aarch64
 
@@ -234,6 +236,8 @@ sh %{SOURCE1} \
 %endif
 %endif
 
+%patch -P0 -p1 -d nvidiapkg/
+
 python3 %{SOURCE10} nvidiapkg/supported-gpus/supported-gpus.json > \
   nvidiapkg/supported-gpus/nvidia-kmod-noopen-pciids.txt
 
@@ -391,9 +395,6 @@ touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 
 #Create the default nvidia config directory
 mkdir -p %{buildroot}%{_sysconfdir}/nvidia/
-
-#Create the directory in the buildroot so RPM can "own" it
-mkdir -p %{buildroot}%{_localstatedir}/lib/nvidia
 
 #Install the nvidia kernel modules sources archive
 mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}/
@@ -623,15 +624,6 @@ fi ||:
 %systemd_post nvidia-resume.service
 %systemd_post nvidia-suspend.service
 
-if [ ! -f %{_localstatedir}/lib/nvidia/migration-595-done ]; then
-    /usr/bin/mkdir -p %{_localstatedir}/lib/nvidia
-
-    /usr/bin/systemctl stop nvidia-suspend.service nvidia-suspend-then-hibernate.service nvidia-hibernate.service nvidia-resume.service >/dev/null 2>&1 || :
-    /usr/bin/systemctl disable nvidia-suspend.service nvidia-suspend-then-hibernate.service nvidia-hibernate.service nvidia-resume.service >/dev/null 2>&1 || :
-
-    /usr/bin/touch %{_localstatedir}/lib/nvidia/migration-595-done
-fi
-
 %preun power
 %systemd_preun nvidia-hibernate.service
 %systemd_preun nvidia-suspend-then-hibernate.service
@@ -645,11 +637,6 @@ fi
 %systemd_postun nvidia-powerd.service
 %systemd_postun nvidia-resume.service
 %systemd_postun nvidia-suspend.service
-
-if [ $1 -eq 0 ]; then
-    rm -f %{_localstatedir}/lib/nvidia/migration-595-done
-    rmdir %{_localstatedir}/lib/nvidia >/dev/null 2>&1 || :
-fi
 
 %files power
 %config %{_modprobedir}/nvidia-power-management.conf
@@ -671,11 +658,12 @@ fi
 %{_unitdir}/systemd-suspend-then-hibernate.service.d/nvidia-suspend-nofreeze.conf
 %dir %{_unitdir}/systemd-hybrid-sleep.service.d
 %{_unitdir}/systemd-hybrid-sleep.service.d/nvidia-suspend-nofreeze.conf
-%dir %{_localstatedir}/lib/nvidia
-%ghost %{_localstatedir}/lib/nvidia/migration-595-done
 %endif
 
 %changelog
+* Thu Mar 12 2026 Leigh Scott <leigh123linux@gmail.com> - 3:595.45.04-3
+- Use conditional for old systemd suspend services
+
 * Tue Mar 10 2026 Leigh Scott <leigh123linux@gmail.com> - 3:595.45.04-2
 - Enable kernel suspend notifiers for open modules
 - Disable old systemd suspend services

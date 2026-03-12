@@ -1,0 +1,44 @@
+diff -uNrp a/systemd/system/nvidia-hibernate.service b/systemd/system/nvidia-hibernate.service
+--- a/systemd/system/nvidia-hibernate.service	2026-02-27 08:31:43.000000000 +0000
++++ b/systemd/system/nvidia-hibernate.service	2026-03-12 10:09:34.168461364 +0000
+@@ -3,6 +3,7 @@ Description=NVIDIA system hibernate acti
+ Before=systemd-hibernate.service
+ 
+ [Service]
++ExecCondition=/bin/sh -c "/usr/sbin/modinfo -F license nvidia | grep -q 'Proprietary'"
+ Type=oneshot
+ ExecStart=/usr/bin/logger -t hibernate -s "nvidia-hibernate.service"
+ ExecStart=/usr/bin/nvidia-sleep.sh "hibernate"
+diff -uNrp a/systemd/system/nvidia-resume.service b/systemd/system/nvidia-resume.service
+--- a/systemd/system/nvidia-resume.service	2026-02-27 08:31:43.000000000 +0000
++++ b/systemd/system/nvidia-resume.service	2026-03-12 10:09:34.168678678 +0000
+@@ -5,6 +5,7 @@ After=systemd-hibernate.service
+ After=systemd-suspend-then-hibernate.service
+ 
+ [Service]
++ExecCondition=/bin/sh -c "/usr/sbin/modinfo -F license nvidia | grep -q 'Proprietary'"
+ Type=oneshot
+ ExecStart=/usr/bin/logger -t suspend -s "nvidia-resume.service"
+ ExecStart=/usr/bin/nvidia-sleep.sh "resume"
+diff -uNrp a/systemd/system/nvidia-suspend.service b/systemd/system/nvidia-suspend.service
+--- a/systemd/system/nvidia-suspend.service	2026-02-27 08:31:43.000000000 +0000
++++ b/systemd/system/nvidia-suspend.service	2026-03-12 10:09:34.168729786 +0000
+@@ -3,6 +3,7 @@ Description=NVIDIA system suspend action
+ Before=systemd-suspend.service
+ 
+ [Service]
++ExecCondition=/bin/sh -c "/usr/sbin/modinfo -F license nvidia | grep -q 'Proprietary'"
+ Type=oneshot
+ ExecStart=/usr/bin/logger -t suspend -s "nvidia-suspend.service"
+ ExecStart=/usr/bin/nvidia-sleep.sh "suspend"
+diff -uNrp a/systemd/system/nvidia-suspend-then-hibernate.service b/systemd/system/nvidia-suspend-then-hibernate.service
+--- a/systemd/system/nvidia-suspend-then-hibernate.service	2026-02-27 08:31:43.000000000 +0000
++++ b/systemd/system/nvidia-suspend-then-hibernate.service	2026-03-12 10:09:34.168781805 +0000
+@@ -3,6 +3,7 @@ Description=NVIDIA actions for suspend-t
+ Before=systemd-suspend-then-hibernate.service
+ 
+ [Service]
++ExecCondition=/bin/sh -c "/usr/sbin/modinfo -F license nvidia | grep -q 'Proprietary'"
+ Type=oneshot
+ ExecStart=/usr/bin/logger -t suspend -s "nvidia-suspend-then-hibernate.service"
+ ExecStart=/usr/bin/nvidia-sleep.sh "is-suspend-then-hibernate-supported"
