@@ -100,9 +100,8 @@ Summary:         Development files for %{name}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 
-#Don't put an epoch here
-Provides:        cuda-drivers-devel = %{version}.100
-Provides:        cuda-drivers-devel%{?_isa} = %{version}.100
+Provides:        cuda-drivers-devel = %{?epoch}:%{version}.100
+Provides:        cuda-drivers-devel%{?_isa} = %{?epoch}:%{version}.100
 Provides:        nvidia-driver-devel = %{?epoch}:%{version}-100
 Provides:        nvidia-driver-devel%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-drivers-devel = %{?epoch}:%{version}-100
@@ -126,11 +125,10 @@ Conflicts:       xorg-x11-drv-nvidia-390xx-cuda
 Conflicts:       xorg-x11-drv-nvidia-470xx-cuda
 Conflicts:       xorg-x11-drv-nvidia-580xx-cuda
 
-#Don't put an epoch here
-Provides:        cuda-drivers-%(echo %{version} | cut -f 1 -d .) = %{version}
-Provides:        cuda-drivers = %{version}.100
-Provides:        cuda-drivers%{?_isa} = %{version}.100
-Obsoletes:       cuda-drivers < %{version}.100
+Provides:        cuda-drivers-%(echo %{version} | cut -f 1 -d .) = %{?epoch}:%{version}
+Provides:        cuda-drivers = %{?epoch}:%{version}.100
+Provides:        cuda-drivers%{?_isa} = %{?epoch}:%{version}.100
+Obsoletes:       cuda-drivers < %{?epoch}:%{version}.100
 Provides:        nvidia-driver = %{?epoch}:%{version}-100
 Provides:        nvidia-driver%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-driver-cuda = %{?epoch}:%{version}-100
