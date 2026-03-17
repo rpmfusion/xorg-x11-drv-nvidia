@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         595.45.04
-Release:         3%{?dist}
+Release:         4%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -659,6 +659,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Mar 17 2026 Nicolas Chauvet <kwizart@gmail.com> - 3:595.45.04-4
+- Add cuda-drivers epoch since they did
+
 * Thu Mar 12 2026 Leigh Scott <leigh123linux@gmail.com> - 3:595.45.04-3
 - Use conditional for old systemd suspend services
 
