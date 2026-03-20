@@ -5,7 +5,7 @@ diff -uNrp a/systemd/system/nvidia-hibernate.service b/systemd/system/nvidia-hib
  Before=systemd-hibernate.service
  
  [Service]
-+ExecCondition=/bin/sh -c "/usr/sbin/modinfo -F license nvidia | grep -q 'Proprietary'"
++ExecCondition=sh -c "/usr/bin/grep -qs 'UseKernelSuspendNotifiers: 0' /proc/driver/nvidia/params"
  Type=oneshot
  ExecStart=/usr/bin/logger -t hibernate -s "nvidia-hibernate.service"
  ExecStart=/usr/bin/nvidia-sleep.sh "hibernate"
@@ -16,7 +16,7 @@ diff -uNrp a/systemd/system/nvidia-resume.service b/systemd/system/nvidia-resume
  After=systemd-suspend-then-hibernate.service
  
  [Service]
-+ExecCondition=/bin/sh -c "/usr/sbin/modinfo -F license nvidia | grep -q 'Proprietary'"
++ExecCondition=sh -c "/usr/bin/grep -qs 'UseKernelSuspendNotifiers: 0' /proc/driver/nvidia/params"
  Type=oneshot
  ExecStart=/usr/bin/logger -t suspend -s "nvidia-resume.service"
  ExecStart=/usr/bin/nvidia-sleep.sh "resume"
@@ -27,7 +27,7 @@ diff -uNrp a/systemd/system/nvidia-suspend.service b/systemd/system/nvidia-suspe
  Before=systemd-suspend.service
  
  [Service]
-+ExecCondition=/bin/sh -c "/usr/sbin/modinfo -F license nvidia | grep -q 'Proprietary'"
++ExecCondition=sh -c "/usr/bin/grep -qs 'UseKernelSuspendNotifiers: 0' /proc/driver/nvidia/params"
  Type=oneshot
  ExecStart=/usr/bin/logger -t suspend -s "nvidia-suspend.service"
  ExecStart=/usr/bin/nvidia-sleep.sh "suspend"
@@ -38,7 +38,7 @@ diff -uNrp a/systemd/system/nvidia-suspend-then-hibernate.service b/systemd/syst
  Before=systemd-suspend-then-hibernate.service
  
  [Service]
-+ExecCondition=/bin/sh -c "/usr/sbin/modinfo -F license nvidia | grep -q 'Proprietary'"
++ExecCondition=sh -c "/usr/bin/grep -qs 'UseKernelSuspendNotifiers: 0' /proc/driver/nvidia/params"
  Type=oneshot
  ExecStart=/usr/bin/logger -t suspend -s "nvidia-suspend-then-hibernate.service"
  ExecStart=/usr/bin/nvidia-sleep.sh "is-suspend-then-hibernate-supported"
