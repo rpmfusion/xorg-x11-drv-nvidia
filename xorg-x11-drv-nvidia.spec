@@ -42,6 +42,7 @@ Source13:        10-nvidia.rules
 Source14:        nvidia-fallback.service
 Source16:        nvidia-power-management.conf
 Source17:        70-nvidia.preset
+Source18:        nvidia-sleep.conf
 
 Patch0:          systemd.patch
 
@@ -444,6 +445,11 @@ install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 install -p -m 0444 firmware/gsp_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 
+# nvidia-sleep directory - rfbz#7428
+mkdir -p  %{buildroot}%{_tmpfilesdir}
+install -pm 0644 %{SOURCE18}  %{buildroot}%{_tmpfilesdir}
+
+
 %pre
 if [ "$1" -eq "1" ]; then
   if [ -x %{_bindir}/nvidia-uninstall ]; then
@@ -643,6 +649,7 @@ fi ||:
 %{_bindir}/nvidia-sleep.sh
 %{_systemd_util_dir}/system-preset/70-nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
+%{_tmpfilesdir}/nvidia-sleep.conf
 %{_unitdir}/nvidia-powerd.service
 %{_unitdir}/nvidia-hibernate.service
 %{_unitdir}/nvidia-suspend-then-hibernate.service
