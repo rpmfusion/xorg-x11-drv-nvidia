@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         595.45.04
-Release:         4%{?dist}
+Release:         5%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -666,6 +666,9 @@ fi ||:
 %endif
 
 %changelog
+* Fri Mar 20 2026 Nicolas Chauvet <kwizart@gmail.com> - 3:595.45.04-5
+- Change nvidia directory for sleep - rfbz#7428
+
 * Tue Mar 17 2026 Nicolas Chauvet <kwizart@gmail.com> - 3:595.45.04-4
 - Add cuda-drivers epoch since they did
 
