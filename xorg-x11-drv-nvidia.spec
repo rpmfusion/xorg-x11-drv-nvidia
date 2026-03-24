@@ -22,8 +22,8 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         595.45.04
-Release:         5%{?dist}
+Version:         595.58.03
+Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -666,6 +666,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue Mar 24 2026 Leigh Scott <leigh123linux@gmail.com> - 3:595.58.03-1
+- Update to 595.58.03 release
+
 * Fri Mar 20 2026 Nicolas Chauvet <kwizart@gmail.com> - 3:595.45.04-5
 - Change nvidia directory for sleep - rfbz#7428
 
