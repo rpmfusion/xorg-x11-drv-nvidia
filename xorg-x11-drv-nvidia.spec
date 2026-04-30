@@ -22,7 +22,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         580.142
+Version:         580.159.03
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -86,10 +86,10 @@ hardware accelerated rendering with current NVIDIA chipsets series.
 Fermi and Kelper GPUs NOT supported by this release.
 
 For the full product support list, please consult the release notes
-http://download.nvidia.com/XFree86/Linux-x86_64/%{version}/README/index.html
+https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/README/index.html
 
 Please use the following documentation:
-http://rpmfusion.org/Howto/NVIDIA
+https://rpmfusion.org/Howto/NVIDIA
 
 
 %package devel
@@ -637,6 +637,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Apr 29 2026 Sérgio Basto <sergio@serjux.com> - 3:580.159.03-1
+- Update xorg-x11-drv-nvidia to 580.159.03
+
 * Tue Mar 17 2026 Sérgio Basto <sergio@serjux.com> - 3:580.142-1
 - Update xorg-x11-drv-nvidia to 580.142
 
