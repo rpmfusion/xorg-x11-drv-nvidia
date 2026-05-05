@@ -22,7 +22,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         580.95.05
+Version:         580.159.03
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -62,6 +62,8 @@ Suggests:         vulkan-tools
 Recommends:       %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Recommends:       %{name}-power%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:         (%{name}-xorg-libs%{?_isa} = %{?epoch}:%{version}-%{release} if xorg-x11-server-Xorg%{?_isa})
+Requires:         (%{name}-cuda = %{?epoch}:%{version}-%{release} if cuda)
+Requires:         (%{name}-cuda = %{?epoch}:%{version}-%{release} if cuda-toolkit)
 
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-libs%{?_isa} = %{?epoch}:%{version}-%{release}
@@ -84,10 +86,10 @@ hardware accelerated rendering with current NVIDIA chipsets series.
 Fermi and Kelper GPUs NOT supported by this release.
 
 For the full product support list, please consult the release notes
-http://download.nvidia.com/XFree86/Linux-x86_64/%{version}/README/index.html
+https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/README/index.html
 
 Please use the following documentation:
-http://rpmfusion.org/Howto/NVIDIA
+https://rpmfusion.org/Howto/NVIDIA
 
 
 %package devel
@@ -107,7 +109,7 @@ Provides:        nvidia-drivers-devel%{?_isa} = %{?epoch}:%{version}-100
 This package provides the development files of the %{name} package.
 
 %package cuda
-Summary:         CUDA driver for %{name}
+Summary:         CUDA driver tools for %{name}
 Requires:        %{_nvidia_serie}-kmod >= %{?epoch}:%{version}
 Requires:        %{name}-cuda-libs%{?_isa} = %{?epoch}:%{version}-%{release}
 Requires:        nvidia-persistenced%{?_isa} = %{?epoch}:%{version}
@@ -115,7 +117,6 @@ Requires:        nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 %ifarch x86_64
 Requires:        (%{name}-cuda-libs(x86-32) = %{?epoch}:%{version}-%{release} if mesa-libGL(x86-32))
 %endif
-Requires:        opencl-filesystem
 
 Conflicts:       xorg-x11-drv-nvidia-340xx-cuda
 Conflicts:       xorg-x11-drv-nvidia-390xx-cuda
@@ -138,15 +139,14 @@ Provides:        nvidia-open-%(echo %{version} | cut -f 1 -d .) = %{version}
 Provides:        nvidia-open-570 = %{version}
 
 %description cuda
-This package provides the CUDA driver.
+This package provides the CUDA driver tools.
 
 %package cuda-libs
 Summary:         CUDA libraries for %{name}
+%ifarch x86_64 aarch64
+Requires:        opencl-filesystem
 # Don't depend on any ICD-LOADER implementation - rhbz#2375547#c2
-%if 0%{?__isa_bits} == 64
 Requires:        libOpenCL.so.1()(64bit)
-%else
-Requires:        libOpenCL.so.1
 %endif
 
 %description cuda-libs
@@ -438,7 +438,7 @@ if [ "$1" -eq "1" ]; then
   fi
 fi
 
-%post
+%posttrans
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
 # EL8 still requires a grub2-mkconfig call
@@ -450,9 +450,6 @@ if [ "$1" -eq "1" ]; then
   fi
 %endif
 fi || :
-
-%triggerun -- xorg-x11-drv-nvidia < 3:575.57.08-2
-%{_grubby} --args='%{_dracutopts}' &>/dev/null || :
 
 %preun
 if [ "$1" -eq "0" ]; then
@@ -556,7 +553,6 @@ fi ||:
 
 %files cuda
 %license nvidiapkg/LICENSE
-%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_bindir}/nvidia-cuda-mps-control
 %{_bindir}/nvidia-cuda-mps-server
 %{_bindir}/nvidia-debugdump
@@ -591,6 +587,7 @@ fi ||:
 %{_libdir}/libnvidia-ptxjitcompiler.so.1
 %{_libdir}/libnvidia-ptxjitcompiler.so.%{version}
 %ifarch x86_64 aarch64
+%config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
 %{_libdir}/libnvidia-nvvm70.so.4
 %{_libdir}/libcudadebugger.so.1
 %{_libdir}/libcudadebugger.so.%{version}
@@ -640,6 +637,21 @@ fi ||:
 %endif
 
 %changelog
+* Wed Apr 29 2026 Sérgio Basto <sergio@serjux.com> - 3:580.159.03-1
+- Update xorg-x11-drv-nvidia to 580.159.03
+
+* Tue Mar 17 2026 Sérgio Basto <sergio@serjux.com> - 3:580.142-1
+- Update xorg-x11-drv-nvidia to 580.142
+
+* Fri Feb 20 2026 Leigh Scott <leigh123linux@gmail.com> - 3:580.126.18-1
+- Update to 580.126.18 release
+
+* Fri Dec 12 2025 Leigh Scott <leigh123linux@gmail.com> - 3:580.119.02-1
+- Update to 580.119.02 release
+
+* Sat Nov 08 2025 Leigh Scott <leigh123linux@gmail.com> - 3:580.105.08-1
+- Update to 580.105.08 release
+
 * Tue Sep 30 2025 Leigh Scott <leigh123linux@gmail.com> - 3:580.95.05-1
 - Update to 580.95.05 release
 
@@ -1426,4 +1438,3 @@ fi ||:
 
 * Fri Nov 18 2016 leigh scott <leigh123linux@googlemail.com> - 1:375.20-1
 - Update to 375.20 release
-
