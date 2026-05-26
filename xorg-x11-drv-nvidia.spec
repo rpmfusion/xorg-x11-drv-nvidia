@@ -22,7 +22,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         595.71.05
+Version:         610.43.02
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -374,6 +374,10 @@ install -p -m 0644 %{SOURCE5} %{buildroot}%{_alternate_dir}
 mkdir -p %{buildroot}%{_datadir}/nvidia/files.d/
 install -p -m 0644 sandboxutils-filelist.json %{buildroot}%{_datadir}/nvidia/files.d/
 
+#install dlsnetparams.csv
+mkdir %{buildroot}%{_datadir}/nvidia/nvidia-powerd/
+install -p -m 0644 dlsnetparams.csv %{buildroot}%{_datadir}/nvidia/nvidia-powerd/
+
 #install the NVIDIA nvoptix.bin
 install -p -m 0644 nvoptix.bin %{buildroot}%{_datadir}/nvidia/
 
@@ -647,6 +651,7 @@ fi ||:
 %{_bindir}/nvidia-powerd
 %{_dbus_systemd_dir}/nvidia-dbus.conf
 %{_bindir}/nvidia-sleep.sh
+%{_datadir}/nvidia/nvidia-powerd/dlsnetparams.csv
 %{_systemd_util_dir}/system-preset/70-nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
 %{_tmpfilesdir}/nvidia-sleep.conf
@@ -666,6 +671,9 @@ fi ||:
 %endif
 
 %changelog
+* Tue May 26 2026 Leigh Scott <leigh123linux@gmail.com> - 3:610.43.02-1
+- Update to 610.43.02 release
+
 * Tue Apr 28 2026 Leigh Scott <leigh123linux@gmail.com> - 3:595.71.05-1
 - Update to 595.71.05 release
 
