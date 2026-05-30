@@ -23,7 +23,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         610.43.02
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -448,6 +448,7 @@ install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 # Firmware
 mkdir -p %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 install -p -m 0444 firmware/gsp_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
+install -p -m 0444 firmware/ucodes_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 
 # nvidia-sleep directory - rfbz#7428
 mkdir -p  %{buildroot}%{_tmpfilesdir}
@@ -671,6 +672,9 @@ fi ||:
 %endif
 
 %changelog
+* Sat May 30 2026 Leigh Scott <leigh123linux@gmail.com> - 3:610.43.02-2
+- Add ucodes_*10x.bin firmware files
+
 * Tue May 26 2026 Leigh Scott <leigh123linux@gmail.com> - 3:610.43.02-1
 - Update to 610.43.02 release
 
