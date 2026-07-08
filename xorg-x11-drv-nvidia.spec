@@ -22,7 +22,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         595.80
+Version:         610.43.03
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -87,7 +87,7 @@ Conflicts:       xorg-x11-drv-nvidia-580xx
 %description
 This package provides the most recent NVIDIA display driver which allows for
 hardware accelerated rendering with current NVIDIA chipsets series.
-Fermi and Kelper GPUs NOT supported by this release.
+Fermi, Kelper, Maxwell, Pascal, and Volta GPUs NOT supported by this release.
 
 For the full product support list, please consult the release notes
 http://download.nvidia.com/XFree86/Linux-x86_64/%{version}/README/index.html
@@ -374,6 +374,10 @@ install -p -m 0644 %{SOURCE5} %{buildroot}%{_alternate_dir}
 mkdir -p %{buildroot}%{_datadir}/nvidia/files.d/
 install -p -m 0644 sandboxutils-filelist.json %{buildroot}%{_datadir}/nvidia/files.d/
 
+#install dlsnetparams.csv
+mkdir %{buildroot}%{_datadir}/nvidia/nvidia-powerd/
+install -p -m 0644 dlsnetparams.csv %{buildroot}%{_datadir}/nvidia/nvidia-powerd/
+
 #install the NVIDIA nvoptix.bin
 install -p -m 0644 nvoptix.bin %{buildroot}%{_datadir}/nvidia/
 
@@ -444,6 +448,7 @@ install -p -m 0755 systemd/nvidia-sleep.sh %{buildroot}%{_bindir}
 # Firmware
 mkdir -p %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 install -p -m 0444 firmware/gsp_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
+install -p -m 0444 firmware/ucodes_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 
 # nvidia-sleep directory - rfbz#7428
 mkdir -p  %{buildroot}%{_tmpfilesdir}
@@ -647,6 +652,7 @@ fi ||:
 %{_bindir}/nvidia-powerd
 %{_dbus_systemd_dir}/nvidia-dbus.conf
 %{_bindir}/nvidia-sleep.sh
+%{_datadir}/nvidia/nvidia-powerd/dlsnetparams.csv
 %{_systemd_util_dir}/system-preset/70-nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
 %{_tmpfilesdir}/nvidia-sleep.conf
@@ -666,8 +672,14 @@ fi ||:
 %endif
 
 %changelog
-* Fri May 29 2026 Leigh Scott <leigh123linux@gmail.com> - 3:595.80-1
-- Update to 595.80 release
+* Wed Jul 08 2026 Leigh Scott <leigh123linux@gmail.com> - 3:610.43.03-1
+- Update to 610.43.03 release
+
+* Sat May 30 2026 Leigh Scott <leigh123linux@gmail.com> - 3:610.43.02-2
+- Add ucodes_*10x.bin firmware files
+
+* Tue May 26 2026 Leigh Scott <leigh123linux@gmail.com> - 3:610.43.02-1
+- Update to 610.43.02 release
 
 * Tue Apr 28 2026 Leigh Scott <leigh123linux@gmail.com> - 3:595.71.05-1
 - Update to 595.71.05 release
