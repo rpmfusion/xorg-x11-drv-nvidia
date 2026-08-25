@@ -467,6 +467,7 @@ if [ "$1" -eq "1" ]; then
 fi
 
 %posttrans
+%{_grubby} --remove-args='%{_dracutopts_removed}' &>/dev/null || :
 if [ "$1" -eq "1" ]; then
   %{_grubby} --remove-args='nomodeset' --args='%{_dracutopts}' &>/dev/null
 # EL8 still requires a grub2-mkconfig call
@@ -481,7 +482,7 @@ fi || :
 
 %preun
 if [ "$1" -eq "0" ]; then
-  %{_grubby} --remove-args='%{_dracutopts}' &>/dev/null
+  %{_grubby} --remove-args='%{_dracutopts} %{_dracutopts_removed}' &>/dev/null
   # Backup and disable previously used xorg.conf
   [ -f %{_sysconfdir}/X11/xorg.conf ] && mv %{_sysconfdir}/X11/xorg.conf %{_sysconfdir}/X11/xorg.conf.nvidia_uninstalled &>/dev/null
   # EL8 still requires a grub2-mkconfig call
