@@ -58,7 +58,9 @@ Requires:         nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 BuildRequires:    systemd-rpm-macros
 # AppStream metadata generation
 BuildRequires:    python3
+%ifnarch i686
 BuildRequires:    libappstream-glib >= 0.6.3
+%endif
 # nvidia-bug-report.sh requires needed to provide extra info
 Suggests:         acpica-tools
 Suggests:         vulkan-tools
@@ -410,11 +412,13 @@ cat > %{buildroot}%{rpmmacrodir}/macros.%{name}-kmodsrc<< EOF
 %nvidia_kmodsrc_version	%{version}
 EOF
 
+%ifnarch i686
 # install AppData and add modalias provides
 install -D -p -m 0644 %{SOURCE8} %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml
 %{SOURCE9} supported-gpus/supported-gpus.json | xargs appstream-util add-provide %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml modalias
 mkdir -p %{buildroot}%{_datadir}/pixmaps
 install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps/%{name}.png
+%endif
 
 # Install nvidia-fallback
 install -m 0755 -d %{buildroot}%{_unitdir}
