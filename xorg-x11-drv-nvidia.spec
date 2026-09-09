@@ -10,7 +10,6 @@
 %global        _firmwarepath        %{_prefix}/lib/firmware
 %global        _winedir             %{_libdir}/nvidia/wine
 %global        _dracutopts          rd.driver.blacklist=nouveau,nova_core modprobe.blacklist=nouveau,nova_core
-%global        _dracutopts_removed  initcall_blacklist=simpledrm_platform_driver_init nvidia-drm.modeset=1 nvidia-drm.fbdev=1
 %if 0%{?rhel}
 %global        _systemd_util_dir    %{_prefix}/lib/systemd
 %endif
@@ -22,7 +21,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         610.57.04
+Version:         615.71.09
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -58,7 +57,9 @@ Requires:         nvidia-modprobe%{?_isa} = %{?epoch}:%{version}
 BuildRequires:    systemd-rpm-macros
 # AppStream metadata generation
 BuildRequires:    python3
+%ifnarch i686
 BuildRequires:    libappstream-glib >= 0.6.3
+%endif
 # nvidia-bug-report.sh requires needed to provide extra info
 Suggests:         acpica-tools
 Suggests:         vulkan-tools
@@ -410,11 +411,13 @@ cat > %{buildroot}%{rpmmacrodir}/macros.%{name}-kmodsrc<< EOF
 %nvidia_kmodsrc_version	%{version}
 EOF
 
+%ifnarch i686
 # install AppData and add modalias provides
 install -D -p -m 0644 %{SOURCE8} %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml
 %{SOURCE9} supported-gpus/supported-gpus.json | xargs appstream-util add-provide %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml modalias
 mkdir -p %{buildroot}%{_datadir}/pixmaps
 install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps/%{name}.png
+%endif
 
 # Install nvidia-fallback
 install -m 0755 -d %{buildroot}%{_unitdir}
@@ -672,6 +675,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Sep 09 2026 Leigh Scott <leigh123linux@gmail.com> - 3:615.71.09-1
+- Update to 615.71.09 release
+
 * Mon Aug 03 2026 Leigh Scott <leigh123linux@gmail.com> - 3:610.57.04-1
 - Update to 610.57.04 release
 
