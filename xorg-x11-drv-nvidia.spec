@@ -556,10 +556,6 @@ fi ||:
 %{_libdir}/libnvidia-rtcore.so.%{version}
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
-%{_libdir}/libnvidia-fmdrv.so.1
-%{_libdir}/libnvidia-fmdrv.so.%{version}
-%{_libdir}/libnvidia-imex.so.1
-%{_libdir}/libnvidia-imex.so.%{version}
 %ifarch x86_64
 %{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
 %{_libdir}/libnvidia-vksc-core.so.%{version}
@@ -602,6 +598,10 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 %{_libdir}/libnvidia-encode.so.1
 %{_libdir}/libnvidia-encode.so.%{version}
+%{_libdir}/libnvidia-fmdrv.so.1
+%{_libdir}/libnvidia-fmdrv.so.%{version}
+%{_libdir}/libnvidia-imex.so.1
+%{_libdir}/libnvidia-imex.so.%{version}
 %{_libdir}/libnvidia-ml.so
 %{_libdir}/libnvidia-ml.so.1
 %{_libdir}/libnvidia-ml.so.%{version}
