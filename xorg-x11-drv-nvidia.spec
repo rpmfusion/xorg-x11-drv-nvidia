@@ -598,10 +598,6 @@ fi ||:
 %{_libdir}/libnvidia-encode.so
 %{_libdir}/libnvidia-encode.so.1
 %{_libdir}/libnvidia-encode.so.%{version}
-%{_libdir}/libnvidia-fmdrv.so.1
-%{_libdir}/libnvidia-fmdrv.so.%{version}
-%{_libdir}/libnvidia-imex.so.1
-%{_libdir}/libnvidia-imex.so.%{version}
 %{_libdir}/libnvidia-ml.so
 %{_libdir}/libnvidia-ml.so.1
 %{_libdir}/libnvidia-ml.so.%{version}
@@ -620,6 +616,10 @@ fi ||:
 %{_libdir}/libnvidia-nvvm70.so.4
 %{_libdir}/libcudadebugger.so.1
 %{_libdir}/libcudadebugger.so.%{version}
+%{_libdir}/libnvidia-fmdrv.so.1
+%{_libdir}/libnvidia-fmdrv.so.%{version}
+%{_libdir}/libnvidia-imex.so.1
+%{_libdir}/libnvidia-imex.so.%{version}
 %{_modprobedir}/nvidia-uvm.conf
 %ifarch x86_64
 %{_libdir}/libnvidia-sandboxutils.so.1
