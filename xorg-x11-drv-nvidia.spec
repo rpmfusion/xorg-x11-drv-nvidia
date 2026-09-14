@@ -22,7 +22,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         615.71.09
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -675,6 +675,9 @@ fi ||:
 %endif
 
 %changelog
+* Mon Sep 14 2026 Nicolas Chauvet <kwizart@gmail.com> - 3:615.71.09-3
+- Add missing files rfbz#7544
+
 * Mon Sep 14 2026 Nicolas Chauvet <kwizart@gmail.com> - 3:615.71.09-2
 - Drop usage of systemd-sleep directory
 
