@@ -22,7 +22,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         615.71.09
-Release:         1%{?dist}
+Release:         2%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -41,8 +41,6 @@ Source13:        10-nvidia.rules
 Source14:        nvidia-fallback.service
 Source16:        nvidia-power-management.conf
 Source17:        70-nvidia.preset
-Source18:        nvidia-sleep.conf
-
 Patch0:          systemd.patch
 
 ExclusiveArch: x86_64 i686 aarch64
@@ -453,10 +451,6 @@ mkdir -p %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 install -p -m 0444 firmware/gsp_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 install -p -m 0444 firmware/ucodes_{ga,tu}10x.bin %{buildroot}%{_firmwarepath}/nvidia/%{version}/
 
-# nvidia-sleep directory - rfbz#7428
-mkdir -p  %{buildroot}%{_tmpfilesdir}
-install -pm 0644 %{SOURCE18}  %{buildroot}%{_tmpfilesdir}
-
 
 %pre
 if [ "$1" -eq "1" ]; then
@@ -658,7 +652,6 @@ fi ||:
 %{_datadir}/nvidia/nvidia-powerd/dlsnetparams.csv
 %{_systemd_util_dir}/system-preset/70-nvidia.preset
 %{_systemd_util_dir}/system-sleep/nvidia
-%{_tmpfilesdir}/nvidia-sleep.conf
 %{_unitdir}/nvidia-powerd.service
 %{_unitdir}/nvidia-hibernate.service
 %{_unitdir}/nvidia-suspend-then-hibernate.service
@@ -675,6 +668,9 @@ fi ||:
 %endif
 
 %changelog
+* Mon Sep 14 2026 Nicolas Chauvet <kwizart@gmail.com> - 3:615.71.09-2
+- Drop usage of systemd-sleep directory
+
 * Wed Sep 09 2026 Leigh Scott <leigh123linux@gmail.com> - 3:615.71.09-1
 - Update to 615.71.09 release
 
