@@ -22,7 +22,7 @@
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
 Version:         615.71.09
-Release:         2%{?dist}
+Release:         3%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
 License:         Redistributable, no modification permitted
@@ -278,6 +278,8 @@ cp -a \
     libnvidia-cfg.so.%{version} \
     libnvidia-ngx.so.%{version} \
     libnvidia-nvvm70.so.4 \
+    libnvidia-fmdrv.so.%{version} \
+    libnvidia-imex.so.%{version} \
 %ifnarch aarch64
     libnvidia-vksc-core.so.%{version} \
     libnvidia-pkcs11-openssl3.so.%{version} \
@@ -345,7 +347,7 @@ install -p -m 0644 %{SOURCE12} %{buildroot}%{_dracut_conf_d}/
 
 # Install binaries
 install -m 0755 -d %{buildroot}%{_bindir}
-install -p -m 0755 nvidia-{bug-report.sh,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater,powerd} \
+install -p -m 0755 nvidia-{bug-report.sh,networking-bug-report.py,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater,powerd} \
   %{buildroot}%{_bindir}
 
 %ifarch x86_64
@@ -508,6 +510,7 @@ fi ||:
 %{_datadir}/pixmaps/%{name}.png
 %{_dracut_conf_d}/99-nvidia-dracut.conf
 %{_bindir}/nvidia-bug-report.sh
+%{_bindir}/nvidia-networking-bug-report.py
 %dir %{_datadir}/nvidia
 %{_datadir}/nvidia/nvidia-application-profiles-*
 %{_datadir}/nvidia/nvoptix.bin
@@ -613,6 +616,10 @@ fi ||:
 %{_libdir}/libnvidia-nvvm70.so.4
 %{_libdir}/libcudadebugger.so.1
 %{_libdir}/libcudadebugger.so.%{version}
+%{_libdir}/libnvidia-fmdrv.so.1
+%{_libdir}/libnvidia-fmdrv.so.%{version}
+%{_libdir}/libnvidia-imex.so.1
+%{_libdir}/libnvidia-imex.so.%{version}
 %{_modprobedir}/nvidia-uvm.conf
 %ifarch x86_64
 %{_libdir}/libnvidia-sandboxutils.so.1
@@ -668,6 +675,9 @@ fi ||:
 %endif
 
 %changelog
+* Mon Sep 14 2026 Nicolas Chauvet <kwizart@gmail.com> - 3:615.71.09-3
+- Add missing files rfbz#7544
+
 * Mon Sep 14 2026 Nicolas Chauvet <kwizart@gmail.com> - 3:615.71.09-2
 - Drop usage of systemd-sleep directory
 
