@@ -32,7 +32,7 @@ Source1:         https://us.download.nvidia.com/XFree86/aarch64/%{version}/NVIDI
 Source5:         alternate-install-present
 Source6:         nvidia.conf
 Source7:         80-nvidia-pm.rules
-Source8:         xorg-x11-drv-nvidia.metainfo.xml
+Source8:         xorg-x11-drv-%{_nvidia_serie}.metainfo.xml
 Source9:         parse-supported-gpus.py
 Source10:        parse-kernel-noopen-gpus.py
 Source11:        nvidia-uvm.conf
@@ -89,10 +89,10 @@ hardware accelerated rendering with current NVIDIA chipsets series.
 Fermi, Kelper, Maxwell, Pascal, and Volta GPUs NOT supported by this release.
 
 For the full product support list, please consult the release notes
-http://download.nvidia.com/XFree86/Linux-x86_64/%{version}/README/index.html
+https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/README/index.html
 
 Please use the following documentation:
-http://rpmfusion.org/Howto/NVIDIA
+https://rpmfusion.org/Howto/NVIDIA
 
 
 %package devel
@@ -138,7 +138,6 @@ Provides:        nvidia-drivers%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-open = %{?epoch}:%{version}-100
 Provides:        nvidia-open%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-open-%(echo %{version} | cut -f 1 -d .) = %{version}
-Provides:        nvidia-open-570 = %{version}
 
 %description cuda
 This package provides the CUDA driver tools.
@@ -401,8 +400,8 @@ touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 mkdir -p %{buildroot}%{_sysconfdir}/nvidia/
 
 #Install the nvidia kernel modules sources archive
-mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}/
-tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open supported-gpus
+mkdir -p %{buildroot}%{_datadir}/%{_nvidia_serie}-kmod-%{version}/
+tar Jcf %{buildroot}%{_datadir}/%{_nvidia_serie}-kmod-%{version}/%{_nvidia_serie}-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open supported-gpus
 
 #RPM Macros support
 mkdir -p %{buildroot}%{rpmmacrodir}
@@ -413,8 +412,8 @@ EOF
 
 %ifnarch i686
 # install AppData and add modalias provides
-install -D -p -m 0644 %{SOURCE8} %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml
-%{SOURCE9} supported-gpus/supported-gpus.json | xargs appstream-util add-provide %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml modalias
+install -D -p -m 0644 %{SOURCE8} %{buildroot}%{_metainfodir}/xorg-x11-drv-%{_nvidia_serie}.metainfo.xml
+%{SOURCE9} supported-gpus/supported-gpus.json | xargs appstream-util add-provide %{buildroot}%{_metainfodir}/xorg-x11-drv-%{_nvidia_serie}.metainfo.xml modalias
 mkdir -p %{buildroot}%{_datadir}/pixmaps
 install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps/%{name}.png
 %endif
@@ -516,9 +515,9 @@ fi ||:
 %{_datadir}/nvidia/nvoptix.bin
 
 %files kmodsrc
-%dir %{_datadir}/nvidia-kmod-%{version}
+%dir %{_datadir}/%{_nvidia_serie}-kmod-%{version}
 %{rpmmacrodir}/macros.%{name}-kmodsrc
-%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz
+%{_datadir}/%{_nvidia_serie}-kmod-%{version}/%{_nvidia_serie}-kmod-%{version}-%{_arch}.tar.xz
 %endif
 
 %ldconfig_scriptlets libs
