@@ -21,7 +21,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         615.78.08
+Version:         620.70.06
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -32,7 +32,7 @@ Source1:         https://us.download.nvidia.com/XFree86/aarch64/%{version}/NVIDI
 Source5:         alternate-install-present
 Source6:         nvidia.conf
 Source7:         80-nvidia-pm.rules
-Source8:         xorg-x11-drv-nvidia.metainfo.xml
+Source8:         xorg-x11-drv-%{_nvidia_serie}.metainfo.xml
 Source9:         parse-supported-gpus.py
 Source10:        parse-kernel-noopen-gpus.py
 Source11:        nvidia-uvm.conf
@@ -89,10 +89,10 @@ hardware accelerated rendering with current NVIDIA chipsets series.
 Fermi, Kelper, Maxwell, Pascal, and Volta GPUs NOT supported by this release.
 
 For the full product support list, please consult the release notes
-http://download.nvidia.com/XFree86/Linux-x86_64/%{version}/README/index.html
+https://download.nvidia.com/XFree86/Linux-x86_64/%{version}/README/index.html
 
 Please use the following documentation:
-http://rpmfusion.org/Howto/NVIDIA
+https://rpmfusion.org/Howto/NVIDIA
 
 
 %package devel
@@ -138,7 +138,6 @@ Provides:        nvidia-drivers%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-open = %{?epoch}:%{version}-100
 Provides:        nvidia-open%{?_isa} = %{?epoch}:%{version}-100
 Provides:        nvidia-open-%(echo %{version} | cut -f 1 -d .) = %{version}
-Provides:        nvidia-open-570 = %{version}
 
 %description cuda
 This package provides the CUDA driver tools.
@@ -277,16 +276,21 @@ cp -a \
     libnvidia-api.so.1 \
     libnvidia-cfg.so.%{version} \
     libnvidia-ngx.so.%{version} \
+    libnvidia-ngx-builtin-dlssd.so.* \
     libnvidia-nvvm70.so.4 \
     libnvidia-fmdrv.so.%{version} \
     libnvidia-imex.so.%{version} \
 %ifnarch aarch64
-    libnvidia-vksc-core.so.%{version} \
     libnvidia-pkcs11-openssl3.so.%{version} \
-    libnvidia-present.so.%{version} \
-    libnvidia-sandboxutils.so.%{version} \
 %endif
+%ifarch aarch64
+    libnvcuextend.so.%{version} \
+    libnvidia-rmapi-tegra.so.%{version} \
+%endif
+    libnvidia-present.so.%{version} \
+    libnvidia-vksc-core.so.%{version} \
     libnvidia-rtcore.so.%{version} \
+    libnvidia-sandboxutils.so.%{version} \
     libnvoptix.so.%{version} \
 %endif
     %{buildroot}%{_libdir}/
@@ -350,16 +354,20 @@ install -m 0755 -d %{buildroot}%{_bindir}
 install -p -m 0755 nvidia-{bug-report.sh,networking-bug-report.py,debugdump,smi,cuda-mps-control,cuda-mps-server,ngx-updater,powerd} \
   %{buildroot}%{_bindir}
 
-%ifarch x86_64
+%ifarch x86_64 aarch64
 # Install VulkanSC config
 # Vulkan SC loader and compiler
 install -p -m 0644 -D nvidia_icd_vksc.json %{buildroot}%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
 sed -i -e 's|libnvidia-vksc-core|%{_libdir}/libnvidia-vksc-core|g' %{buildroot}%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
 install -p -m 0755 nvidia-pcc %{buildroot}%{_bindir}
+%endif
 
+%ifarch x86_64
 #Install wine dll
 mkdir -p %{buildroot}%{_winedir}
-install -p -m 0644 _nvngx.dll nvngx.dll nvngx_dlssg.dll %{buildroot}%{_winedir}
+mkdir -p %{buildroot}%{_winedir}/ngx-builtins/
+install -p -m 0644 _nvngx.dll nvngx.dll nvngx_dlssg.dll nvngx_update.exe %{buildroot}%{_winedir}
+install -p -m 0644 ngx-builtins/nvngx_dlssd.dll %{buildroot}%{_winedir}/ngx-builtins/
 %endif
 
 # Install man pages
@@ -401,8 +409,8 @@ touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/nvidia.conf
 mkdir -p %{buildroot}%{_sysconfdir}/nvidia/
 
 #Install the nvidia kernel modules sources archive
-mkdir -p %{buildroot}%{_datadir}/nvidia-kmod-%{version}/
-tar Jcf %{buildroot}%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open supported-gpus
+mkdir -p %{buildroot}%{_datadir}/%{_nvidia_serie}-kmod-%{version}/
+tar Jcf %{buildroot}%{_datadir}/%{_nvidia_serie}-kmod-%{version}/%{_nvidia_serie}-kmod-%{version}-%{_arch}.tar.xz kernel kernel-open supported-gpus
 
 #RPM Macros support
 mkdir -p %{buildroot}%{rpmmacrodir}
@@ -413,8 +421,8 @@ EOF
 
 %ifnarch i686
 # install AppData and add modalias provides
-install -D -p -m 0644 %{SOURCE8} %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml
-%{SOURCE9} supported-gpus/supported-gpus.json | xargs appstream-util add-provide %{buildroot}%{_metainfodir}/xorg-x11-drv-nvidia.metainfo.xml modalias
+install -D -p -m 0644 %{SOURCE8} %{buildroot}%{_metainfodir}/xorg-x11-drv-%{_nvidia_serie}.metainfo.xml
+%{SOURCE9} supported-gpus/supported-gpus.json | xargs appstream-util add-provide %{buildroot}%{_metainfodir}/xorg-x11-drv-%{_nvidia_serie}.metainfo.xml modalias
 mkdir -p %{buildroot}%{_datadir}/pixmaps
 install -pm 0644 nvidia-settings.png %{buildroot}%{_datadir}/pixmaps/%{name}.png
 %endif
@@ -496,7 +504,7 @@ fi ||:
 %doc nvidiapkg/README.txt
 %doc nvidiapkg/nvidia-application-profiles-%{version}-rc
 %doc nvidiapkg/html
-%ifarch x86_64
+%ifarch x86_64 aarch64
 %{_bindir}/nvidia-pcc
 %endif
 %{_firmwarepath}
@@ -516,9 +524,9 @@ fi ||:
 %{_datadir}/nvidia/nvoptix.bin
 
 %files kmodsrc
-%dir %{_datadir}/nvidia-kmod-%{version}
+%dir %{_datadir}/%{_nvidia_serie}-kmod-%{version}
 %{rpmmacrodir}/macros.%{name}-kmodsrc
-%{_datadir}/nvidia-kmod-%{version}/nvidia-kmod-%{version}-%{_arch}.tar.xz
+%{_datadir}/%{_nvidia_serie}-kmod-%{version}/%{_nvidia_serie}-kmod-%{version}-%{_arch}.tar.xz
 %endif
 
 %ldconfig_scriptlets libs
@@ -553,16 +561,20 @@ fi ||:
 %{_libdir}/libnvidia-cfg.so.%{version}
 %{_libdir}/libnvidia-ngx.so.1
 %{_libdir}/libnvidia-ngx.so.%{version}
+%{_libdir}/libnvidia-ngx-builtin-dlssd.so.*
 %{_libdir}/libnvidia-rtcore.so.%{version}
 %{_libdir}/libnvoptix.so.1
 %{_libdir}/libnvoptix.so.%{version}
-%ifarch x86_64
-%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
 %{_libdir}/libnvidia-vksc-core.so.%{version}
 %{_libdir}/libnvidia-vksc-core.so.1
-%{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
+%{_datadir}/vulkansc/icd.d/nvidia_icd_vksc.%{_target_cpu}.json
 %{_libdir}/libnvidia-present.so.%{version}
+%ifarch x86_64
+%{_libdir}/libnvidia-pkcs11-openssl3.so.%{version}
 %{_winedir}/
+%endif
+%ifarch aarch64
+%{_libdir}/libnvidia-rmapi-tegra.so.%{version}
 %endif
 %endif
 
@@ -610,6 +622,7 @@ fi ||:
 %{_libdir}/libnvidia-opticalflow.so.%{version}
 %{_libdir}/libnvidia-ptxjitcompiler.so.1
 %{_libdir}/libnvidia-ptxjitcompiler.so.%{version}
+%{_libdir}/libnvidia-tileiras.so.1
 %{_libdir}/libnvidia-tileiras.so.%{version}
 %ifarch x86_64 aarch64
 %config %{_sysconfdir}/OpenCL/vendors/nvidia.icd
@@ -621,9 +634,11 @@ fi ||:
 %{_libdir}/libnvidia-imex.so.1
 %{_libdir}/libnvidia-imex.so.%{version}
 %{_modprobedir}/nvidia-uvm.conf
-%ifarch x86_64
 %{_libdir}/libnvidia-sandboxutils.so.1
 %{_libdir}/libnvidia-sandboxutils.so.%{version}
+%ifarch aarch64
+%{_libdir}/libnvcuextend.so.1
+%{_libdir}/libnvcuextend.so.%{version}
 %endif
 %endif
 
@@ -675,6 +690,9 @@ fi ||:
 %endif
 
 %changelog
+* Thu Nov 05 2026 Leigh Scott <leigh123linux@gmail.com> - 3:620.70.06-1
+- Update to 620.70.06 release
+
 * Wed Oct 07 2026 Leigh Scott <leigh123linux@gmail.com> - 3:615.78.08-1
 - Update to 615.78.08 release
 
