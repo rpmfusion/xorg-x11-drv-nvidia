@@ -21,7 +21,7 @@
 
 Name:            xorg-x11-drv-nvidia
 Epoch:           3
-Version:         620.70.06
+Version:         620.73.04
 Release:         1%{?dist}
 Summary:         NVIDIA's proprietary display driver for NVIDIA graphic cards
 
@@ -366,8 +366,8 @@ install -p -m 0755 nvidia-pcc %{buildroot}%{_bindir}
 #Install wine dll
 mkdir -p %{buildroot}%{_winedir}
 mkdir -p %{buildroot}%{_winedir}/ngx-builtins/
-install -p -m 0644 _nvngx.dll nvngx.dll nvngx_dlssg.dll nvngx_update.exe %{buildroot}%{_winedir}
-install -p -m 0644 ngx-builtins/nvngx_dlssd.dll %{buildroot}%{_winedir}/ngx-builtins/
+install -p -m 0755 _nvngx.dll nvngx.dll nvngx_dlssg.dll nvngx_update.exe %{buildroot}%{_winedir}
+install -p -m 0755 ngx-builtins/nvngx_dlssd.dll %{buildroot}%{_winedir}/ngx-builtins/
 %endif
 
 # Install man pages
@@ -690,6 +690,9 @@ fi ||:
 %endif
 
 %changelog
+* Wed Nov 18 2026 Leigh Scott <leigh123linux@gmail.com> - 3:620.73.04-1
+- Update to 620.73.04 release
+
 * Thu Nov 05 2026 Leigh Scott <leigh123linux@gmail.com> - 3:620.70.06-1
 - Update to 620.70.06 release
 
